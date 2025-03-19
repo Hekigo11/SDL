@@ -14,7 +14,7 @@
 		<title>JIM</title>
 
 		<style>
-			.custom-dropdown { /* JAS para to sa nav burger */
+			.custom-dropdown { /* JAS para to sa nav burger TEST 1 2*/
 				display: none;
 				position: absolute;
 				background-color: white;
@@ -23,6 +23,11 @@
             	margin-top: 10px;
 				margin-left: 100%
 			}
+/* Github Classroom
+Git graph
+GitDoc 
+Github Pull Requests
+GitLens*/
 
 			.custom-dropdown.show {
 				display: block;
