@@ -14,7 +14,7 @@
 		<title>JIM</title>
 
 		<style>
-			.custom-dropdown { /* JAS para to sa nav burger TEST 1 2*/
+			.custom-dropdown { /* JAS para to sa nav burger*/
 				display: none;
 				position: absolute;
 				background-color: white;
