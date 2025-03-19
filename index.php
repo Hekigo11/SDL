@@ -32,7 +32,7 @@
 	</head>
 
 	<body>
-			<!-- jim black -->
+			<!-- jb -->
 		<?php include("modules/homepage.php"); ?>
 	
 	</body>
