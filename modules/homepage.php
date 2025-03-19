@@ -17,6 +17,9 @@
 				<a class="nav-link" href="#home">Home</a> 
 			</li>
 			<li class="nav-item">
+				<a class="nav-link" href="#" data-toggle="modal" data-target="#loginModal">Login</a>
+			</li>
+			<li class="nav-item">
 				<a class="nav-link" href="#services">Services</a>
 			</li>
 			<li class="nav-item">
@@ -136,6 +139,24 @@
 <footer class="bg-dark text-white text-center py-3">
 	<p>&copy; 2023 Delivery Service. All rights reserved.</p>
 </footer>
+
+<!-- LOGIN MODAL -->
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="loginModalLabel">Login</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<!-- Include login.php here -->
+				<?php include("login.php"); ?>
+			</div>
+		</div>
+	</div>
+</div>
 
 <script>
 	$(document).ready(function() {
