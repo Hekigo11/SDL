@@ -23,7 +23,7 @@
             	margin-top: 10px;
 				margin-left: 9%;
 			}
-			
+
 			.custom-dropdown.show {
 				display: block;
 			}
@@ -34,6 +34,6 @@
 	<body>
 
 		<?php include("modules/homepage.php"); ?>
-			<!-- kalbo -->
+
 	</body>
 </html>
