@@ -23,6 +23,11 @@
             	margin-top: 10px;
 				margin-left: 9%;
 			}
+/* Github Classroom
+Git graph
+GitDoc 
+Github Pull Requests
+GitLens*/
 
 			.custom-dropdown.show {
 				display: block;
