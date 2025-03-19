@@ -11,29 +11,10 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 		<!-- Latest compiled JavaScript -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+		<link rel="stylesheet" href="vendor/style1.css">
 		<title>Deliver</title>
-
-		<style>
-			header { /*para nag fofollow ung navbar*/
-				position: sticky; 
-				top: 0;
-				z-index: 1000;
-			}
-			
-			.custom-dropdown { /* JAS para to sa nav burger */
-				display: none;
-				position: absolute;
-				background-color: white;
-				width: 200px;
-				box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            	margin-top: 10px;
-				margin-left: 9%;
-			}
-
-			.custom-dropdown.show {
-				display: block;
-			}
-		</style>
+		
 
 	</head>
 
