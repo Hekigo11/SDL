@@ -21,7 +21,7 @@
 				width: 200px;
 				box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             	margin-top: 10px;
-				margin-left: 100%
+				margin-left: 200%
 			}
 /* Github Classroom
 Git graph
