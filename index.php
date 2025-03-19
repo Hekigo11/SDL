@@ -14,6 +14,12 @@
 		<title>Deliver</title>
 
 		<style>
+			header { /*para nag fofollow ung navbar*/
+				position: sticky; 
+				top: 0;
+				z-index: 1000;
+			}
+			
 			.custom-dropdown { /* JAS para to sa nav burger */
 				display: none;
 				position: absolute;
@@ -23,7 +29,7 @@
             	margin-top: 10px;
 				margin-left: 9%;
 			}
-
+			
 			.custom-dropdown.show {
 				display: block;
 			}
