@@ -14,7 +14,6 @@
 
 		<link rel="stylesheet" href="vendor/style1.css">
 		<title>Deliver</title>
-		<!-- try -->
 
 	</head>
 
