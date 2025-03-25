@@ -18,7 +18,7 @@
 	</head>
 
 	<body>
-			<!-- jb -->
+			
 		<?php include("modules/homepage.php"); ?>
 	
 	</body>
