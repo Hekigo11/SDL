@@ -1,3 +1,4 @@
+
 <header>
 	<nav class="navbar navbar-light bg-light">
 		<div class="container d-flex justify-content-between align-items-center">
@@ -153,6 +154,7 @@
 			<div class="modal-body">
 				<!-- Include login.php here -->
 				<?php include("login.php"); ?>
+				
 			</div>
 		</div>
 	</div>
