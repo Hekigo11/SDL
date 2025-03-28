@@ -1,6 +1,6 @@
 
 <header>
-	<nav class="navbar navbar-light bg-light">
+	<nav class="navbar nav">
 		<div class="container d-flex justify-content-between align-items-center">
 			<button class="navbar-toggler" type="button" id="burgerMenu" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
