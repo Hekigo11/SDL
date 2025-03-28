@@ -36,9 +36,9 @@
 
 <main>
 	<!-- BANNER TO GUYS -->
-<section id="home" class="banner" style="background-image: url('images/BannerBG.jpg');">
+<section id="home">
 
-		<div class="banner">
+		<div class="banner text-white">
 		
 			<img src="images/MARJ.png" alt="Main Logo" class="logo">
 
