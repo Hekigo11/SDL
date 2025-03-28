@@ -36,12 +36,17 @@
 
 <main>
 	<!-- BANNER TO GUYS -->
-	<section id="home" class="hero bg-primary text-white text-center py-5">
-		<div class="container">
+<section id="home" class="banner" style="background-image: url('images/BannerBG.jpg');">
+
+		<div class="banner">
+		
+			<img src="images/MARJ.png" alt="Main Logo" class="logo">
+
 			<h1>Welcome to Our Delivery Service</h1>
 			<p>Your packages delivered on time, every time!</p>
 			<!-- <a href="#contact" class="btn btn-light">Get Started</a> -->
 		</div>
+	
 	</section>
 
 	<!-- OUR SERVICES PART -->
