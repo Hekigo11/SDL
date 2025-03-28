@@ -5,6 +5,12 @@
 --primary: #21233f;
 --secondary: #feebd2;
 --accent: #176ca1;
+--linearPrimarySecondary: linear-gradient(#21233f, #feebd2);
+--linearPrimaryAccent: linear-gradient(#21233f, #176ca1);
+--linearSecondaryAccent: linear-gradient(#feebd2, #176ca1);
+--radialPrimarySecondary: radial-gradient(#21233f, #feebd2);
+--radialPrimaryAccent: radial-gradient(#21233f, #176ca1);
+--radialSecondaryAccent: radial-gradient(#feebd2, #176ca1);
 }
 header { /*para nag fofollow ung navbar*/
     position: sticky; 
