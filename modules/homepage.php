@@ -1,25 +1,12 @@
 
 <header>
-	<nav class="navbar nav">
-		<div class="container d-flex justify-content-between align-items-center">
-			<button class="navbar-toggler" type="button" id="burgerMenu" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-
-			<a class="navbar-brand mx-auto" href="index.php">JIM</a> <!-- Change Reference -->
-
-			<a href="#" class="btn btn-outline-primary">Cart</a> <!-- Change Reference -->
-		</div>
-	</nav>
-
-	<div class="custom-dropdown" id="customDropdown">
-		<ul class="navbar-nav">
+<a class="navbar-brand px-2" href="index.php">JIM</a> <!-- Change Reference -->
+	<!-- <div class="custom-dropdown" id="customDropdown"> -->
+	<ul class="navbar nav">
 			<li class="nav-item">
 				<a class="nav-link" href="#home">Home</a> 
 			</li>
-			<li class="nav-item">
-				<a class="nav-link" href="#" data-toggle="modal" data-target="#loginModal">Login</a>
-			</li>
+
 			<li class="nav-item">
 				<a class="nav-link" href="#services">Services</a>
 			</li>
@@ -30,7 +17,23 @@
 				<a class="nav-link" href="#contact">Contact</a>
 			</li>
 		</ul>
-	</div>
+
+	<!-- </div> -->
+	<nav class="navbar nav">
+		<div>
+			<!-- <button class="navbar-toggler" type="button" id="burgerMenu" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button> -->
+			<ul class="navbar nav">
+			<li class="nav-item"><a href="#" class="btn btn-outline-light">Cart</a> <!-- Change Reference --></li>
+			<li class="nav-item">
+				<a class="nav-link" href="#" data-toggle="modal" data-target="#loginModal">Login</a>
+			</li>
+			</ul>
+		</div>
+	</nav>
+	
+	
 
 </header>
 
