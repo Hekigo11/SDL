@@ -63,9 +63,7 @@ header li, a, button{
     /* background-color: white; */
     width: 200px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    margin-top: 10px;
-    margin-left: 10%;
-}
+    margin-top: 10px;}
 
 .custom-dropdown.show {
     display: block;
@@ -73,6 +71,7 @@ header li, a, button{
 
 .nav{
    background-color:  var(--accent);
+
 }
 .banner{
     display: flex;
@@ -123,4 +122,3 @@ header li, a, button{
     width: 400px;
     object-fit: cover;
 }
-
