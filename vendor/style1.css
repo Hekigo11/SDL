@@ -1,9 +1,10 @@
 @import url('https://fonts.googleapis.com/css?family=Noto%20Sans%20Coptic:700|Noto%20Sans%20Coptic:400');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap');
 :root{
 --text: #040316;
 --background: #e3e3ed;
---primary: #21233f;
---secondary: #feebd2;
+--primary1: #21233f;
+--secondary1: #feebd2;
 --accent: #176ca1;
 --linearPrimarySecondary: linear-gradient(#21233f, #feebd2);
 --linearPrimaryAccent: linear-gradient(#21233f, #176ca1);
@@ -17,25 +18,24 @@ body {
     font-weight: 400;
   }
  
-  
-  h1, h2, h3, h4, h5 {
+h1, h2, h3, h4, h5 {
     font-family: 'Noto Sans Coptic';
     font-weight: 700;
-  }
+}
   
-  html {font-size: 100%;} /* 16px */
+html {font-size: 100%;} /* 16px */
   
-  h1 {font-size: 4.210rem; /* 67.36px */}
+h1 {font-size: 4.210rem; /* 67.36px */}
   
-  h2 {font-size: 3.158rem; /* 50.56px */}
+h2 {font-size: 3.158rem; /* 50.56px */}
   
-  h3 {font-size: 2.369rem; /* 37.92px */}
+h3 {font-size: 2.369rem; /* 37.92px */}
   
-  h4 {font-size: 1.777rem; /* 28.48px */}
+h4 {font-size: 1.777rem; /* 28.48px */}
   
-  h5 {font-size: 1.333rem; /* 21.28px */}
+h5 {font-size: 1.333rem; /* 21.28px */}
   
-  small {font-size: 0.750rem; /* 12px */}
+small {font-size: 0.750rem; /* 12px */}
 
 header { /*para nag fofollow ung navbar*/
     position: sticky; 
@@ -46,14 +46,13 @@ header { /*para nag fofollow ung navbar*/
     align-items: center;
     padding: 5px 10px;
     background-color:  var(--accent);
-    font-family: 'Noto Sans Coptic';
+    font-family: 'Montserrat';
 }
 
-
-header li, a, button{
-    font-family: 'Noto Sans Coptic', sans-serif;
+header li, header a, header button {
+    font-family: 'Montserrat';
     font-size: 16px;
-    font-weight: 200;
+    font-weight: bold;
     text-decoration: none;
     color: white;
 }
@@ -71,7 +70,6 @@ header li, a, button{
 
 .nav{
    background-color:  var(--accent);
-
 }
 .banner{
     display: flex;
@@ -86,8 +84,6 @@ header li, a, button{
     background-position: center;
     overflow: hidden;
     background-size: cover;
-
-
 }
 .banner::before {
     content: "";
@@ -99,7 +95,6 @@ header li, a, button{
     background-image: url('..images/BannerBG.jpg');
     background-size: cover;
     background-position: center;
-
     filter: blur(8px);  
     z-index: -1;
 }
@@ -121,4 +116,49 @@ header li, a, button{
     height: 200px;
     width: 400px;
     object-fit: cover;
+}
+/* .pullDown:before
+{
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    left: 0px;
+    top: 0px;
+    content: '';
+    background: #FFF;
+    opacity: 0.3;
+    transition: all 0.3s;
+}
+
+.pullDown:hover:before
+{
+    height: 100%;
+} */
+
+ul.pullDown li a {
+    position: relative; /* Makes the ::before relative to each link */
+    display: inline-block; /* Prevents unwanted expansion */
+    overflow: hidden; /* Ensures animation stays within bounds */
+    text-decoration: none; /* Removes default underlines */
+    padding: 10px 15px; /* Adjust as needed */
+}
+
+ul.pullDown li a::before {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    left: 0px;
+    top: 0px;
+    content: '';
+    background: #FFF;
+    opacity: 0.3;
+    transition: height 0.3s ease-in-out; /* Smoother animation */
+}
+
+ul.pullDown li a:hover::before {
+    height: 100%;
+
+}
+ul.pullDown li a:hover {
+    color: white !important;
 }

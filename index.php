@@ -22,19 +22,19 @@
 	<header>
 
 <!-- <div class="custom-dropdown" id="customDropdown"> -->
-<ul class="navbar nav">
-		<li class="nav-item">
-			<a class="nav-link" href="#home">Home</a> 
+<ul class="navbar nav pullDown">
+		<li class="nav-item mx-2">
+			<a class="nav-link " href="#home">Home</a> 
 		</li>
 
-		<li class="nav-item">
+		<li class="nav-item mx-2">
 			<a class="nav-link" href="#services">Services</a>
 		</li>
-		<li class="nav-item">
+		<li class="nav-item mx-2">
 			<a class="nav-link" href="#about">About Us</a>
 		</li>
-		<li class="nav-item">
-			<a class="nav-link" href="#contact">Contact</a>
+		<li class="nav-item mx-2">
+			<a class="nav-link" href="#contact">Contact Us</a>
 		</li>
 	</ul>
 
@@ -45,20 +45,17 @@
 		<!-- <button class="navbar-toggler" type="button" id="burgerMenu" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button> -->
-		<ul class="navbar nav">
-		<li class="nav-item"><a href="#" class="btn btn-outline-light">Cart</a> <!-- Change Reference --></li>
-		<li class="nav-item">
+		<ul class="navbar nav pullDown">
+		<li class="nav-item mx-2"><a href="" class="nav-link">Deliver</a></li>
+		<li class="nav-item mx-2"><a href="" class="nav-link">Cater</a></li>
+		<li class="nav-item mx-2"><a href="#" class="btn btn-outline-light">Cart</a> <!-- Change Reference --></li>
+		<li class="nav-item mx-2">
 			<a class="nav-link" href="#" data-toggle="modal" data-target="#loginModal">Login</a>
 		</li>
 		</ul>
 	</div>
 
-
-
-
 </header>
 
 		<?php include("modules/homepage.php"); ?>
 	
-	</body>
-</html>
