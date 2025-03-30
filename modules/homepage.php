@@ -132,9 +132,9 @@
 </div>
 
 <script>
-	$(document).ready(function() {
-		$('#burgerMenu').click(function() {
-			$('#customDropdown').toggleClass('show');
-		});
-	});
+	// $(document).ready(function() {
+	// 	$('#burgerMenu').click(function() {
+	// 		$('#customDropdown').toggleClass('show');
+	// 	});
+	// });
 </script>

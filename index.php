@@ -23,11 +23,35 @@
 		<?php include("modules/homepage.php"); ?>
 
 		<script>
+			// $(document).ready(function() {
+			// 	$('.navbar-toggler').click(function() {
+			// 		console.log('Burger menu clicked');
+			// 	});
+			// });
+
 			$(document).ready(function() {
-				$('.navbar-toggler').click(function() {
-					console.log('Burger menu clicked');
-				});
-			});
+    // Handle mobile menu toggle
+    $('.navbar-toggler').click(function() {
+        $('#mobileNavMenu').toggleClass('show');
+        
+        // Close the other menu if open
+        if ($('#navbarNav').hasClass('show')) {
+            $('#navbarNav').removeClass('show');
+        }
+    });
+    
+    // Close mobile menu when clicking outside
+    $(document).click(function(event) {
+        if (!$(event.target).closest('.navbar-toggler, #mobileNavMenu').length) {
+            $('#mobileNavMenu').removeClass('show');
+        }
+    });
+    
+    // Close mobile menu when clicking a nav link (for smoother UX)
+    $('.mobile-menu .nav-link').click(function() {
+        $('#mobileNavMenu').removeClass('show');
+    });
+});
 		</script>
 	</body>
 </html>
