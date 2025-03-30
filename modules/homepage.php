@@ -113,11 +113,11 @@
 </footer>
 
 <!-- LOGIN MODAL -->
-<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="loginModalLabel">Login</h5>
+<div class="modal fade"  id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+	<div class="modal-dialog" style="margin: 25vh auto;" role="document" >
+		<div class="modal-content " style="border-radius: 30px;">
+			<div class="modal-header text-center position-center" style="background-color:var(--accent); border-radius: 30px 30px 0 0;">
+				<h5 class="modal-title text-light" id="loginModalLabel">Login</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>

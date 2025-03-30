@@ -1,16 +1,22 @@
 <form id="frmlogin">
-	<div class="form-group">
+	<div class="form-group text-center">
 		<label for="txtusername">Username</label>
-		<input type="text" class="form-control" id="txtusername" name="txtusername" placeholder="Enter Username">
+		<input type="text" class="form-control rounded-pill" id="txtusername" name="txtusername" placeholder="Enter Username">
 	</div>
-	<div class="form-group">
+	<div class="form-group text-center">
 		<label for="txtpassword">Password</label>
-		<input type="password" class="form-control" id="txtpassword" name="txtpassword" placeholder="Enter Password">
+		<input type="password" class="form-control rounded-pill" id="txtpassword" name="txtpassword" placeholder="Enter Password">
+	</div>
+	<div class="d-flex justify-content-around align-items-center">
+	<button type="button" class="btn btn-primary rounded-pill w-25" id="btnlogin">Login</button>
+	<button type="button" class="btn btn-outline-secondary rounded-pill w-25" id="btnCancel" data-dismiss="modal" aria-label="Close">Cancel</button>
+	</div>
+	<div class="text-center mx-2">
+	<label for="#" > <a href=""> Forgot Password?</a>
+	</label>
 	</div>
 	
-	<button type="button" class="btn btn-primary" id="btnlogin">Login</button>
-
-	<div class="text-center">
+	<div class="text-center mx-2">
 		<label>Dont have an account yet? <a href="modules/register.php">Register</a></label>
 	</div>
 </form>
