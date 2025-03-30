@@ -35,7 +35,7 @@
         </div>
         
         <!-- Mobile Navigation Menu -->
-        <div class="collapse navbar-collapse mobile-nav" id="mobileNavMenu">
+        <div class="collapse navbar-collapse mobile-nav" style="background-color:var(--accent);" id="mobileNavMenu">
             <ul class="navbar-nav mobile-menu">
                 <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="#" aria-label="My Orders">My Orders</a></li>
