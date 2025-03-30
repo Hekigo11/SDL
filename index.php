@@ -21,4 +21,14 @@
 		
 		<?php include("modules/navigation.php");?>
 		<?php include("modules/homepage.php"); ?>
-	
+
+		<script>
+			$(document).ready(function() {
+				$('.navbar-toggler').click(function() {
+					console.log('Burger menu clicked');
+				});
+			});
+		</script>
+	</body>
+</html>
+

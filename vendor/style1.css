@@ -68,9 +68,61 @@ header li, header a, header button {
     display: block;
 }
 
+nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    width: 100%;
+}
+
+.navbar-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.navbar ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.navbar li {
+    margin: 0 10px;
+}
+
+.navbar a, .navbar button {
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+    transition: color 0.3s ease;
+}
+
+.navbar a:hover, .navbar button:hover {
+    color: #5e5644;
+}
 .nav{
    background-color:  var(--accent);
 }
+@media (max-width: 768px) {
+    header ul {
+        flex-direction: column;
+        align-items: center;
+    }
+    header {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .navbar-actions {
+        flex-direction: column;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
 .banner{
     display: flex;
     justify-content: center;
@@ -161,5 +213,9 @@ ul.pullDown li a:hover::before {
 }
 ul.pullDown li a:hover {
     color: white !important;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }
 
