@@ -8,7 +8,7 @@
 
 			<h1>Welcome to Our Delivery Service</h1>
 			<p>Your packages delivered on time, every time!</p>
-			<!-- <a href="#contact" class="btn btn-light">Get Started</a> -->
+
 		</div>
 	
 	</section>
@@ -81,7 +81,7 @@
 	</section>
 
 	<!-- CONTACT US PART -->
-<!-- paltan mga contact infoooss -->
+
 		<!-- paltan mga contact infoooss -->
 	<section id="contact" class="py-5">
 		<div class="container">
