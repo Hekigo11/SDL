@@ -158,61 +158,6 @@ header {
     padding: 0.5rem 1rem;
     width: 100%;
 }
-/* AAAAAAAAAAAAAAAAAAAAA */
-/* nav{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    width: 100%;
-}
-
-.navbar-actions {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-.navbar ul {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.navbar li {
-    margin: 0 10px;
-}
-
-.navbar a, .navbar button {
-    font-size: 16px;
-    font-weight: bold;
-    text-decoration: none;
-    color: white;
-    transition: color 0.3s ease;
-}
-
-.navbar a:hover, .navbar button:hover {
-    color: #5e5644;
-}
-.nav{
-   background-color:  var(--accent);
-}
-@media (max-width: 768px) {
-    header ul {
-        flex-direction: column;
-        align-items: center;
-    }
-    header {
-        width: 100%;
-        padding: 10px;
-    }
-
-    .navbar-actions {
-        flex-direction: column;
-        width: 100%;
-        justify-content: center;
-    }
-} */
 
 .banner{
     display: flex;
@@ -260,30 +205,14 @@ header {
     width: 400px;
     object-fit: cover;
 }
-/* .pullDown:before
-{
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    left: 0px;
-    top: 0px;
-    content: '';
-    background: #FFF;
-    opacity: 0.3;
-    transition: all 0.3s;
-}
 
-.pullDown:hover:before
-{
-    height: 100%;
-} */
 
 ul.pullDown li a {
-    position: relative; /* Makes the ::before relative to each link */
-    display: inline-block; /* Prevents unwanted expansion */
-    overflow: hidden; /* Ensures animation stays within bounds */
-    text-decoration: none; /* Removes default underlines */
-    padding: 10px 15px; /* Adjust as needed */
+    position: relative; 
+    display: inline-block; 
+    overflow: hidden; 
+    text-decoration: none; 
+    padding: 10px 15px;
 }
 
 ul.pullDown li a::before {
