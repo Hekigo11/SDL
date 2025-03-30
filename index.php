@@ -23,35 +23,42 @@
 		<?php include("modules/homepage.php"); ?>
 
 		<script>
-			// $(document).ready(function() {
-			// 	$('.navbar-toggler').click(function() {
-			// 		console.log('Burger menu clicked');
-			// 	});
-			// });
 
-			$(document).ready(function() {
-    // Handle mobile menu toggle
-    $('.navbar-toggler').click(function() {
-        $('#mobileNavMenu').toggleClass('show');
-        
-        // Close the other menu if open
-        if ($('#navbarNav').hasClass('show')) {
-            $('#navbarNav').removeClass('show');
-        }
-    });
-    
-    // Close mobile menu when clicking outside
-    $(document).click(function(event) {
-        if (!$(event.target).closest('.navbar-toggler, #mobileNavMenu').length) {
-            $('#mobileNavMenu').removeClass('show');
-        }
-    });
-    
-    // Close mobile menu when clicking a nav link (for smoother UX)
-    $('.mobile-menu .nav-link').click(function() {
-        $('#mobileNavMenu').removeClass('show');
-    });
-});
+$(document).ready(function() {
+            // Mobile menu toggle
+            $('.navbar-toggler').click(function(e) {
+                e.preventDefault();
+                $('#mobileNavMenu').addClass('active');
+                $('#mobileNavOverlay').addClass('active');
+                $('body').css('overflow', 'hidden');
+            });
+            
+            // Close mobile menu when clicking the close button
+            $('.mobile-close-btn').click(function() {
+                $('#mobileNavMenu').removeClass('active');
+                $('#mobileNavOverlay').removeClass('active');
+                $('body').css('overflow', '');
+            });
+            
+            // Close mobile menu when clicking outside
+            $('#mobileNavOverlay').click(function() {
+                $('#mobileNavMenu').removeClass('active');
+                $('#mobileNavOverlay').removeClass('active');
+                $('body').css('overflow', '');
+            });
+            
+            // Prevent menu from closing when clicking inside it
+            $('#mobileNavMenu').click(function(e) {
+                e.stopPropagation();
+            });
+            
+            // Close mobile menu when clicking a menu item
+            $('.mobile-menu-items a').click(function() {
+                $('#mobileNavMenu').removeClass('active');
+                $('#mobileNavOverlay').removeClass('active');
+                $('body').css('overflow', '');
+            });
+        });
 		</script>
 	</body>
 </html>
