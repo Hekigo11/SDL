@@ -1,5 +1,3 @@
-
-
 <main>
 	<!-- BANNER TO GUYS -->
 <section id="home">
@@ -17,19 +15,19 @@
 
 	<!-- OUR SERVICES PART -->
 	<section id="services" class="bg-light py-5">
-		<div class="container">
+		<div class="d-flex flex-column align-items-center space-around">
 			<h2 class="text-center">Our Services</h2>
 			<!-- ANDITO YUNG 2 IMAGES -->
 			<div class="row text-center">
 				<div class="col-md-6 mb-4">
 					<a href="#delivery"> <!--Change Reference-->
-						<img src="images/dg.jpg" class="img-fluid" alt="Delivery"> <!--Change IMG-->
+						<img src="images/dg.jpg" class="img-fluid rounded" alt="Delivery"> <!--Change IMG-->
 						<h5 class="mt-2">Delivery</h5>
 					</a>
 				</div>
 				<div class="col-md-6 mb-4">
 					<a href="#catering"> <!--Change Reference-->
-						<img src="images/dg.jpg" class="img-fluid" alt="Catering"> <!--Change IMG-->
+						<img src="images/dg.jpg" class="img-fluid rounded" alt="Catering"> <!--Change IMG-->
 						<h5 class="mt-2">Catering</h5>
 					</a>
 				</div>
@@ -83,6 +81,7 @@
 	</section>
 
 	<!-- CONTACT US PART -->
+<!-- paltan mga contact infoooss -->
 		<!-- paltan mga contact infoooss -->
 	<section id="contact" class="py-5">
 		<div class="container">
@@ -92,14 +91,29 @@
 					<p>Phone: 0917-123-4567</p>
 					<p>Email: marj123@gmail.com</p>
 					<p>Telephone: (02) 123-4567</p>
-				</div>
-				<div class="col-md-6">
 					<h3>Follow Us</h3>
 					<ul class="list-unstyled">
-					<!-- change yung href at pwede gawing logo shitt -->
-					<li><a href="#" target="_blank"><i class="fab fa-facebook"></i> Facebook</a></li>
-					<li><a href="#" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
+						<li><a href="https://facebook.com" target="_blank"><i class="fab fa-facebook"></i> Facebook</a></li>
+						<li><a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
 					</ul>
+				</div>
+				<div class="col-md-6">
+					<h3>Send Us a Message</h3>
+					<form action="contact_form_handler.php" method="POST">
+						<div class="form-group">
+							<label for="name">Name</label>
+							<input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" required>
+						</div>
+						<div class="form-group">
+							<label for="email">Email</label>
+							<input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+						</div>
+						<div class="form-group">
+							<label for="message">Message</label>
+							<textarea class="form-control" id="message" name="message" rows="4" placeholder="Enter your message" required></textarea>
+						</div>
+						<button type="submit" class="btn btn-primary">Submit</button>
+					</form>
 				</div>
 			</div>
 		</div>
