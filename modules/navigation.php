@@ -3,7 +3,7 @@
 
 <header>
     <nav class="navbar navbar-expand-lg">
-        <a class="navbar-brand" href="index.php" aria-label="Home">JIM</a>
+        <a class="navbar-brand" href="index.php" aria-label="Home">MARJ Food Services</a>
         
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mobileNavMenu" aria-controls="mobileNavMenu" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
