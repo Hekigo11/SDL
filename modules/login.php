@@ -16,7 +16,7 @@
 	</label>
 	</div>
 	
-	<div class="text-center mx-2">
+	<div class="text-center mx-2"> 
 		<label>Dont have an account yet? <a href="modules/register.php">Register</a></label>
 	</div>
 </form>
