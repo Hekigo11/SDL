@@ -1,7 +1,7 @@
 <form id="frmlogin">
 	<div class="form-group text-center">
-		<label for="txtusername">Username</label>
-		<input type="text" class="form-control rounded-pill" id="txtusername" name="txtusername" placeholder="Enter Username">
+		<label for="txtusername">Email or Mobile Number</label>
+		<input type="text" class="form-control rounded-pill" id="txtusername" name="txtusername" placeholder="Enter Registered Email or Mobile Number">
 	</div>
 	<div class="form-group text-center">
 		<label for="txtpassword">Password</label>
@@ -27,11 +27,18 @@
 			$.post("modules/login_req.php", $("form#frmlogin").serialize(), function(d){
 				if(d=='success'){
 					alert("Login Success");
+					$("#txtusername").val('');
+                    $("#txtpassword").val('');
 				} else {
 					alert(d);
 				}
 			});
 		});
+
+		$("#btnCancel").click(function(){
+            $("#txtusername").val('');
+            $("#txtpassword").val('');
+        });
 	});
 </script>
 	

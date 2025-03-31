@@ -1,7 +1,8 @@
 <?php
 include("dbconi.php");
 $query = "SELECT * FROM users
-		WHERE username = '".mysqli_real_escape_string($dbc, $_POST['txtusername'])."'
+		WHERE (email_add = '".mysqli_real_escape_string($dbc, $_POST['txtusername'])."'
+		OR mobile_num = '".mysqli_real_escape_string($dbc, $_POST['txtusername'])."')
 		AND password = '".mysqli_real_escape_string($dbc, $_POST['txtpassword'])."'";
 $result = mysqli_query($dbc, $query);
 $row = mysqli_fetch_array($result);
