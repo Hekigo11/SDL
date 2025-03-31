@@ -43,7 +43,7 @@
                 
                 <div class="form-group">
                     <label for="txtstudno">Mobile Number</label>
-                    <input type="text" class="form-control" id="txtusername" name="txtusername">
+                    <input type="text" class="form-control" id="txtmobilenum" name="txtmobilenum">
                 </div>
                 <div class="form-group">
                     <label for="txtstudno">Password</label>

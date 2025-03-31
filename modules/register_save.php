@@ -16,7 +16,7 @@ if(trim($_POST['txtemail'])==''){
 	$isallok = false; $msg .="Enter Email\n";
 }
 
-if(trim($_POST['txtusername'])==''){
+if(trim($_POST['txtmobilenum'])==''){
 	$isallok = false; $msg .="Enter Mobile Number\n";
 }
 
@@ -33,7 +33,7 @@ if($isallok){
         '".mysqli_real_escape_string($dbc, $_POST['txtmname'])."',
         '".mysqli_real_escape_string($dbc, $_POST['txtlname'])."',
         '".mysqli_real_escape_string($dbc, $_POST['txtemail'])."',
-        '".mysqli_real_escape_string($dbc, $_POST['txtusername'])."',
+        '".mysqli_real_escape_string($dbc, $_POST['txtmobilenum'])."',
 		'".mysqli_real_escape_string($dbc, $hash_reg)."',
 		2
     )";

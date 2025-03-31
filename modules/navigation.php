@@ -1,5 +1,3 @@
-<?php ?>
-
 <header>
     <nav class="navbar navbar-expand-lg">
         <a class="navbar-brand" href="index.php" aria-label="Home">MARJ Food Services</a>
