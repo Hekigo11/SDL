@@ -15,11 +15,37 @@
 	<!-- Latest compiled JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 	<title>Register</title>
-	
+	<link rel="stylesheet" href="../vendor/style1.css">
+
+	<style>
+		@import url('https://fonts.googleapis.com/css?family=Noto%20Sans%20Coptic:700|Noto%20Sans%20Coptic:400');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap');
+:root{
+--text: #040316;
+--background: #e3e3ed;
+--primary1: #21233f;
+--secondary1: #feebd2;
+--accent: #176ca1;
+--linearPrimarySecondary: linear-gradient(#21233f, #feebd2);
+--linearPrimaryAccent: linear-gradient(#21233f, #176ca1);
+--linearSecondaryAccent: linear-gradient(#feebd2, #176ca1);
+--radialPrimarySecondary: radial-gradient(#21233f, #feebd2);
+--radialPrimaryAccent: radial-gradient(#21233f, #176ca1);
+--radialSecondaryAccent: radial-gradient(#feebd2, #176ca1);
+}
+body {
+    font-family: 'Noto Sans Coptic';
+    font-weight: 400;
+  }
+ 
+	</style>
+
   </head>
 
-<body>
-      <div class="card mx-auto col-md-5 my-3">
+<body style="background: var(--primary1); 
+display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
+
+      <div class="card mx-auto col-md-5 my-3"  style="border-radius: 30px; background-color: var(--background);">
           <div class="card-body">
               <h5 class="card-title">Register</h5>
               <form id="frmstud" enctype="multipart/form-data">
