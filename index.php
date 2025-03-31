@@ -25,40 +25,50 @@
 		<script>
 
 $(document).ready(function() {
-            // Mobile menu toggle
-            $('.navbar-toggler').click(function(e) {
-                e.preventDefault();
-                $('#mobileNavMenu').addClass('active');
-                $('#mobileNavOverlay').addClass('active');
-                $('body').css('overflow', 'hidden');
-            });
-            
-            // Close mobile menu when clicking the close button
-            $('.mobile-close-btn').click(function() {
-                $('#mobileNavMenu').removeClass('active');
-                $('#mobileNavOverlay').removeClass('active');
-                $('body').css('overflow', '');
-            });
-            
-            // Close mobile menu when clicking outside
-            $('#mobileNavOverlay').click(function() {
-                $('#mobileNavMenu').removeClass('active');
-                $('#mobileNavOverlay').removeClass('active');
-                $('body').css('overflow', '');
-            });
-            
-            // Prevent menu from closing when clicking inside it
-            $('#mobileNavMenu').click(function(e) {
-                e.stopPropagation();
-            });
-            
-            // Close mobile menu when clicking a menu item
-            $('.mobile-menu-items a').click(function() {
-                $('#mobileNavMenu').removeClass('active');
-                $('#mobileNavOverlay').removeClass('active');
-                $('body').css('overflow', '');
-            });
-        });
+    // Mobile menu toggle
+    $('.navbar-toggler').click(function(e) {
+        e.preventDefault();
+        $('#mobileNavMenu').addClass('active');
+        $('#mobileNavOverlay').addClass('active');
+        if (window.innerWidth <= 991) {  // Only add overflow:hidden on mobile
+            $('body').css('overflow', 'hidden');
+        }
+    });
+    
+    // Close mobile menu and reset body overflow
+    function closeMobileMenu() {
+        $('#mobileNavMenu').removeClass('active');
+        $('#mobileNavOverlay').removeClass('active');
+        $('body').css('overflow', '');
+    }
+    
+    // Close mobile menu when clicking the close button
+    $('.mobile-close-btn').click(function() {
+        closeMobileMenu();
+    });
+    
+    // Close mobile menu when clicking outside
+    $('#mobileNavOverlay').click(function() {
+        closeMobileMenu();
+    });
+    
+    // Reset body overflow on window resize
+    $(window).resize(function() {
+        if (window.innerWidth > 991) {
+            $('body').css('overflow', '');
+        }
+    });
+    
+    // Prevent menu from closing when clicking inside it
+    $('#mobileNavMenu').click(function(e) {
+        e.stopPropagation();
+    });
+    
+    // Close mobile menu when clicking a menu item
+    $('.mobile-menu-items a').click(function() {
+        closeMobileMenu();
+    });
+});
 		</script>
 	</body>
 </html>
