@@ -18,8 +18,48 @@
 	</head>
 
 	<body>
-			<!-- jb -->
+		
+		<?php include("modules/navigation.php");?>
 		<?php include("modules/homepage.php"); ?>
-	
+
+		<script>
+
+$(document).ready(function() {
+            // Mobile menu toggle
+            $('.navbar-toggler').click(function(e) {
+                e.preventDefault();
+                $('#mobileNavMenu').addClass('active');
+                $('#mobileNavOverlay').addClass('active');
+                $('body').css('overflow', 'hidden');
+            });
+            
+            // Close mobile menu when clicking the close button
+            $('.mobile-close-btn').click(function() {
+                $('#mobileNavMenu').removeClass('active');
+                $('#mobileNavOverlay').removeClass('active');
+                $('body').css('overflow', '');
+            });
+            
+            // Close mobile menu when clicking outside
+            $('#mobileNavOverlay').click(function() {
+                $('#mobileNavMenu').removeClass('active');
+                $('#mobileNavOverlay').removeClass('active');
+                $('body').css('overflow', '');
+            });
+            
+            // Prevent menu from closing when clicking inside it
+            $('#mobileNavMenu').click(function(e) {
+                e.stopPropagation();
+            });
+            
+            // Close mobile menu when clicking a menu item
+            $('.mobile-menu-items a').click(function() {
+                $('#mobileNavMenu').removeClass('active');
+                $('#mobileNavOverlay').removeClass('active');
+                $('body').css('overflow', '');
+            });
+        });
+		</script>
 	</body>
 </html>
+

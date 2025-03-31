@@ -1,63 +1,33 @@
-<header>
-	<nav class="navbar navbar-light bg-light">
-		<div class="container d-flex justify-content-between align-items-center">
-			<button class="navbar-toggler" type="button" id="burgerMenu" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-
-			<a class="navbar-brand mx-auto" href="index.php">JIM</a> <!-- Change Reference -->
-
-			<a href="#" class="btn btn-outline-primary">Cart</a> <!-- Change Reference -->
-		</div>
-	</nav>
-
-	<div class="custom-dropdown" id="customDropdown">
-		<ul class="navbar-nav">
-			<li class="nav-item">
-				<a class="nav-link" href="#home">Home</a> 
-			</li>
-			<li class="nav-item">
-				<a class="nav-link" href="#" data-toggle="modal" data-target="#loginModal">Login</a>
-			</li>
-			<li class="nav-item">
-				<a class="nav-link" href="#services">Services</a>
-			</li>
-			<li class="nav-item">
-				<a class="nav-link" href="#about">About Us</a>
-			</li>
-			<li class="nav-item">
-				<a class="nav-link" href="#contact">Contact</a>
-			</li>
-		</ul>
-	</div>
-
-</header>
-
 <main>
 	<!-- BANNER TO GUYS -->
-	<section id="home" class="hero bg-primary text-white text-center py-5">
-		<div class="container">
+<section id="home">
+
+		<div class="banner text-white">
+		
+			<img src="images/MARJ.png" alt="Main Logo" class="logo">
+
 			<h1>Welcome to Our Delivery Service</h1>
 			<p>Your packages delivered on time, every time!</p>
-			<!-- <a href="#contact" class="btn btn-light">Get Started</a> -->
+
 		</div>
+	
 	</section>
 
 	<!-- OUR SERVICES PART -->
 	<section id="services" class="bg-light py-5">
-		<div class="container">
+		<div class="d-flex flex-column align-items-center space-around">
 			<h2 class="text-center">Our Services</h2>
 			<!-- ANDITO YUNG 2 IMAGES -->
 			<div class="row text-center">
 				<div class="col-md-6 mb-4">
 					<a href="#delivery"> <!--Change Reference-->
-						<img src="images/dg.jpg" class="img-fluid" alt="Delivery"> <!--Change IMG-->
+						<img src="images/dg.jpg" class="img-fluid rounded" alt="Delivery"> <!--Change IMG-->
 						<h5 class="mt-2">Delivery</h5>
 					</a>
 				</div>
 				<div class="col-md-6 mb-4">
 					<a href="#catering"> <!--Change Reference-->
-						<img src="images/dg.jpg" class="img-fluid" alt="Catering"> <!--Change IMG-->
+						<img src="images/dg.jpg" class="img-fluid rounded" alt="Catering"> <!--Change IMG-->
 						<h5 class="mt-2">Catering</h5>
 					</a>
 				</div>
@@ -111,6 +81,7 @@
 	</section>
 
 	<!-- CONTACT US PART -->
+
 		<!-- paltan mga contact infoooss -->
 	<section id="contact" class="py-5">
 		<div class="container">
@@ -120,14 +91,29 @@
 					<p>Phone: 0917-123-4567</p>
 					<p>Email: marj123@gmail.com</p>
 					<p>Telephone: (02) 123-4567</p>
-				</div>
-				<div class="col-md-6">
 					<h3>Follow Us</h3>
 					<ul class="list-unstyled">
-					<!-- change yung href at pwede gawing logo shitt -->
-					<li><a href="#" target="_blank"><i class="fab fa-facebook"></i> Facebook</a></li>
-					<li><a href="#" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
+						<li><a href="https://facebook.com" target="_blank"><i class="fab fa-facebook"></i> Facebook</a></li>
+						<li><a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i> Instagram</a></li>
 					</ul>
+				</div>
+				<div class="col-md-6">
+					<h3>Send Us a Message</h3>
+					<form action="contact_form_handler.php" method="POST">
+						<div class="form-group">
+							<label for="name">Name</label>
+							<input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" required>
+						</div>
+						<div class="form-group">
+							<label for="email">Email</label>
+							<input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+						</div>
+						<div class="form-group">
+							<label for="message">Message</label>
+							<textarea class="form-control" id="message" name="message" rows="4" placeholder="Enter your message" required></textarea>
+						</div>
+						<button type="submit" class="btn btn-primary">Submit</button>
+					</form>
 				</div>
 			</div>
 		</div>
@@ -141,11 +127,11 @@
 </footer>
 
 <!-- LOGIN MODAL -->
-<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="loginModalLabel">Login</h5>
+<div class="modal fade"  id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+	<div class="modal-dialog" style="margin: 25vh auto;" role="document" >
+		<div class="modal-content " style="border-radius: 30px;">
+			<div class="modal-header text-center position-center" style="background-color:var(--accent); border-radius: 30px 30px 0 0;">
+				<h5 class="modal-title text-light" id="loginModalLabel">Login</h5>
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 				</button>
@@ -153,15 +139,16 @@
 			<div class="modal-body">
 				<!-- Include login.php here -->
 				<?php include("login.php"); ?>
+				
 			</div>
 		</div>
 	</div>
 </div>
 
 <script>
-	$(document).ready(function() {
-		$('#burgerMenu').click(function() {
-			$('#customDropdown').toggleClass('show');
-		});
-	});
+	// $(document).ready(function() {
+	// 	$('#burgerMenu').click(function() {
+	// 		$('#customDropdown').toggleClass('show');
+	// 	});
+	// });
 </script>

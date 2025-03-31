@@ -1,19 +1,241 @@
+@import url('https://fonts.googleapis.com/css?family=Noto%20Sans%20Coptic:700|Noto%20Sans%20Coptic:400');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap');
+:root{
+--text: #040316;
+--background: #e3e3ed;
+--primary1: #21233f;
+--secondary1: #feebd2;
+--accent: #176ca1;
+--linearPrimarySecondary: linear-gradient(#21233f, #feebd2);
+--linearPrimaryAccent: linear-gradient(#21233f, #176ca1);
+--linearSecondaryAccent: linear-gradient(#feebd2, #176ca1);
+--radialPrimarySecondary: radial-gradient(#21233f, #feebd2);
+--radialPrimaryAccent: radial-gradient(#21233f, #176ca1);
+--radialSecondaryAccent: radial-gradient(#feebd2, #176ca1);
+}
+body {
+    font-family: 'Noto Sans Coptic';
+    font-weight: 400;
+  }
+ 
+h1, h2, h3, h4, h5 {
+    font-family: 'Noto Sans Coptic';
+    font-weight: 700;
+}
+  
+html {font-size: 100%;} /* 16px */
+  
+h1 {font-size: 4.210rem; /* 67.36px */}
+  
+h2 {font-size: 3.158rem; /* 50.56px */}
+  
+h3 {font-size: 2.369rem; /* 37.92px */}
+  
+h4 {font-size: 1.777rem; /* 28.48px */}
+  
+h5 {font-size: 1.333rem; /* 21.28px */}
+  
+small {font-size: 0.750rem; /* 12px */}
+
 header { /*para nag fofollow ung navbar*/
     position: sticky; 
     top: 0;
     z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    background-color:  var(--accent);
+    font-family: 'Montserrat';
 }
 
+header li, header a, header button {
+    font-family: 'Montserrat';
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+}
 .custom-dropdown { /* JAS para to sa nav burger */
     display: none;
     position: absolute;
-    background-color: white;
+    /* background-color: white; */
     width: 200px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    margin-top: 10px;
-    margin-left: 9%;
-}
+    margin-top: 10px;}
 
 .custom-dropdown.show {
     display: block;
 }
+
+@media (max-width: 991px) {
+    .navbar-brand {
+        margin-right: auto;
+    }
+    
+    .navbar-toggler {
+        display: block;
+        border: none;
+        background-color: transparent;
+        cursor: pointer;
+        padding: 0.25rem 0.75rem;
+        margin-left: auto;
+    }
+    
+    .navbar-toggler:focus {
+        outline: none;
+    }
+    
+    .navbar-toggler-icon {
+        display: inline-block;
+        width: 1.5em;
+        height: 1.5em;
+        vertical-align: middle;
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        background-size: 100%;
+    }
+    
+    .mobile-nav {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        width: 250px;
+        background-color: #176ca1;
+        z-index: 1000;
+        padding: 1rem;
+        border-radius: 0 0 0 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .mobile-menu .nav-item {
+        margin: 0.5rem 0;
+        width: 100%;
+    }
+    
+    .mobile-menu .nav-link {
+        color: white;
+        padding: 0.75rem 1rem;
+        display: block;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .mobile-menu .nav-link:hover {
+        background-color: var(--accent);
+    }
+    
+    /* Hide desktop nav items on mobile */
+    #navbarNav {
+        display: none !important;
+    }
+    
+    /* Ensure proper display of dropdown */
+    .navbar-collapse.show {
+        display: block !important;
+    }
+}
+@media (min-width: 991px) {
+    #mobileNavMenu {
+        display: none !important;
+    }
+    .navbar-collapse {
+        display: none !important;
+    }
+    .navbar-collapse.show {
+        display: block !important;
+    }
+}
+/* Update your header styles */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    background-color: var(--accent);
+    font-family: 'Montserrat';
+}
+
+.navbar {
+    padding: 0.5rem 1rem;
+    width: 100%;
+}
+
+.banner{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* background-image: url('../images/BannerBG.jpg') !important;  */
+    background: transparent;
+    backdrop-filter: blur(5px);
+    flex-direction: column;
+    width: 100%;
+    height: 395px;
+    background-position: center;
+    overflow: hidden;
+    background-size: cover;
+}
+.banner::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('..images/BannerBG.jpg');
+    background-size: cover;
+    background-position: center;
+    filter: blur(8px);  
+    z-index: -1;
+}
+
+#home{
+    background-image: url('../images/BannerBG.jpg') !important; 
+    background-position: center;
+    overflow: hidden;
+    background-size: cover;
+    width: 100%;
+    height: 395px;
+    background-position: center;
+    overflow: hidden;
+    background-size: cover;
+}
+
+.logo{
+    justify-content: center;
+    height: 200px;
+    width: 400px;
+    object-fit: cover;
+}
+
+
+ul.pullDown li a {
+    position: relative; 
+    display: inline-block; 
+    overflow: hidden; 
+    text-decoration: none; 
+    padding: 10px 15px;
+}
+
+ul.pullDown li a::before {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    left: 0px;
+    top: 0px;
+    content: '';
+    background: #FFF;
+    opacity: 0.3;
+    transition: height 0.3s ease-in-out; /* Smoother animation */
+}
+
+ul.pullDown li a:hover::before {
+    height: 100%;
+
+}
+ul.pullDown li a:hover {
+    color: white !important;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
