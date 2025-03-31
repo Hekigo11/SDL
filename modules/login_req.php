@@ -10,8 +10,9 @@ $row = mysqli_fetch_array($result);
 if (mysqli_num_rows($result)>0){
 	mysqli_fetch_array($result);
 	echo "success";
-	//session_start();
-	//$_SESSION['loginok']='1';
+
+	session_start();
+	$_SESSION['loginok']='1';
 	//$_SESSION['userfullname'] = $row['fullname'];
 }else{
 	echo "User not found.";

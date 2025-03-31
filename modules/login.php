@@ -22,6 +22,7 @@
 </form>
 
 <script>
+
 	$(document).ready(function(){
 		$("#btnlogin").click(function(){
 			$.post("modules/login_req.php", $("form#frmlogin").serialize(), function(d){
@@ -29,6 +30,7 @@
 					alert("Login Success");
 					$("#txtusername").val('');
                     $("#txtpassword").val('');
+					document.location = "./";
 				} else {
 					alert(d);
 				}
@@ -41,4 +43,6 @@
         });
 	});
 </script>
+
+
 	

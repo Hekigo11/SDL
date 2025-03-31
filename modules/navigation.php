@@ -26,9 +26,21 @@
                     <li class="nav-item mx-2 no-dropdown">
                         <a href="#" class="btn rounded-pill btn-outline-light" aria-label="My Orders">My Orders</a>
                     </li>
-                    <li class="nav-item mx-2 no-dropdown">
+                    <?php
+                    // Logout (Di pa nagana)
+                    if(isset($_SESSION['loginok'])){
+                        echo '<li class="nav-item mx-2 no-dropdown">
+                        <button class="btn rounded-pill btn-outline-light" data-toggle="modal" data-target="#loginModal" aria-label="Login">Logout</button>
+                        </li>';
+                    } else {
+                        echo '<li class="nav-item mx-2 no-dropdown">
                         <button class="btn rounded-pill btn-outline-light" data-toggle="modal" data-target="#loginModal" aria-label="Login">Login</button>
-                    </li>
+                        </li>';
+                    }
+                    ?>
+                    <!-- <li class="nav-item mx-2 no-dropdown">
+                        <button class="btn rounded-pill btn-outline-light" data-toggle="modal" data-target="#loginModal" aria-label="Login">Login</button>
+                    </li> -->
                 </ul>
             </div>
         </div>
@@ -43,12 +55,29 @@
                 <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
                 <li class="nav-item"><a class="nav-link" href="#about">About Us</a></li>
                 <li class="nav-item"><a class="nav-link" href="#contact">Contact Us</a></li>
-                <li class="nav-item">
+                <?php
+                    // Logout (Di pa nagana)
+                    if(isset($_SESSION['loginok'])){
+                        echo '<li class="nav-item">
+                                <div class="d-flex flex-column">
+                                <button class="btn btn-light mb-2 w-100" data-toggle="modal" data-target="#loginModal">Logout</button>
+                                <!-- <a href="register.php" class="btn btn-light w-100">Register</a> -->
+                                </div>
+                            </li>';
+                    } else {
+                        echo '<li class="nav-item">
+                                <div class="d-flex flex-column">
+                                <button class="btn btn-light mb-2 w-100" data-toggle="modal" data-target="#loginModal">Login</button>
+                                <!-- <a href="register.php" class="btn btn-light w-100">Register</a> -->
+                                </div>
+                            </li>';
+                    }
+                    ?>
+                <!-- <li class="nav-item">
                     <div class="d-flex flex-column">
                         <button class="btn btn-light mb-2 w-100" data-toggle="modal" data-target="#loginModal">Login</button>
-                        <!-- <a href="register.php" class="btn btn-light w-100">Register</a> -->
                     </div>
-                </li>
+                </li>  -->
             </ul>
         </div>
     </nav>

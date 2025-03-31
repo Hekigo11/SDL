@@ -1,3 +1,8 @@
+<?php
+session_start();
+// include("modules/logout_req.php");
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 	<head>
