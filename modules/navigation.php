@@ -1,4 +1,3 @@
-
 <?php ?>
 
 <header>
@@ -45,7 +44,10 @@
                 <li class="nav-item"><a class="nav-link" href="#about">About Us</a></li>
                 <li class="nav-item"><a class="nav-link" href="#contact">Contact Us</a></li>
                 <li class="nav-item">
-                    <button class="btn btn-light mt-2 w-100" data-toggle="modal" data-target="#loginModal">Login</button>
+                    <div class="d-flex flex-column">
+                        <button class="btn btn-light mb-2 w-100" data-toggle="modal" data-target="#loginModal">Login</button>
+                        <!-- <a href="register.php" class="btn btn-light w-100">Register</a> -->
+                    </div>
                 </li>
             </ul>
         </div>

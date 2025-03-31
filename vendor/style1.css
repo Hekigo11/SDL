@@ -40,7 +40,7 @@ small {font-size: 0.750rem; /* 12px */}
 header { /*para nag fofollow ung navbar*/
     position: sticky; 
     top: 0;
-    z-index: 1000;
+    z-index: 1048;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -101,7 +101,7 @@ header li, header a, header button {
         right: 0;
         width: 250px;
         background-color: #176ca1;
-        z-index: 1000;
+        z-index: 1049;
         padding: 1rem;
         border-radius: 0 0 0 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -148,7 +148,7 @@ header li, header a, header button {
 header {
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 1048;
     width: 100%;
     background-color: var(--accent);
     font-family: 'Montserrat';
@@ -237,5 +237,14 @@ ul.pullDown li a:hover {
 
 .navbar-toggler-icon {
     background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* Modal styles */
+.modal {
+    z-index: 1051 !important;
+}
+
+.modal-backdrop {
+    z-index: 1050 !important;
 }
 

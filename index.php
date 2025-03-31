@@ -68,6 +68,18 @@ $(document).ready(function() {
     $('.mobile-menu-items a').click(function() {
         closeMobileMenu();
     });
+
+    // Ensure modals work on mobile
+    $('.btn[data-toggle="modal"]').on('click', function(e) {
+        e.preventDefault();
+        var targetModal = $(this).data('target');
+        $(targetModal).modal('show');
+    });
+
+    // Close mobile menu when modal opens
+    $('.modal').on('show.bs.modal', function () {
+        $('#mobileNavMenu').removeClass('show');
+    });
 });
 
 //END OF NAVIGATION JS
