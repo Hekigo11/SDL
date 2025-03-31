@@ -30,7 +30,7 @@
                     // Logout (Di pa nagana)
                     if(isset($_SESSION['loginok'])){
                         echo '<li class="nav-item mx-2 no-dropdown">
-                        <button class="btn rounded-pill btn-outline-light" data-toggle="modal" data-target="#loginModal" aria-label="Login">Logout</button>
+                        <button class="btn rounded-pill btn-outline-light" data-toggle="modal" data-target="#logoutModal" aria-label="Logout">Logout</button>
                         </li>';
                     } else {
                         echo '<li class="nav-item mx-2 no-dropdown">
@@ -60,7 +60,7 @@
                     if(isset($_SESSION['loginok'])){
                         echo '<li class="nav-item">
                                 <div class="d-flex flex-column">
-                                <button class="btn btn-light mb-2 w-100" data-toggle="modal" data-target="#loginModal">Logout</button>
+                                <button class="btn btn-light mb-2 w-100" data-toggle="modal" data-target="#logoutModal">Logout</button>
                                 <!-- <a href="register.php" class="btn btn-light w-100">Register</a> -->
                                 </div>
                             </li>';

@@ -1,6 +1,6 @@
 <?php
 session_start();
-// include("modules/logout_req.php");
+//include("modules/logout.php");
 ?>
 
 <!DOCTYPE html>
