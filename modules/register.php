@@ -17,7 +17,7 @@
 	<title>Register</title>
 	
   </head>
-<body>
+
 <body>
       <div class="card mx-auto col-md-5 my-3">
           <div class="card-body">
