@@ -23,7 +23,7 @@
 		<?php include("modules/homepage.php"); ?>
 
 		<script>
-
+//NAVIGATION JS
 $(document).ready(function() {
     // Mobile menu toggle
     $('.navbar-toggler').click(function(e) {
@@ -69,6 +69,8 @@ $(document).ready(function() {
         closeMobileMenu();
     });
 });
+
+//END OF NAVIGATION JS
 		</script>
 	</body>
 </html>
