@@ -23,22 +23,24 @@
           <div class="card-body">
               <h5 class="card-title">Register</h5>
               <form id="frmstud" enctype="multipart/form-data">
-              <div class="form-group">
-                    <label for="txtfname">Firstname</label>
-                    <input type="text" class="form-control" id="txtfname" name="txtfname">
-                </div>
-                <div class="form-group">
-                    <label for="txtmname">Middlename</label>
-                    <input type="text" class="form-control" id="txtmname" name="txtmname">
-                </div>
-                <div class="form-group">
-                    <label for="txtlname">Lastname</label>
-                    <input type="text" class="form-control" id="txtlname" name="txtlname">
-                </div>
-                <div class="form-group">
+
+			  	<div class="form-group">
                     <label for="txtstudno">Email</label>
                     <input type="text" class="form-control" id="txtemail" name="txtemail">
                 </div>
+            	<div class="form-group">
+                    <label for="txtfname">First Name</label>
+                    <input type="text" class="form-control" id="txtfname" name="txtfname">
+                </div>
+                <div class="form-group">
+                    <label for="txtmname">Middle Name</label>
+                    <input type="text" class="form-control" id="txtmname" name="txtmname">
+                </div>
+                <div class="form-group">
+                    <label for="txtlname">Last Name</label>
+                    <input type="text" class="form-control" id="txtlname" name="txtlname">
+                </div>
+                
                 <div class="form-group">
                     <label for="txtstudno">Mobile Number</label>
                     <input type="text" class="form-control" id="txtusername" name="txtusername">
