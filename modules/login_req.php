@@ -2,13 +2,10 @@
 include("dbconi.php");
 $query = "SELECT * FROM user
 		WHERE username = '".mysqli_real_escape_string($dbc, $_POST['txtusername'])."'
-		AND passw = '".mysqli_real_escape_string($dbc, $_POST['txtpassword'])."'";
+		AND password = '".mysqli_real_escape_string($dbc, $_POST['txtpassword'])."'";
 $result = mysqli_query($dbc, $query);
 $row = mysqli_fetch_array($result);
-// Para saan yung $username at #$result2
-$username = "SELECT * FROM user 
-			WHERE username = '".mysqli_real_escape_string($dbc, $_POST['txtusername'])."'";
-$result2 = mysqli_query($dbc, $username);
+
 if (mysqli_num_rows($result)>0){
 	mysqli_fetch_array($result);
 	echo "success";
