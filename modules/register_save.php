@@ -17,7 +17,7 @@ if(trim($_POST['txtemail'])==''){
 }
 
 if(trim($_POST['txtusername'])==''){
-	$isallok = false; $msg .="Enter Username\n";
+	$isallok = false; $msg .="Enter Mobile Number\n";
 }
 
 if(trim($_POST['txtpassword'])==''){
@@ -26,13 +26,14 @@ if(trim($_POST['txtpassword'])==''){
 
 if($isallok){
 	include("dbconi.php");
-	$query = "INSERT INTO user (firstname, middlename, lastname, email, username, passw) VALUES (
+	$query = "INSERT INTO user (fname, mname, lname, email_add, mobile_num, password, role_id) VALUES (
         '".mysqli_real_escape_string($dbc, $_POST['txtfname'])."',
         '".mysqli_real_escape_string($dbc, $_POST['txtmname'])."',
         '".mysqli_real_escape_string($dbc, $_POST['txtlname'])."',
         '".mysqli_real_escape_string($dbc, $_POST['txtemail'])."',
         '".mysqli_real_escape_string($dbc, $_POST['txtusername'])."',
-        '".mysqli_real_escape_string($dbc, $_POST['txtpassword'])."'
+        '".mysqli_real_escape_string($dbc, $_POST['txtpassword'])."',
+		2
     )";
 
 	$result = mysqli_query($dbc, $query);

@@ -14,7 +14,7 @@
 
 	<!-- Latest compiled JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-	<title>Web Development</title>
+	<title>Register</title>
 	
   </head>
 <body>
@@ -40,7 +40,7 @@
                     <input type="text" class="form-control" id="txtemail" name="txtemail">
                 </div>
                 <div class="form-group">
-                    <label for="txtstudno">Username</label>
+                    <label for="txtstudno">Mobile Number</label>
                     <input type="text" class="form-control" id="txtusername" name="txtusername">
                 </div>
                 <div class="form-group">
