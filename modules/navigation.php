@@ -22,7 +22,7 @@
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item mx-2 no-dropdown">
-                        <a href="#" class="btn rounded-pill btn-outline-light" aria-label="My Orders">My Orders</a>
+                        <a href="#" class="btn rounded-pill btn-outline-light" onclick="checkLogin(event)" aria-label="My Orders">My Orders</a>
                     </li>
                     <?php
                     // Logout (Di pa nagana)
@@ -47,7 +47,7 @@
         <div class="collapse navbar-collapse mobile-nav" style="background-color:var(--accent);" id="mobileNavMenu">
             <ul class="navbar-nav mobile-menu">
                 <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" aria-label="My Orders">My Orders</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="checkLogin(event)" aria-label="My Orders">My Orders</a></li>
                 <li class="nav-item"><a class="nav-link" href="#" aria-label="Deliver">Deliver</a></li>
                 <li class="nav-item"><a class="nav-link" href="#" aria-label="Cater">Cater</a></li>
                 <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
@@ -79,4 +79,16 @@
             </ul>
         </div>
     </nav>
+
+    <script>
+        function checkLogin(event) {
+            <?php if(!isset($_SESSION['loginok'])) { ?>
+                event.preventDefault();
+                if(confirm('You need to be logged in to view orders. Would you like to login?')) {
+                    $('#loginModal').modal('show');
+                }
+                return false;
+            <?php } ?>
+        }
+    </script>
 </header>
