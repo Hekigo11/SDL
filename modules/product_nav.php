@@ -1,6 +1,6 @@
 <header>
     <nav class="navbar navbar-expand-lg">
-        <a class="navbar-brand" href="index.php" aria-label="Home">MARJ Food Services</a>
+        <a class="navbar-brand" href="../index.php" aria-label="Home">MARJ Food Services</a>
         
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mobileNavMenu" aria-controls="mobileNavMenu" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -9,20 +9,20 @@
         <!-- Desktop Navigation -->
         <div class="collapse navbar-collapse d-lg-flex justify-content-between" id="navbarNav">
             <ul class="navbar-nav pullDown">
-                <li class="nav-item mx-2"><a class="nav-link" href="#home" aria-label="Home">Home</a></li>
-                <li class="nav-item mx-2"><a class="nav-link" href="#services" aria-label="Services">Services</a></li>
-                <li class="nav-item mx-2"><a class="nav-link" href="#about" aria-label="About Us">About Us</a></li>
-                <li class="nav-item mx-2"><a class="nav-link" href="#contact" aria-label="Contact Us">Contact Us</a></li>
+                <li class="nav-item mx-2"><a class="nav-link" href="../index.php#home" aria-label="Home">Home</a></li>
+                <li class="nav-item mx-2"><a class="nav-link" href="../index.php#services" aria-label="Services">Services</a></li>
+                <li class="nav-item mx-2"><a class="nav-link" href="../index.php#about" aria-label="About Us">About Us</a></li>
+                <li class="nav-item mx-2"><a class="nav-link" href="../index.php#contact" aria-label="Contact Us">Contact Us</a></li>
             </ul>
             
             <div class="navbar-actions d-none d-lg-flex">
-                <ul class="navbar-nav pullDown">
-                    <li class="nav-item mx-2"><a href="./modules/products.php" class="nav-link" aria-label="Deliver">Deliver</a></li>
+                <!-- <ul class="navbar-nav pullDown">
+                    <li class="nav-item mx-2"><a href="#" class="nav-link" aria-label="Deliver">Deliver</a></li>
                     <li class="nav-item mx-2"><a href="#" class="nav-link" aria-label="Cater">Cater</a></li>
-                </ul>
+                </ul> -->
                 <ul class="navbar-nav">
                     <li class="nav-item mx-2 no-dropdown">
-                        <a href="./modules/cart.php" class="btn rounded-pill btn-outline-light" onclick="checkLogin(event)" aria-label="My Orders">My Orders</a>
+                        <a href="cart.php" class="btn rounded-pill btn-outline-light" aria-label="My Orders">My Orders</a>
                     </li>
                     <?php
                     // Logout (Di pa nagana)
@@ -39,20 +39,19 @@
                     <!-- <li class="nav-item mx-2 no-dropdown">
                         <button class="btn rounded-pill btn-outline-light" data-toggle="modal" data-target="#loginModal" aria-label="Login">Login</button>
                     </li> -->
-                </ul>
+                </ul>   
             </div>
         </div>
         
         <!-- Mobile Navigation Menu -->
         <div class="collapse navbar-collapse mobile-nav" style="background-color:var(--accent);" id="mobileNavMenu">
             <ul class="navbar-nav mobile-menu">
-                <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" aria-label="My Orders">My Orders</a></li>
-                <li class="nav-item"><a class="nav-link" href="#" aria-label="Deliver">Deliver</a></li>
+                <li class="nav-item"><a class="nav-link" href="../index.php#home">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="../index.php#cart" aria-label="My Orders">My Orders</a></li>
                 <li class="nav-item"><a class="nav-link" href="#" aria-label="Cater">Cater</a></li>
-                <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-                <li class="nav-item"><a class="nav-link" href="#about">About Us</a></li>
-                <li class="nav-item"><a class="nav-link" href="#contact">Contact Us</a></li>
+                <li class="nav-item"><a class="nav-link" href="../index.php#services">Services</a></li>
+                <li class="nav-item"><a class="nav-link" href="../index.php#about">About Us</a></li>
+                <li class="nav-item"><a class="nav-link" href="../index.php#contact">Contact Us</a></li>
                 <?php
                     // Logout (Di pa nagana)
                     if(isset($_SESSION['loginok'])){
@@ -79,16 +78,4 @@
             </ul>
         </div>
     </nav>
-
-    <script>
-        function checkLogin(event) {
-            <?php if(!isset($_SESSION['loginok'])) { ?>
-                event.preventDefault();
-                if(confirm('You need to be logged in to view orders. Would you like to login?')) {
-                    $('#loginModal').modal('show');
-                }
-                return false;
-            <?php } ?>
-        }
-    </script>
 </header>

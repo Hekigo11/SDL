@@ -20,7 +20,7 @@
 			<!-- ANDITO YUNG 2 IMAGES -->
 			<div class="row text-center">
 				<div class="col-md-6 mb-4">
-					<a href="#delivery"> <!--Change Reference-->
+					<a href="./modules/products.php"> <!--Change Reference-->
 						<img src="images/dg.jpg" class="img-fluid rounded" alt="Delivery"> <!--Change IMG-->
 						<h5 class="mt-2">Delivery</h5>
 					</a>
