@@ -22,7 +22,7 @@ session_start();
 	</head>
 
 	<body>
-		<?php include("modules/cart_nav.php");?>
+		<?php include("cart_nav.php");?>
 		
 		<main class="container py-5">
             <div class="row">
@@ -143,7 +143,7 @@ session_start();
                         </button>
                     </div>
                     <div class="modal-body">
-                        <?php include("modules/login.php"); ?>
+                        <?php include("login.php"); ?>
                     </div>
                 </div>
             </div>
@@ -163,7 +163,7 @@ session_start();
                         <p>Are you sure you want to log out?</p>
                     </div>
                     <div class="modal-footer justify-content-center">
-                        <a href="modules/logout.php" class="btn btn-danger">Yes, Logout</a>
+                        <a href="logout.php" class="btn btn-danger">Yes, Logout</a>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
