@@ -90,33 +90,14 @@ $(document).ready(function(){
 	});
 	
 	$("#btnsave").click(function(){
-		$.post("register_save.php",$("form#frmstud").serialize(), function(d){
-			if(d=='success'){
-				alert("Successfully Saved");
-                document.location = "../index.php";
+		$.post("register_save.php", $("form#frmstud").serialize(), function(d){
+			if(d == 'success'){
+				alert("Registration successful! Please check your email for verification code.");
+				window.location.href = "verify.php";
 			} else {
 				alert(d);
 			}
 		});
-		
-		// var form = $('form#frmstud')[0]; 
-		// var formData = new FormData(form);
-		
-		// $.ajax({
-		// 	url: "modules/add_save.php",
-		// 	type: 'post',
-		// 	data: formData,
-		// 	contentType: false,
-		// 	processData: false,
-		// 	success: function(d){
-		// 		if(d=='success'){
-		// 			alert("Successfully Saved");
-		// 			document.location = "./";
-		// 		} else {
-		// 			alert(d);
-		// 		}
-		// 	},
-		// });
 	});
 });
 </script>
