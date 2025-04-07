@@ -18,6 +18,7 @@ if (!isset($_SESSION['verify_email'])) {
 <body>
     <div class="card mx-auto col-md-5 my-3" style="border-radius: 30px; background-color: var(--background);">
         <div class="card-body">
+            <a href="../index.php" class="close-btn" style="position: absolute; right: 20px; top: 10px; text-decoration: none; font-size: 30px; color: #000;">&times;</a>
             <h5 class="card-title">Email Verification</h5>
             <p>We've sent a verification code to your email address. Please enter it below:</p>
             <form id="frmverify">
