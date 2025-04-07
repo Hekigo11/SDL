@@ -32,17 +32,30 @@
 --radialPrimarySecondary: radial-gradient(#21233f, #feebd2);
 --radialPrimaryAccent: radial-gradient(#21233f, #176ca1);
 --radialSecondaryAccent: radial-gradient(#feebd2, #176ca1);
+
+
 }
 body {
     font-family: 'Noto Sans Coptic';
     font-weight: 400;
   }
- 
+ body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('../images/BannerBG.jpg') no-repeat center center fixed;
+    background-size: cover;
+    filter: blur(8px);
+    z-index: -1;
+    opacity: 0.5;}
 	</style>
 
   </head>
 
-<body style="background: var(--primary1); 
+<body style="
 display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
 
       <div class="card mx-auto col-md-5 my-3"  style="border-radius: 30px; background-color: var(--background);">

@@ -1,4 +1,13 @@
-
+<?php 
+// Try ko maglagay error handling --jas
+if (session_status() === PHP_SESSION_NONE) {
+    try {
+        session_start();
+    } catch (Exception $e) {
+        error_log("Session start failed: " . $e->getMessage());
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 	<head>
