@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css?family=Noto%20Sans%20Coptic:700|Noto%20Sans%20Coptic:400');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap');
+:root{
+--text: #040316;
+--background: #e3e3ed;
+--primary1: #21233f;
+--secondary1: #feebd2;
+--accent: #176ca1;
+--linearPrimarySecondary: linear-gradient(#21233f, #feebd2);
+--linearPrimaryAccent: linear-gradient(#21233f, #176ca1);
+--linearSecondaryAccent: linear-gradient(#feebd2, #176ca1);
+--radialPrimarySecondary: radial-gradient(#21233f, #feebd2);
+--radialPrimaryAccent: radial-gradient(#21233f, #176ca1);
+--radialSecondaryAccent: radial-gradient(#feebd2, #176ca1);
+}
+body {
+    font-family: 'Noto Sans Coptic';
+    font-weight: 400;
+  }
+ 
+h1, h2, h3, h4, h5 {
+    font-family: 'Noto Sans Coptic';
+    font-weight: 700;
+}
+  
+html {font-size: 100%;} /* 16px */
+  
+h1 {font-size: 4.210rem; /* 67.36px */}
+  
+h2 {font-size: 3.158rem; /* 50.56px */}
+  
+h3 {font-size: 2.369rem; /* 37.92px */}
+  
+h4 {font-size: 1.777rem; /* 28.48px */}
+  
+h5 {font-size: 1.333rem; /* 21.28px */}
+  
+small {font-size: 0.750rem; /* 12px */}
+
+header { /*para nag fofollow ung navbar*/
+    position: sticky; 
+    top: 0;
+    z-index: 1048;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    background-color:  var(--accent);
+    font-family: 'Montserrat';
+}
+
+header li, header a, header button {
+    font-family: 'Montserrat';
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+}
+
+body {
+    font-family: 'Noto Sans Coptic';
+    font-weight: 400;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+    margin: 0;
+    background: var(--primary1)
+  }
+ body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('../images/BannerBG.jpg') no-repeat center center fixed;
+    background-size: cover;
+    filter: blur(8px);
+    z-index: -1;
+    opacity: 0.5;}

@@ -13,9 +13,9 @@ if (!isset($_SESSION['verify_email'])) {
     <title>Email Verification</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="../vendor/style1.css">
+    <link rel="stylesheet" href="regverif.css">
 </head>
-<body style="background: var(--primary1); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
+<body>
     <div class="card mx-auto col-md-5 my-3" style="border-radius: 30px; background-color: var(--background);">
         <div class="card-body">
             <h5 class="card-title">Email Verification</h5>
@@ -24,7 +24,7 @@ if (!isset($_SESSION['verify_email'])) {
                 <div class="form-group">
                     <input type="text" class="form-control" name="verification_code" placeholder="Enter 6-digit code" required>
                 </div>
-                <button type="button" class="btn btn-primary" id="btnverify">Verify Email</button>
+                <button type="button" class="btn rounded-pill btn-outline-primary btn-block" id="btnverify">Verify Email</button>
             </form>
         </div>
     </div>
