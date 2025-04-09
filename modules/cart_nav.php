@@ -21,9 +21,9 @@
                     <li class="nav-item mx-2"><a href="#" class="nav-link" aria-label="Cater">Cater</a></li>
                 </ul> -->
                 <ul class="navbar-nav">
-                    <li class="nav-item mx-2 no-dropdown">
+                    <!-- <li class="nav-item mx-2 no-dropdown">
                         <a href="./modules/cart.php" class="btn rounded-pill btn-outline-light" aria-label="My Orders">My Orders</a>
-                    </li>
+                    </li> -->
                     <?php
                     // Logout (Di pa nagana)
                     if(isset($_SESSION['loginok'])){

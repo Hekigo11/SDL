@@ -19,7 +19,7 @@
             <div class="navbar-actions d-none d-lg-flex">
                 <ul class="navbar-nav">
                     <li class="nav-item mx-2 no-dropdown">
-                        <a href="cart.php" class="btn rounded-pill btn-outline-light" aria-label="My Orders">My Orders</a>
+                        <a href="cart.php" class="btn rounded-pill btn-outline-light" onclick="checkLogin(event)" aria-label="My Orders">My Orders</a>
                     </li>
                     <?php
                     if(isset($_SESSION['loginok'])){
@@ -62,4 +62,17 @@
             </ul>
         </div>
     </nav>
+
+    <script>
+        function checkLogin(event) {
+            <?php if(!isset($_SESSION['loginok'])) { ?>
+                event.preventDefault();
+                if(confirm('You need to be logged in to view orders. Would you like to login?')) {
+                    $('#loginModal').modal('show');
+                }
+                return false;
+            <?php } ?>
+        }
+    </script>
+    
 </header>
