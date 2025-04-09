@@ -29,6 +29,14 @@ if (session_status() === PHP_SESSION_NONE) {
 
 	<body>
         <?php include("product_nav.php");?>
+        <?php
+            include("dbconi.php");
+            $query = "SELECT * FROM products";
+            $result = mysqli_query($dbc, $query);
+            if (!$result) {
+                die("Query failed: " . mysqli_error($dbc));
+            }
+        ?>
 		
 		<main class="container py-5">
             <h1 class="text-center mb-5">Our Food Menu</h1>
@@ -59,31 +67,39 @@ if (session_status() === PHP_SESSION_NONE) {
             <!-- Products Grid -->
             <div class="row" id="products-container">
                 <!-- Sample Product Cards - These will be replaced by database items -->
-                <div class="col-md-4 mb-4 product-item" data-category="1">
-                    <div class="card h-100">
-                        <img src="images/dg.jpg" class="card-img-top" alt="Food Item">
-                        <div class="card-body">
-                            <h5 class="card-title">Adobo</h5>
-                            <p class="card-text">Classic Filipino dish with chicken or pork marinated in vinegar, soy sauce, and spices.</p>
-                            <p class="card-text text-primary font-weight-bold">₱180.00</p>
-                        </div>
-                        <div class="card-footer bg-white border-top-0">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="input-group input-group-sm" style="width: 120px;">
-                                    <div class="input-group-prepend">
-                                        <button class="btn btn-outline-secondary decrease-qty" type="button">-</button>
+                <?php while ($row = mysqli_fetch_assoc($result)) { ?>
+                    <div class="col-md-4 mb-4 product-item" data-category="<?php echo $row['prod_cat_id']; ?>">
+                        <div class="card h-100">
+                            <img src="images/<?php echo htmlspecialchars($row['prod_img']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($row['prod_name']); ?>">
+                            <div class="card-body">
+                                <h5 class="card-title"><?php echo htmlspecialchars($row['prod_name']); ?></h5>
+                                <p class="card-text"><?php echo htmlspecialchars($row['prod_desc']); ?></p>
+                                <p class="card-text text-primary font-weight-bold">₱<?php echo number_format($row['prod_price'], 2); ?></p>
+                            </div>
+                            <div class="card-footer bg-white border-top-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="input-group input-group-sm" style="width: 120px;">
+                                        <div class="input-group-prepend">
+                                            <button class="btn btn-outline-secondary decrease-qty" type="button">-</button>
+                                        </div>
+                                        <input type="text" class="form-control text-center item-qty" value="1">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary increase-qty" type="button">+</button>
+                                        </div>
                                     </div>
-                                    <input type="text" class="form-control text-center item-qty" value="1">
-                                    <div class="input-group-append">
-                                        <button class="btn btn-outline-secondary increase-qty" type="button">+</button>
-                                    </div>
+                                    <button class="btn btn-primary add-to-cart" 
+                                            data-id="<?php echo $row['product_id']; ?>" 
+                                            data-name="<?php echo htmlspecialchars($row['prod_name']); ?>" 
+                                            data-price="<?php echo $row['prod_price']; ?>">
+                                        Add to Cart
+                                    </button>
                                 </div>
-                                <button class="btn btn-primary add-to-cart" data-id="1" data-name="Adobo" data-price="180">Add to Cart</button>
                             </div>
                         </div>
                     </div>
-                </div>
+                <?php } ?>
                 
+                <!--
                 <div class="col-md-4 mb-4 product-item" data-category="1">
                     <div class="card h-100">
                         <img src="images/dg.jpg" class="card-img-top" alt="Food Item">
@@ -208,7 +224,9 @@ if (session_status() === PHP_SESSION_NONE) {
                         </div>
                     </div>
                 </div>
+                -->
             </div>
+
             
             <!-- Mini Cart Indicator -->
             <div class="fixed-bottom mb-4 mr-4 d-flex justify-content-end">
