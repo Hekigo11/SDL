@@ -1,5 +1,6 @@
 <?php
 include("dbconi.php");
+require_once __DIR__ . '/../config.php';
 
 if(isset($_POST['email']) && isset($_POST['otp'])) {
     $email = mysqli_real_escape_string($dbc, $_POST['email']);
@@ -21,3 +22,16 @@ if(isset($_POST['email']) && isset($_POST['otp'])) {
     echo "Invalid request";
 }
 ?>
+<script>
+$(document).ready(function(){
+    $("#resend-verification").click(function(){
+        $.post("<?php echo BASE_URL; ?>/modules/email_verification.php", {email: '<?php echo $_SESSION["verify_email"]; ?>'}, function(response){
+            if(response.success) {
+                alert("Verification code has been resent to your email!");
+            } else {
+                alert("Failed to resend verification code. Please try again.");
+            }
+        }, 'json');
+    });
+});
+</script>

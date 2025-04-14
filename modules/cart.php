@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../config.php';
 session_start();
 ?>
 
@@ -17,7 +18,7 @@ session_start();
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-		<link rel="stylesheet" href="../vendor/style1.css">
+		<link rel="stylesheet" href="<?php echo BASE_URL; ?>/vendor/style1.css">
 		<title>Shopping Cart - MARJ Food Delivery</title>
 	</head>
 
@@ -34,7 +35,7 @@ session_start();
                         <i class="fas fa-shopping-cart fa-4x mb-3 text-muted"></i>
                         <h3>Your cart is empty</h3>
                         <p class="text-muted">Looks like you haven't added any items to your cart yet.</p>
-                        <a href="products.php" class="btn btn-primary mt-3">Browse Products</a>
+                        <a href="<?php echo BASE_URL; ?>/modules/products.php" class="btn btn-primary mt-3">Browse Products</a>
                     </div>
                     
                     <!-- Cart Items Table -->
@@ -64,7 +65,7 @@ session_start();
                         </div>
                         
                         <div class="d-flex justify-content-between mt-4">
-                            <a href="products.php" class="btn btn-outline-primary">
+                            <a href="<?php echo BASE_URL; ?>/modules/products.php" class="btn btn-outline-primary">
                                 <i class="fas fa-arrow-left mr-2"></i>Continue Shopping
                             </a>
                             <button id="checkout-btn" class="btn btn-success">
@@ -82,44 +83,44 @@ session_start();
                     <div class="row mt-3">
                         <div class="col-md-3 col-6 mb-4">
                             <div class="card h-100">
-                                <img src="images/dg.jpg" class="card-img-top" alt="Food Item">
+                                <img src="<?php echo BASE_URL; ?>/images/dg.jpg" class="card-img-top" alt="Food Item">
                                 <div class="card-body">
                                     <h5 class="card-title">Lechon Kawali</h5>
                                     <p class="card-text text-primary">₱190.00</p>
-                                    <a href="products.php" class="btn btn-sm btn-outline-primary">View</a>
+                                    <a href="<?php echo BASE_URL; ?>/modules/products.php" class="btn btn-sm btn-outline-primary">View</a>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="col-md-3 col-6 mb-4">
                             <div class="card h-100">
-                                <img src="images/dg.jpg" class="card-img-top" alt="Food Item">
+                                <img src="<?php echo BASE_URL; ?>/images/dg.jpg" class="card-img-top" alt="Food Item">
                                 <div class="card-body">
                                     <h5 class="card-title">Sisig</h5>
                                     <p class="card-text text-primary">₱170.00</p>
-                                    <a href="products.php" class="btn btn-sm btn-outline-primary">View</a>
+                                    <a href="<?php echo BASE_URL; ?>/modules/products.php" class="btn btn-sm btn-outline-primary">View</a>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="col-md-3 col-6 mb-4">
                             <div class="card h-100">
-                                <img src="images/dg.jpg" class="card-img-top" alt="Food Item">
+                                <img src="<?php echo BASE_URL; ?>/images/dg.jpg" class="card-img-top" alt="Food Item">
                                 <div class="card-body">
                                     <h5 class="card-title">Kare-Kare</h5>
                                     <p class="card-text text-primary">₱240.00</p>
-                                    <a href="products.php" class="btn btn-sm btn-outline-primary">View</a>
+                                    <a href="<?php echo BASE_URL; ?>/modules/products.php" class="btn btn-sm btn-outline-primary">View</a>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="col-md-3 col-6 mb-4">
                             <div class="card h-100">
-                                <img src="images/dg.jpg" class="card-img-top" alt="Food Item">
+                                <img src="<?php echo BASE_URL; ?>/images/dg.jpg" class="card-img-top" alt="Food Item">
                                 <div class="card-body">
                                     <h5 class="card-title">Bulalo</h5>
                                     <p class="card-text text-primary">₱260.00</p>
-                                    <a href="products.php" class="btn btn-sm btn-outline-primary">View</a>
+                                    <a href="<?php echo BASE_URL; ?>/modules/products.php" class="btn btn-sm btn-outline-primary">View</a>
                                 </div>
                             </div>
                         </div>
@@ -163,7 +164,7 @@ session_start();
                         <p>Are you sure you want to log out?</p>
                     </div>
                     <div class="modal-footer justify-content-center">
-                        <a href="logout.php" class="btn btn-danger">Yes, Logout</a>
+                        <a href="logout.php" class="btn btn-danger mr-2">Yes, Logout</a>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>
@@ -240,3 +241,144 @@ session_start();
                 </div>
             </div>
         </div>
+
+        <script>
+        $(document).ready(function() {
+            function updateCart() {
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                let total = 0;
+                let cartHtml = '';
+                
+                if (cart.length === 0) {
+                    $('#cart-content').hide();
+                    $('#empty-cart').show();
+                    return;
+                }
+                
+                cart.forEach(item => {
+                    const subtotal = item.price * item.quantity;
+                    total += subtotal;
+                    cartHtml += `
+                        <tr>
+                            <td>${item.name}</td>
+                            <td>₱${item.price.toFixed(2)}</td>
+                            <td>
+                                <div class="input-group input-group-sm" style="width: 100px;">
+                                    <div class="input-group-prepend">
+                                        <button class="btn btn-outline-secondary update-qty" data-id="${item.id}" data-action="decrease">-</button>
+                                    </div>
+                                    <input type="text" class="form-control text-center item-qty" value="${item.quantity}" readonly>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary update-qty" data-id="${item.id}" data-action="increase">+</button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>₱${subtotal.toFixed(2)}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm remove-item" data-id="${item.id}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                $('#cart-items').html(cartHtml);
+                $('#cart-total').text(`₱${total.toFixed(2)}`);
+                $('#cart-content').show();
+                $('#empty-cart').hide();
+            }
+            
+            // Initialize cart
+            updateCart();
+            
+            // Handle quantity updates
+            $(document).on('click', '.update-qty', function() {
+                const id = $(this).data('id');
+                const action = $(this).data('action');
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                const itemIndex = cart.findIndex(item => item.id === id);
+                
+                if (itemIndex !== -1) {
+                    if (action === 'increase') {
+                        cart[itemIndex].quantity++;
+                    } else if (action === 'decrease' && cart[itemIndex].quantity > 1) {
+                        cart[itemIndex].quantity--;
+                    }
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    updateCart();
+                }
+            });
+            
+            // Handle item removal
+            $(document).on('click', '.remove-item', function() {
+                const id = $(this).data('id');
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                cart = cart.filter(item => item.id !== id);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCart();
+            });
+            
+            // Handle checkout
+            $('#checkout-btn').click(function() {
+                if (!<?php echo isset($_SESSION['loginok']) ? 'true' : 'false'; ?>) {
+                    if (confirm('You need to be logged in to checkout. Would you like to login?')) {
+                        $('#loginModal').modal('show');
+                    }
+                    return;
+                }
+                
+                const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                if (cart.length === 0) {
+                    alert('Your cart is empty');
+                    return;
+                }
+                
+                $('#checkoutModal').modal('show');
+                
+                // Update checkout summary
+                let itemsHtml = '';
+                let subtotal = 0;
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    itemsHtml += `
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>${item.name} x ${item.quantity}</span>
+                            <span>₱${itemTotal.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+                
+                $('#checkout-items').html(itemsHtml);
+                $('#checkout-subtotal').text(`₱${subtotal.toFixed(2)}`);
+                $('#checkout-total').text(`₱${(subtotal + 50).toFixed(2)}`);
+            });
+            
+            // Handle order placement
+            $('#place-order-btn').click(function() {
+                const formData = {
+                    fullname: $('#fullname').val(),
+                    phone: $('#phone').val(),
+                    address: $('#address').val(),
+                    notes: $('#notes').val(),
+                    payment: $('#payment').val(),
+                    items: JSON.parse(localStorage.getItem('cart')),
+                    total: parseFloat($('#checkout-total').text().replace('₱', ''))
+                };
+                
+                $.post("<?php echo BASE_URL; ?>/modules/place_order.php", formData, function(response) {
+                    if (response.success) {
+                        alert('Order placed successfully!');
+                        localStorage.removeItem('cart');
+                        $('#checkoutModal').modal('hide');
+                        updateCart();
+                    } else {
+                        alert('Failed to place order: ' + response.message);
+                    }
+                }, 'json');
+            });
+        });
+        </script>
+	</body>
+</html>

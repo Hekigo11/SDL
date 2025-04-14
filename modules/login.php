@@ -1,48 +1,43 @@
-<form id="frmlogin">
-	<div class="form-group text-center">
-		<label for="txtusername">Email or Mobile Number</label>
-		<input type="text" class="form-control rounded-pill" id="txtusername" name="txtusername" placeholder="Enter Registered Email or Mobile Number">
-	</div>
-	<div class="form-group text-center">
-		<label for="txtpassword">Password</label>
-		<input type="password" class="form-control rounded-pill" id="txtpassword" name="txtpassword" placeholder="Enter Password">
-	</div>
-	<div class="d-flex justify-content-around align-items-center">
-	<button type="button" class="btn btn-primary rounded-pill w-25" id="btnlogin">Login</button>
-	<button type="button" class="btn btn-outline-secondary rounded-pill w-25" id="btnCancel" data-dismiss="modal" aria-label="Close">Cancel</button>
-	</div>
-	<div class="text-center mx-2">
-	<label for="#" > <a href=""> Forgot Password?</a>
-	</label>
-	</div>
-	
-	<div class="text-center mx-2"> 
-		<label>Dont have an account yet? <a href="modules/register.php">Register</a></label>
-	</div>
-</form>
+<?php
+require_once __DIR__ . '/../config.php';
+?>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <form id="frmlogin" class="p-4">
+                <div class="form-group">
+					<label for="txtusername">Email or Mobile Number</label>
+                    <input type="email" class="form-control mb-4" name="txtemail" placeholder="Enter Email" required>
+                </div>
+                <div class="form-group">
+				<label for="txtpassword">Password</label>
+                    <input type="password" class="form-control mb-4" name="txtpassword" placeholder="Enter Password" required>
+                </div>
+				<div class="text-center my-3"><a href="<?php echo BASE_URL; ?>/modules/register.php">Forgot Password?</a></div>
+                <div class="text-center">
+                    <button type="button" class="btn rounded-pill btn-primary btn-block" id="btnlogin">Login</button>
+                    <p class="mt-3">Don't have an account? <a href="<?php echo BASE_URL; ?>/modules/register.php">Register here</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script>
-
-	$(document).ready(function(){
-		$("#btnlogin").click(function(){
-			$.post("modules/login_req.php", $("form#frmlogin").serialize(), function(d){
-				if(d=='success'){
-					alert("Login Success");
-					$("#txtusername").val('');
-                    $("#txtpassword").val('');
-					document.location = "./";
-				} else {
-					alert(d);
-				}
-			});
-		});
-
-		$("#btnCancel").click(function(){
-            $("#txtusername").val('');
-            $("#txtpassword").val('');
+    $(document).ready(function(){
+        $("#btnlogin").click(function(){
+            $.post("<?php echo BASE_URL; ?>/modules/login_req.php", $("form#frmlogin").serialize(), function(d){
+                if(d=='success'){
+                    alert("Login Success");
+                    $("input[name='txtemail']").val('');
+                    $("input[name='txtpassword']").val('');
+                    document.location = "<?php echo BASE_URL; ?>/";
+                } else {
+                    alert(d);
+                }
+            });
         });
-	});
+    });
 </script>
 
 
-	

@@ -1,44 +1,41 @@
 <?php
-session_start();
-include("dbconi.php");
+require_once __DIR__ . '/../config.php';
 
-if (!isset($_POST['verification_code']) || !isset($_SESSION['verify_email'])) {
-    echo "Invalid request";
-    exit;
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-$code = $_POST['verification_code'];
+if (!isset($_SESSION['verify_email'])) {
+    header('Location: ' . BASE_URL . '/index.php');
+    exit();
+}
+
+include("dbconi.php");
+
+$verification_code = $_POST['verification_code'];
 $email = $_SESSION['verify_email'];
 $current_time = date('Y-m-d H:i:s');
 
-try {
-    $stmt = mysqli_prepare($dbc, 
-        "SELECT * FROM users WHERE email_add = ? AND OTPC = ? AND OTPE > ? AND emailv = 0"
-    );
-    mysqli_stmt_bind_param($stmt, "sss", $email, $code, $current_time);
-    mysqli_stmt_execute($stmt);
-    $result = mysqli_stmt_get_result($stmt);
+$query = "SELECT * FROM users WHERE email_add = ? AND OTPC = ? AND OTPE > ?";
+$stmt = mysqli_prepare($dbc, $query);
+mysqli_stmt_bind_param($stmt, "sss", $email, $verification_code, $current_time);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 
-    if (mysqli_num_rows($result) > 0) {
-        // Update user as verified
-        $update_stmt = mysqli_prepare($dbc, 
-            "UPDATE users SET emailv = 1, OTPC = NULL, OTPE = NULL WHERE email_add = ?"
-        );
-        mysqli_stmt_bind_param($update_stmt, "s", $email);
-        
-        if (mysqli_stmt_execute($update_stmt)) {
-            unset($_SESSION['verify_email']);
-            echo "success";
-        } else {
-            throw new Exception("Failed to update verification status");
-        }
+if (mysqli_num_rows($result) > 0) {
+    $update = "UPDATE users SET emailv = 1, OTPC = NULL, OTPE = NULL WHERE email_add = ?";
+    $stmt = mysqli_prepare($dbc, $update);
+    mysqli_stmt_bind_param($stmt, "s", $email);
+    
+    if (mysqli_stmt_execute($stmt)) {
+        unset($_SESSION['verify_email']);
+        echo "success";
     } else {
-        echo "Invalid or expired verification code";
+        echo "Verification update failed";
     }
-} catch (Exception $e) {
-    error_log("Verification Error: " . $e->getMessage());
-    echo "Verification failed. Please try again.";
-} finally {
-    mysqli_close($dbc);
+} else {
+    echo "Invalid or expired verification code";
 }
+
+mysqli_close($dbc);
 ?>

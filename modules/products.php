@@ -1,4 +1,5 @@
 <?php 
+require_once __DIR__ . '/../config.php';
 // Try ko maglagay error handling --jas
 if (session_status() === PHP_SESSION_NONE) {
     try {
@@ -23,7 +24,7 @@ if (session_status() === PHP_SESSION_NONE) {
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-		<link rel="stylesheet" href="../vendor/style1.css">
+		<link rel="stylesheet" href="<?php echo BASE_URL; ?>/vendor/style1.css">
 		<title>Products - MARJ Food Delivery</title>
 	</head>
 
@@ -66,11 +67,10 @@ if (session_status() === PHP_SESSION_NONE) {
             
             <!-- Products Grid -->
             <div class="row" id="products-container">
-                <!-- Sample Product Cards - These will be replaced by database items -->
                 <?php while ($row = mysqli_fetch_assoc($result)) { ?>
                     <div class="col-md-4 mb-4 product-item" data-category="<?php echo $row['prod_cat_id']; ?>">
                         <div class="card h-100">
-                            <img src="images/<?php echo htmlspecialchars($row['prod_img']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($row['prod_name']); ?>">
+                            <img src="<?php echo BASE_URL; ?>/images/<?php echo htmlspecialchars($row['prod_img']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($row['prod_name']); ?>">
                             <div class="card-body">
                                 <h5 class="card-title"><?php echo htmlspecialchars($row['prod_name']); ?></h5>
                                 <p class="card-text"><?php echo htmlspecialchars($row['prod_desc']); ?></p>
@@ -97,8 +97,135 @@ if (session_status() === PHP_SESSION_NONE) {
                             </div>
                         </div>
                     </div>
-                <?php } ?>
+
+                <!--
+                <div class="col-md-4 mb-4 product-item" data-category="1">
+                    <div class="card h-100">
+                        <img src="images/dg.jpg" class="card-img-top" alt="Food Item">
+                        <div class="card-body">
+                            <h5 class="card-title">Sinigang</h5>
+                            <p class="card-text">Sour soup with pork, shrimp, or fish and various vegetables.</p>
+                            <p class="card-text text-primary font-weight-bold">₱220.00</p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="input-group input-group-sm" style="width: 120px;">
+                                    <div class="input-group-prepend">
+                                        <button class="btn btn-outline-secondary decrease-qty" type="button">-</button>
+                                    </div>
+                                    <input type="text" class="form-control text-center item-qty" value="1">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary increase-qty" type="button">+</button>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary add-to-cart" data-id="2" data-name="Sinigang" data-price="220">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
+                <div class="col-md-4 mb-4 product-item" data-category="2">
+                    <div class="card h-100">
+                        <img src="images/dg.jpg" class="card-img-top" alt="Food Item">
+                        <div class="card-body">
+                            <h5 class="card-title">Lumpia</h5>
+                            <p class="card-text">Filipino spring rolls filled with ground meat and vegetables.</p>
+                            <p class="card-text text-primary font-weight-bold">₱120.00</p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="input-group input-group-sm" style="width: 120px;">
+                                    <div class="input-group-prepend">
+                                        <button class="btn btn-outline-secondary decrease-qty" type="button">-</button>
+                                    </div>
+                                    <input type="text" class="form-control text-center item-qty" value="1">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary increase-qty" type="button">+</button>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary add-to-cart" data-id="3" data-name="Lumpia" data-price="120">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4 product-item" data-category="3">
+                    <div class="card h-100">
+                        <img src="images/dg.jpg" class="card-img-top" alt="Food Item">
+                        <div class="card-body">
+                            <h5 class="card-title">Halo-Halo</h5>
+                            <p class="card-text">Popular Filipino dessert with mixed ingredients, shaved ice, and ice cream.</p>
+                            <p class="card-text text-primary font-weight-bold">₱150.00</p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="input-group input-group-sm" style="width: 120px;">
+                                    <div class="input-group-prepend">
+                                        <button class="btn btn-outline-secondary decrease-qty" type="button">-</button>
+                                    </div>
+                                    <input type="text" class="form-control text-center item-qty" value="1">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary increase-qty" type="button">+</button>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary add-to-cart" data-id="4" data-name="Halo-Halo" data-price="150">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4 product-item" data-category="4">
+                    <div class="card h-100">
+                        <img src="images/dg.jpg" class="card-img-top" alt="Food Item">
+                        <div class="card-body">
+                            <h5 class="card-title">Calamansi Juice</h5>
+                            <p class="card-text">Refreshing Filipino citrus juice similar to lemonade.</p>
+                            <p class="card-text text-primary font-weight-bold">₱80.00</p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="input-group input-group-sm" style="width: 120px;">
+                                    <div class="input-group-prepend">
+                                        <button class="btn btn-outline-secondary decrease-qty" type="button">-</button>
+                                    </div>
+                                    <input type="text" class="form-control text-center item-qty" value="1">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary increase-qty" type="button">+</button>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary add-to-cart" data-id="5" data-name="Calamansi Juice" data-price="80">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4 product-item" data-category="1">
+                    <div class="card h-100">
+                        <img src="images/dg.jpg" class="card-img-top" alt="Food Item">
+                        <div class="card-body">
+                            <h5 class="card-title">Pancit Canton</h5>
+                            <p class="card-text">Stir-fried noodles with meat and vegetables.</p>
+                            <p class="card-text text-primary font-weight-bold">₱160.00</p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="input-group input-group-sm" style="width: 120px;">
+                                    <div class="input-group-prepend">
+                                        <button class="btn btn-outline-secondary decrease-qty" type="button">-</button>
+                                    </div>
+                                    <input type="text" class="form-control text-center item-qty" value="1">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary increase-qty" type="button">+</button>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary add-to-cart" data-id="6" data-name="Pancit Canton" data-price="160">Add to Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                -->
+                <?php } ?>
+
                 <!--
                 <div class="col-md-4 mb-4 product-item" data-category="1">
                     <div class="card h-100">
@@ -230,7 +357,7 @@ if (session_status() === PHP_SESSION_NONE) {
             
             <!-- Mini Cart Indicator -->
             <div class="fixed-bottom mb-4 mr-4 d-flex justify-content-end">
-                <a href="cart.php" class="btn btn-primary position-relative">
+                <a href="<?php echo BASE_URL; ?>/modules/cart.php" class="btn btn-primary position-relative">
                     <i class="fas fa-shopping-cart"></i> View Cart
                     <span class="badge badge-light cart-count">0</span>
                 </a>
@@ -252,7 +379,7 @@ if (session_status() === PHP_SESSION_NONE) {
                         </button>
                     </div>
                     <div class="modal-body">
-                        <?php include("modules/login.php"); ?>
+                        <?php include("login.php"); ?>
                     </div>
                 </div>
             </div>
@@ -272,7 +399,7 @@ if (session_status() === PHP_SESSION_NONE) {
                         <p>Are you sure you want to log out?</p>
                     </div>
                     <div class="modal-footer justify-content-center">
-                        <a href="modules/logout.php" class="btn btn-danger">Yes, Logout</a>
+                        <a href="<?php echo BASE_URL; ?>/modules/logout.php" class="btn btn-danger">Yes, Logout</a>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     </div>
                 </div>

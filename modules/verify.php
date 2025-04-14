@@ -1,7 +1,8 @@
 <?php
+require_once __DIR__ . '/../config.php';
 session_start();
 if (!isset($_SESSION['verify_email'])) {
-    header('Location: ../index.php');
+    header('Location: ' . BASE_URL . '/index.php');
     exit();
 }
 ?>
@@ -13,12 +14,12 @@ if (!isset($_SESSION['verify_email'])) {
     <title>Email Verification</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="regverif.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/modules/regverif.css">
 </head>
 <body>
     <div class="card mx-auto col-md-5 my-3" style="border-radius: 30px; background-color: var(--background);">
         <div class="card-body">
-            <a href="../index.php" class="close-btn" style="position: absolute; right: 20px; top: 10px; text-decoration: none; font-size: 30px; color: #000;">&times;</a>
+            <a href="<?php echo BASE_URL; ?>/index.php" class="close-btn" style="position: absolute; right: 20px; top: 10px; text-decoration: none; font-size: 30px; color: #000;">&times;</a>
             <h5 class="card-title">Email Verification</h5>
             <p>We've sent a verification code to your email address. Please enter it below:</p>
             <form id="frmverify">
@@ -33,10 +34,10 @@ if (!isset($_SESSION['verify_email'])) {
     <script>
     $(document).ready(function(){
         $("#btnverify").click(function(){
-            $.post("verify_code.php", $("#frmverify").serialize(), function(response){
+            $.post("<?php echo BASE_URL; ?>/modules/verify_code.php", $("#frmverify").serialize(), function(response){
                 if(response == 'success'){
                     alert("Email verified successfully!");
-                    window.location.href = "../index.php";
+                    window.location.href = "<?php echo BASE_URL; ?>/index.php";
                 } else {
                     alert(response);
                 }

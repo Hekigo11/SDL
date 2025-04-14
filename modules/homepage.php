@@ -1,38 +1,34 @@
+<?php
+require_once __DIR__ . '/../config.php';
+?>
 <main>
 	<!-- BANNER TO GUYS -->
 <section id="home">
-
 		<div class="banner text-white">
-		
-			<img src="images/MARJ.png" alt="Main Logo" class="logo">
-
+			<img src="<?php echo BASE_URL; ?>/images/MARJ.png" alt="Main Logo" class="logo">
 			<h1>Welcome to Our Delivery Service</h1>
 			<p>Your packages delivered on time, every time!</p>
-
 		</div>
-	
 	</section>
 
 	<!-- OUR SERVICES PART -->
 	<section id="services" class="bg-light py-5">
 		<div class="d-flex flex-column align-items-center space-around">
 			<h2 class="text-center">Our Services</h2>
-			<!-- ANDITO YUNG 2 IMAGES -->
 			<div class="row text-center">
 				<div class="col-md-6 mb-4">
-					<a href="./modules/products.php"> <!--Change Reference-->
-						<img src="images/dg.jpg" class="img-fluid rounded" alt="Delivery"> <!--Change IMG-->
+					<a href="<?php echo BASE_URL; ?>/modules/products.php">
+						<img src="<?php echo BASE_URL; ?>/images/dg.jpg" class="img-fluid rounded" alt="Delivery">
 						<h5 class="mt-2">Delivery</h5>
 					</a>
 				</div>
 				<div class="col-md-6 mb-4">
-					<a href="#catering"> <!--Change Reference-->
-						<img src="images/dg.jpg" class="img-fluid rounded" alt="Catering"> <!--Change IMG-->
+					<a href="#catering">
+						<img src="<?php echo BASE_URL; ?>/images/dg.jpg" class="img-fluid rounded" alt="Catering">
 						<h5 class="mt-2">Catering</h5>
 					</a>
 				</div>
 			</div>
-
 		</div>
 	</section>
 
@@ -47,7 +43,7 @@
 					</p>
 				</div>
 				<div class="col-md-6">
-					<img src="images/dg.jpg" alt="Delivery Service" class="img-fluid">
+					<img src="<?php echo BASE_URL; ?>/images/dg.jpg" alt="Delivery Service" class="img-fluid">
 				</div>
 			</div>
 		</div>
@@ -99,7 +95,7 @@
 				</div>
 				<div class="col-md-6">
 					<h3>Send Us a Message</h3>
-					<form action="contact_form_handler.php" method="POST">
+					<form action="<?php echo BASE_URL; ?>/contact_form_handler.php" method="POST">
 						<div class="form-group">
 							<label for="name">Name</label>
 							<input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" required>
@@ -159,7 +155,7 @@
                 <p>Are you sure you want to log out?</p>
             </div>
             <div class="modal-footer justify-content-center">
-                <a href="modules/logout.php" class="btn btn-danger">Yes, Logout</a>
+                <a href="<?php echo BASE_URL; ?>/modules/logout.php" class="btn btn-danger">Yes, Logout</a>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
             </div>
         </div>

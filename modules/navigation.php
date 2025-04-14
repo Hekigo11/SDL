@@ -1,6 +1,9 @@
+<?php
+require_once __DIR__ . '/../config.php';
+?>
 <header>
     <nav class="navbar navbar-expand-lg">
-        <a class="navbar-brand" href="index.php" aria-label="Home">MARJ Food Services</a>
+        <a class="navbar-brand" href="<?php echo BASE_URL; ?>/index.php" aria-label="Home">MARJ Food Services</a>
         
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mobileNavMenu" aria-controls="mobileNavMenu" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -17,12 +20,12 @@
             
             <div class="navbar-actions d-none d-lg-flex">
                 <ul class="navbar-nav pullDown">
-                    <li class="nav-item mx-2"><a href="./modules/products.php" class="nav-link" aria-label="Deliver">Deliver</a></li>
+                    <li class="nav-item mx-2"><a href="<?php echo BASE_URL; ?>/modules/products.php" class="nav-link" aria-label="Deliver">Deliver</a></li>
                     <li class="nav-item mx-2"><a href="#" class="nav-link" aria-label="Cater">Cater</a></li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item mx-2 no-dropdown">
-                        <a href="./modules/cart.php" class="btn rounded-pill btn-outline-light" onclick="checkLogin(event)" aria-label="My Orders">My Orders</a>
+                        <a href="<?php echo BASE_URL; ?>/modules/cart.php" class="btn rounded-pill btn-outline-light" onclick="checkLogin(event)" aria-label="My Orders">My Orders</a>
                     </li>
                     <?php
                     // Logout (Di pa nagana)

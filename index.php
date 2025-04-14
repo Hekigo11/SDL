@@ -1,6 +1,6 @@
 <?php
 session_start();
-//include("modules/logout.php");
+require_once 'config.php';
 ?>
 
 <!DOCTYPE html>

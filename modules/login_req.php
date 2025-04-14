@@ -1,60 +1,39 @@
 <?php
-$isallok = true;
-$msg = "";
+require_once __DIR__ . '/../config.php';
 
-if (trim($_POST['txtusername']) == '' || trim($_POST['txtpassword']) == '') {
-    $isallok = false;
-    $msg = "User not found.";
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
 }
 
-if($isallok){
-	include("dbconi.php");
-	//////$hash_login = password_hash($_POST['txtpassword'], PASSWORD_DEFAULT);
+include("dbconi.php");
 
-	$query = "SELECT * FROM users WHERE email_add = ? OR mobile_num = ?";
-    $stmt = $dbc->prepare($query);
-    $stmt->bind_param("ss", $_POST['txtusername'], $_POST['txtusername']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
+$email = filter_input(INPUT_POST, 'txtemail', FILTER_SANITIZE_EMAIL);
+$password = $_POST['txtpassword'];
 
-	// $query = "SELECT * FROM users
-	// 		WHERE (email_add = '".mysqli_real_escape_string($dbc, $_POST['txtusername'])."'
-	// 		OR mobile_num = '".mysqli_real_escape_string($dbc, $_POST['txtusername'])."')
-	// 		AND password = '".mysqli_real_escape_string($dbc, $hash_login)."'";
+if (empty($email) || empty($password)) {
+    echo "Please fill in all fields";
+    exit;
+}
 
-	// $query = "SELECT * FROM users
-	// 		WHERE email_add = '".mysqli_real_escape_string($dbc, $_POST['txtusername'])."'
-	// 		OR mobile_num = '".mysqli_real_escape_string($dbc, $_POST['txtusername'])."'";
+$query = "SELECT * FROM users WHERE email_add=? AND emailv=1";
+$stmt = mysqli_prepare($dbc, $query);
+mysqli_stmt_bind_param($stmt, "s", $email);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 
-	// $result = mysqli_query($dbc, $query);
-	// $row = mysqli_fetch_array($result);
-
-	// if(mysqli_num_rows($result)>0 && password_verify($_POST['txtpassword'], $row['password'])){
-	// 	$msg = "success";
-
-	// 	session_start();
-	// 	$_SESSION['loginok']='1';
-	// }else{
-	// 	$msg = "User not found.";
-	// }
-	if ($row && password_verify($_POST['txtpassword'], $row['password'])) {
-        session_start();
-        $_SESSION['loginok'] = '1';
-        $msg = "success";
+if ($row = mysqli_fetch_assoc($result)) {
+    if (password_verify($password, $row['password'])) {
+        $_SESSION['loginok'] = true;
+        $_SESSION['user_id'] = $row['user_id'];
+        $_SESSION['email'] = $row['email_add'];
+        $_SESSION['name'] = $row['fname'] . ' ' . $row['lname'];
+        echo "success";
     } else {
-        $msg = "User not found.";
+        echo "Invalid password";
     }
-	// if (mysqli_num_rows($result)>0){
-	// 	mysqli_fetch_array($result);
-	// 	echo "success";
-
-	// 	session_start();
-	// 	$_SESSION['loginok']='1';
-	// 	//$_SESSION['userfullname'] = $row['fullname'];
-	// }else{
-	// 	echo "User not found.";
-	// }
+} else {
+    echo "Email not found or not verified";
 }
-echo $msg;
+
+mysqli_close($dbc);
 ?>

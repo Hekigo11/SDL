@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/../config.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -67,10 +70,10 @@ $(document).ready(function(){
 	});
 	
 	$("#btnsave").click(function(){
-		$.post("register_save.php", $("form#frmstud").serialize(), function(d){
+		$.post("<?php echo BASE_URL; ?>/modules/register_save.php", $("form#frmstud").serialize(), function(d){
 			if(d == 'success'){
 				alert("Registration successful! Please check your email for verification code.");
-				window.location.href = "verify.php";
+				window.location.href = "<?php echo BASE_URL; ?>/modules/verify.php";
 			} else {
 				alert(d);
 			}
