@@ -15,6 +15,9 @@ if (!isset($_SESSION['verify_email'])) {
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/modules/regverif.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </head>
 <body>
     <div class="card mx-auto col-md-5 my-3" style="border-radius: 30px; background-color: var(--background);">
@@ -27,6 +30,9 @@ if (!isset($_SESSION['verify_email'])) {
                     <input type="text" class="form-control" name="verification_code" placeholder="Enter 6-digit code" required>
                 </div>
                 <button type="button" class="btn rounded-pill btn-outline-primary btn-block" id="btnverify">Verify Email</button>
+                <div class="text-center mt-3">
+            <button type="button" class="btn btn-link" id="btnResendOTP">Resend verification code</button>
+        </div>
             </form>
         </div>
     </div>
@@ -43,6 +49,16 @@ if (!isset($_SESSION['verify_email'])) {
                 }
             });
         });
+
+        $("#btnResendOTP").click(function(){
+        $.post("<?php echo BASE_URL; ?>/modules/resend_otp.php", function(d){
+            if(d == 'success'){
+                alert("New verification code has been sent");
+            } else {
+                alert(d);
+            }
+        });
+    });
     });
     </script>
 </body>

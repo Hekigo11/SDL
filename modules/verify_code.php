@@ -23,12 +23,13 @@ mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 
 if (mysqli_num_rows($result) > 0) {
-    $update = "UPDATE users SET emailv = 1, OTPC = NULL, OTPE = NULL WHERE email_add = ?";
+    $update = "UPDATE users SET emailv = 'Yes', OTPC = NULL, OTPE = NULL WHERE email_add = ?";
     $stmt = mysqli_prepare($dbc, $update);
     mysqli_stmt_bind_param($stmt, "s", $email);
     
     if (mysqli_stmt_execute($stmt)) {
         unset($_SESSION['verify_email']);
+        unset($_SESSION['user_id']);
         echo "success";
     } else {
         echo "Verification update failed";

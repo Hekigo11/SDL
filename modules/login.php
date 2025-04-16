@@ -34,6 +34,11 @@ require_once __DIR__ . '/../config.php';
                     $('#loginModal').modal('hide');
                 location.reload();
                     window.location.href = "<?php echo BASE_URL; ?>/";
+                } else if(d == 'verify_required') {
+                    alert("Please verify your email first");
+                setTimeout(function() {
+                    window.location.href = "<?php echo BASE_URL; ?>/modules/verify.php";
+                }, 100);
                 } else {
                     alert(d);
                 }
