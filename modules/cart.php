@@ -23,7 +23,7 @@ session_start();
 	</head>
 
 	<body>
-		<?php include("cart_nav.php");?>
+		<?php include("navigation.php");?>
 		
 		<main class="container py-5">
             <div class="row">

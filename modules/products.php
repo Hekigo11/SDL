@@ -26,6 +26,53 @@ if (session_status() === PHP_SESSION_NONE) {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 		<link rel="stylesheet" href="<?php echo BASE_URL; ?>/vendor/style1.css">
 		<title>Products - MARJ Food Delivery</title>
+        <style>
+.nav-pills {
+    position: relative;
+    gap: 0.5rem;
+}
+
+.nav-pills .nav-link {
+    position: relative;
+    z-index: 1;
+    transition: color 0.3s ease;
+}
+
+.nav-pills .nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--accent);
+    border-radius: 1rem;
+    transform: scale(0);
+    transition: transform 0.3s ease;
+    z-index: -1;
+}
+
+.nav-pills .nav-link:hover::before,
+.nav-pills .nav-link.active::before {
+    transform: scale(1);
+}
+.nav-pills .nav-link:hover {
+    color: white !important;
+}
+.nav-pills .nav-link.active {
+    color: white;
+    background-color: transparent !important;
+}
+
+.nav-pills .nav-link:not(.active) {
+    color: var(--primary1);
+
+}
+#prodnav a{
+    font-family: Montserrat;
+    font-weight: 600;
+}
+        </style>
 	</head>
 
 	<body>
@@ -43,7 +90,7 @@ if (session_status() === PHP_SESSION_NONE) {
             <h1 class="text-center mb-5">Our Food Menu</h1>
             
             <!-- Product Categories -->
-            <div class="row mb-4">
+            <!-- <div class="row mb-4">
                 <div class="col-12">
                     <ul class="nav nav-pills justify-content-center">
                         <li class="nav-item">
@@ -63,8 +110,30 @@ if (session_status() === PHP_SESSION_NONE) {
                         </li>
                     </ul>
                 </div>
-            </div>
-            
+            </div> -->
+            <div class="row mb-4">
+    <div class="col-12">
+        <ul class="nav nav-pills justify-content-center" id="prodnav">
+            <div class="nav-indicator">            </div>
+            <li class="nav-item">
+                <a class="nav-link active" href="#" data-category="all">All Items</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-category="1">Main Dishes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-category="2">Sides</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-category="3">Desserts</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-category="4">Beverages</a>
+            </li>
+
+        </ul>
+    </div>
+</div>
             <!-- Products Grid -->
             <div class="row" id="products-container">
                 <?php while ($row = mysqli_fetch_assoc($result)) { ?>
