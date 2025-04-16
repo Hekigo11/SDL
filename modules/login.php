@@ -5,10 +5,10 @@ require_once __DIR__ . '/../config.php';
     <div class="row justify-content-center">
         <div class="col-12">
             <form id="frmlogin" class="p-4">
-                <div class="form-group">
-					<label for="txtusername">Email or Mobile Number</label>
-                    <input type="email" class="form-control mb-4" name="txtemail" placeholder="Enter Email" required>
-                </div>
+                        <div class="form-group">
+                <label for="txtusername">Email or Mobile Number</label>
+                <input type="text" class="form-control mb-4" name="txtemail" placeholder="Enter Email or Mobile Number" required>
+            </div>
                 <div class="form-group">
 				<label for="txtpassword">Password</label>
                     <input type="password" class="form-control mb-4" name="txtpassword" placeholder="Enter Password" required>
@@ -31,7 +31,9 @@ require_once __DIR__ . '/../config.php';
                     alert("Login Success");
                     $("input[name='txtemail']").val('');
                     $("input[name='txtpassword']").val('');
-                    document.location = "<?php echo BASE_URL; ?>/";
+                    $('#loginModal').modal('hide');
+                location.reload();
+                    window.location.href = "<?php echo BASE_URL; ?>/";
                 } else {
                     alert(d);
                 }
