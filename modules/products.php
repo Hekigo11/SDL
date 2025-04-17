@@ -166,6 +166,7 @@ if (session_status() === PHP_SESSION_NONE) {
                             </div>
                         </div>
                     </div>
+                <?php } ?>
             </div>
             
             <!-- Mini Cart Indicator -->
