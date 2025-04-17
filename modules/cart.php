@@ -2,7 +2,6 @@
 require_once __DIR__ . '/../config.php';
 session_start();
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -23,7 +22,7 @@ session_start();
 	</head>
 
 	<body>
-		<?php include("navigation.php");?>
+		<?php include("cart_nav.php");?>
 		
 		<main class="container py-5">
             <div class="row">
@@ -52,7 +51,6 @@ session_start();
                                     </tr>
                                 </thead>
                                 <tbody id="cart-items">
-                                    <!-- Cart items will be inserted here via JavaScript -->
                                 </tbody>
                                 <tfoot>
                                     <tr>
@@ -75,103 +73,9 @@ session_start();
                     </div>
                 </div>
             </div>
-            
-            <!-- Optional: Recently Viewed Products -->
-            <div class="row mt-5">
-                <div class="col-12">
-                    <h3>You might also like</h3>
-                    <div class="row mt-3">
-                        <div class="col-md-3 col-6 mb-4">
-                            <div class="card h-100">
-                                <img src="<?php echo BASE_URL; ?>/images/dg.jpg" class="card-img-top" alt="Food Item">
-                                <div class="card-body">
-                                    <h5 class="card-title">Lechon Kawali</h5>
-                                    <p class="card-text text-primary">₱190.00</p>
-                                    <a href="<?php echo BASE_URL; ?>/modules/products.php" class="btn btn-sm btn-outline-primary">View</a>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-3 col-6 mb-4">
-                            <div class="card h-100">
-                                <img src="<?php echo BASE_URL; ?>/images/dg.jpg" class="card-img-top" alt="Food Item">
-                                <div class="card-body">
-                                    <h5 class="card-title">Sisig</h5>
-                                    <p class="card-text text-primary">₱170.00</p>
-                                    <a href="<?php echo BASE_URL; ?>/modules/products.php" class="btn btn-sm btn-outline-primary">View</a>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-3 col-6 mb-4">
-                            <div class="card h-100">
-                                <img src="<?php echo BASE_URL; ?>/images/dg.jpg" class="card-img-top" alt="Food Item">
-                                <div class="card-body">
-                                    <h5 class="card-title">Kare-Kare</h5>
-                                    <p class="card-text text-primary">₱240.00</p>
-                                    <a href="<?php echo BASE_URL; ?>/modules/products.php" class="btn btn-sm btn-outline-primary">View</a>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-3 col-6 mb-4">
-                            <div class="card h-100">
-                                <img src="<?php echo BASE_URL; ?>/images/dg.jpg" class="card-img-top" alt="Food Item">
-                                <div class="card-body">
-                                    <h5 class="card-title">Bulalo</h5>
-                                    <p class="card-text text-primary">₱260.00</p>
-                                    <a href="<?php echo BASE_URL; ?>/modules/products.php" class="btn btn-sm btn-outline-primary">View</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 		</main>
 		
-		<footer class="bg-dark text-white text-center py-3">
-            <p>&copy; 2023 MARJ Food Services. All rights reserved.</p>
-        </footer>
-		
-		<!-- LOGIN MODAL -->
-        <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
-            <div class="modal-dialog" style="margin: 25vh auto;" role="document">
-                <div class="modal-content" style="border-radius: 30px;">
-                    <div class="modal-header text-center position-center" style="background-color:var(--accent); border-radius: 30px 30px 0 0;">
-                        <h5 class="modal-title text-light" id="loginModalLabel">Login</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <?php include("login.php"); ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- LOGOUT MODAL -->
-        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
-            <div class="modal-dialog" style="margin: 25vh auto;" role="document">
-                <div class="modal-content" style="border-radius: 30px;">
-                    <div class="modal-header text-center position-center" style="background-color:var(--accent); border-radius: 30px 30px 0 0;">
-                        <h5 class="modal-title text-light" id="logoutModalLabel">Logout</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body text-center">
-                        <p>Are you sure you want to log out?</p>
-                    </div>
-                    <div class="modal-footer justify-content-center">
-                        <a href="logout.php" class="btn btn-danger mr-2">Yes, Logout</a>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Checkout Modal -->
+		<!-- Checkout Modal -->
         <div class="modal fade" id="checkoutModal" tabindex="-1" role="dialog" aria-labelledby="checkoutModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content" style="border-radius: 30px;">
@@ -202,11 +106,17 @@ session_start();
                                         <label for="notes">Delivery Instructions (Optional)</label>
                                         <textarea class="form-control" id="notes" rows="2"></textarea>
                                     </div>
+                                    <div class="form-group">
+                                        <label for="payment">Payment Method</label>
+                                        <select class="form-control" id="payment" required>
+                                            <option value="cash">Cash on Delivery</option>
+                                            <option value="gcash">GCash</option>
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <h4>Order Summary</h4>
                                     <div id="checkout-items">
-                                        <!-- Order items will be listed here via JavaScript -->
                                     </div>
                                     <hr>
                                     <div class="d-flex justify-content-between">
@@ -222,14 +132,6 @@ session_start();
                                         <span>Total:</span>
                                         <span id="checkout-total"></span>
                                     </div>
-                                    <div class="form-group mt-4">
-                                        <label for="payment">Payment Method</label>
-                                        <select class="form-control" id="payment">
-                                            <option value="cash">Cash on Delivery</option>
-                                            <option value="gcash">GCash</option>
-                                            <option value="card">Credit/Debit Card</option>
-                                        </select>
-                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -242,26 +144,70 @@ session_start();
             </div>
         </div>
 
-        <script>
+        <!-- Login Modal -->
+        <?php if (!isset($_SESSION['loginok'])) { ?>
+        <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="loginModalLabel">Login Required</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <?php include("login.php"); ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
+
+		<script>
         $(document).ready(function() {
+            const isLoggedIn = <?php echo isset($_SESSION['loginok']) ? 'true' : 'false'; ?>;
+            
             function updateCart() {
-                let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                let total = 0;
-                let cartHtml = '';
-                
-                if (cart.length === 0) {
+                if (isLoggedIn) {
+                    // Fetch cart items from database
+                    $.get('get_cart_items.php', function(response) {
+                        if (response.success) {
+                            displayCartItems(response.items);
+                        } else {
+                            $('#cart-content').hide();
+                            $('#empty-cart').show();
+                        }
+                    });
+                } else {
+                    // Get cart from localStorage
+                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    if (cart.length === 0) {
+                        $('#cart-content').hide();
+                        $('#empty-cart').show();
+                        return;
+                    }
+                    displayCartItems(cart);
+                }
+            }
+
+            function displayCartItems(items) {
+                if (!items || items.length === 0) {
                     $('#cart-content').hide();
                     $('#empty-cart').show();
                     return;
                 }
+
+                let total = 0;
+                let cartHtml = '';
                 
-                cart.forEach(item => {
+                items.forEach(item => {
                     const subtotal = item.price * item.quantity;
                     total += subtotal;
+                    
                     cartHtml += `
                         <tr>
                             <td>${item.name}</td>
-                            <td>₱${item.price.toFixed(2)}</td>
+                            <td>₱${parseFloat(item.price).toFixed(2)}</td>
                             <td>
                                 <div class="input-group input-group-sm" style="width: 100px;">
                                     <div class="input-group-prepend">
@@ -289,57 +235,90 @@ session_start();
                 $('#empty-cart').hide();
             }
             
-            // Initialize cart
-            updateCart();
-            
             // Handle quantity updates
             $(document).on('click', '.update-qty', function() {
                 const id = $(this).data('id');
                 const action = $(this).data('action');
-                let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                const itemIndex = cart.findIndex(item => item.id === id);
                 
-                if (itemIndex !== -1) {
-                    if (action === 'increase') {
-                        cart[itemIndex].quantity++;
-                    } else if (action === 'decrease' && cart[itemIndex].quantity > 1) {
-                        cart[itemIndex].quantity--;
+                if (isLoggedIn) {
+                    // Update quantity in database
+                    $.post('update_cart_quantity.php', {
+                        product_id: id,
+                        action: action
+                    }, function(response) {
+                        if (response.success) {
+                            updateCart();
+                        }
+                    });
+                } else {
+                    // Update quantity in localStorage
+                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    const itemIndex = cart.findIndex(item => item.id === id);
+                    
+                    if (itemIndex !== -1) {
+                        if (action === 'increase') {
+                            cart[itemIndex].quantity++;
+                        } else if (action === 'decrease' && cart[itemIndex].quantity > 1) {
+                            cart[itemIndex].quantity--;
+                        }
+                        localStorage.setItem('cart', JSON.stringify(cart));
+                        displayCartItems(cart);
                     }
-                    localStorage.setItem('cart', JSON.stringify(cart));
-                    updateCart();
                 }
             });
             
             // Handle item removal
             $(document).on('click', '.remove-item', function() {
                 const id = $(this).data('id');
-                let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                cart = cart.filter(item => item.id !== id);
-                localStorage.setItem('cart', JSON.stringify(cart));
-                updateCart();
+                
+                if (isLoggedIn) {
+                    // Remove from database
+                    $.post('remove_from_cart.php', {
+                        product_id: id
+                    }, function(response) {
+                        if (response.success) {
+                            updateCart();
+                        }
+                    });
+                } else {
+                    // Remove from localStorage
+                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    cart = cart.filter(item => item.id !== id);
+                    localStorage.setItem('cart', JSON.stringify(cart));
+                    displayCartItems(cart);
+                }
             });
             
             // Handle checkout
             $('#checkout-btn').click(function() {
-                if (!<?php echo isset($_SESSION['loginok']) ? 'true' : 'false'; ?>) {
-                    if (confirm('You need to be logged in to checkout. Would you like to login?')) {
-                        $('#loginModal').modal('show');
-                    }
+                if (!isLoggedIn) {
+                    $('#loginModal').modal('show');
                     return;
                 }
                 
-                const cart = JSON.parse(localStorage.getItem('cart')) || [];
-                if (cart.length === 0) {
-                    alert('Your cart is empty');
-                    return;
-                }
-                
+                // Show checkout modal
                 $('#checkoutModal').modal('show');
-                
-                // Update checkout summary
+                updateCheckoutSummary();
+            });
+            
+            function updateCheckoutSummary() {
+                if (isLoggedIn) {
+                    $.get('get_cart_items.php', function(response) {
+                        if (response.success) {
+                            displayCheckoutSummary(response.items);
+                        }
+                    });
+                } else {
+                    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    displayCheckoutSummary(cart);
+                }
+            }
+            
+            function displayCheckoutSummary(items) {
                 let itemsHtml = '';
                 let subtotal = 0;
-                cart.forEach(item => {
+                
+                items.forEach(item => {
                     const itemTotal = item.price * item.quantity;
                     subtotal += itemTotal;
                     itemsHtml += `
@@ -353,31 +332,59 @@ session_start();
                 $('#checkout-items').html(itemsHtml);
                 $('#checkout-subtotal').text(`₱${subtotal.toFixed(2)}`);
                 $('#checkout-total').text(`₱${(subtotal + 50).toFixed(2)}`);
-            });
-            
-            // Handle order placement
+            }
+
+            // Handle place order
             $('#place-order-btn').click(function() {
                 const formData = {
                     fullname: $('#fullname').val(),
                     phone: $('#phone').val(),
                     address: $('#address').val(),
-                    notes: $('#notes').val(),
+                    notes: $('#notes').val() || '',
                     payment: $('#payment').val(),
-                    items: JSON.parse(localStorage.getItem('cart')),
                     total: parseFloat($('#checkout-total').text().replace('₱', ''))
                 };
-                
-                $.post("<?php echo BASE_URL; ?>/modules/place_order.php", formData, function(response) {
-                    if (response.success) {
-                        alert('Order placed successfully!');
-                        localStorage.removeItem('cart');
-                        $('#checkoutModal').modal('hide');
-                        updateCart();
-                    } else {
-                        alert('Failed to place order: ' + response.message);
+
+                // Validate required fields
+                if (!formData.fullname || !formData.phone || !formData.address || !formData.payment) {
+                    alert('Please fill in all required fields');
+                    return;
+                }
+
+                $.ajax({
+                    url: 'place_order.php',
+                    method: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.message);
+                            // Clear cart for both logged in and guest users
+                            if (isLoggedIn) {
+                                // Clear cart from database
+                                $.post('remove_from_cart.php', { clear_all: true }, function() {
+                                    updateCart();
+                                });
+                            } else {
+                                // Clear localStorage cart
+                                localStorage.removeItem('cart');
+                            }
+                            $('#checkoutModal').modal('hide');
+                            // Redirect to a thank you page or orders page
+                            window.location.href = '<?php echo BASE_URL; ?>/index.php';
+                        } else {
+                            alert('Failed to place order: ' + (response.message || 'Unknown error'));
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Order Error:', error);
+                        alert('Failed to place order. Please try again.');
                     }
-                }, 'json');
+                });
             });
+
+            // Initialize cart
+            updateCart();
         });
         </script>
 	</body>

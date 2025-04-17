@@ -90,27 +90,6 @@ if (session_status() === PHP_SESSION_NONE) {
             <h1 class="text-center mb-5">Our Food Menu</h1>
             
             <!-- Product Categories -->
-            <!-- <div class="row mb-4">
-                <div class="col-12">
-                    <ul class="nav nav-pills justify-content-center">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#" data-category="all">All Items</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" data-category="1">Main Dishes</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" data-category="2">Sides</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" data-category="3">Desserts</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" data-category="4">Beverages</a>
-                        </li>
-                    </ul>
-                </div>
-            </div> -->
             <div class="row mb-4">
     <div class="col-12">
         <ul class="nav nav-pills justify-content-center" id="prodnav">
@@ -259,45 +238,71 @@ if (session_status() === PHP_SESSION_NONE) {
                     const productPrice = $(this).data('price');
                     const quantity = parseInt($(this).closest('.card-footer').find('.item-qty').val());
                     
-                    // Get existing cart from localStorage or create new one
-                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                    // Check if user is logged in
+                    const isLoggedIn = <?php echo isset($_SESSION['loginok']) ? 'true' : 'false'; ?>;
                     
-                    // Check if product already in cart
-                    const existingItem = cart.find(item => item.id === productId);
-                    
-                    if (existingItem) {
-                        existingItem.quantity += quantity;
-                    } else {
-                        cart.push({
-                            id: productId,
-                            name: productName,
-                            price: productPrice,
-                            quantity: quantity
+                    if (isLoggedIn) {
+                        // Add to database cart
+                        $.ajax({
+                            url: 'add_to_cart.php',
+                            method: 'POST',
+                            data: {
+                                product_id: productId,
+                                quantity: quantity
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    alert(`${productName} added to your cart!`);
+                                    updateCartCount();
+                                } else {
+                                    alert('Failed to add to cart: ' + (response.message || 'Unknown error'));
+                                }
+                            },
+                            error: function() {
+                                alert('Failed to add to cart. Please try again.');
+                            }
                         });
+                    } else {
+                        // Add to localStorage cart
+                        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                        const existingItem = cart.find(item => item.id === productId);
+                        
+                        if (existingItem) {
+                            existingItem.quantity += quantity;
+                        } else {
+                            cart.push({
+                                id: productId,
+                                name: productName,
+                                price: productPrice,
+                                quantity: quantity
+                            });
+                        }
+                        
+                        localStorage.setItem('cart', JSON.stringify(cart));
+                        updateCartCount();
+                        alert(`${productName} added to your cart!`);
                     }
-                    
-                    // Save cart to localStorage
-                    localStorage.setItem('cart', JSON.stringify(cart));
-                    
-                    // Update cart count
-                    updateCartCount();
-                    
-                    // Show notification
-                    alert(`${productName} added to your cart!`);
                 });
                 
                 // Initialize cart count
                 updateCartCount();
                 
                 function updateCartCount() {
-                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                    let count = 0;
+                    const isLoggedIn = <?php echo isset($_SESSION['loginok']) ? 'true' : 'false'; ?>;
                     
-                    cart.forEach(item => {
-                        count += item.quantity;
-                    });
-                    
-                    $('.cart-count').text(count);
+                    if (isLoggedIn) {
+                        // Get cart count from database
+                        $.get('get_cart_count.php', function(response) {
+                            if (response.success) {
+                                $('.cart-count').text(response.count);
+                            }
+                        });
+                    } else {
+                        // Get cart count from localStorage
+                        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                        let count = cart.reduce((total, item) => total + item.quantity, 0);
+                        $('.cart-count').text(count);
+                    }
                 }
             });
 		</script>
