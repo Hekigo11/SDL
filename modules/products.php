@@ -201,6 +201,8 @@ if (session_status() === PHP_SESSION_NONE) {
 		
 		<script>
             $(document).ready(function() {
+                const isLoggedIn = <?php echo isset($_SESSION['loginok']) ? 'true' : 'false'; ?>;
+
                 // Category filtering
                 $('.nav-pills a').click(function(e) {
                     e.preventDefault();
@@ -233,76 +235,54 @@ if (session_status() === PHP_SESSION_NONE) {
                 
                 // Shopping cart functionality
                 $('.add-to-cart').click(function() {
+                    if (!isLoggedIn) {
+                        $('#loginModal').modal('show');
+                        return;
+                    }
+
                     const productId = $(this).data('id');
                     const productName = $(this).data('name');
-                    const productPrice = $(this).data('price');
                     const quantity = parseInt($(this).closest('.card-footer').find('.item-qty').val());
                     
-                    // Check if user is logged in
-                    const isLoggedIn = <?php echo isset($_SESSION['loginok']) ? 'true' : 'false'; ?>;
+                    console.log('Adding to cart:', { productId, productName, quantity });
                     
-                    if (isLoggedIn) {
-                        // Add to database cart
-                        $.ajax({
-                            url: 'add_to_cart.php',
-                            method: 'POST',
-                            data: {
-                                product_id: productId,
-                                quantity: quantity
-                            },
-                            success: function(response) {
-                                if (response.success) {
-                                    alert(`${productName} added to your cart!`);
-                                    updateCartCount();
-                                } else {
-                                    alert('Failed to add to cart: ' + (response.message || 'Unknown error'));
-                                }
-                            },
-                            error: function() {
-                                alert('Failed to add to cart. Please try again.');
+                    $.ajax({
+                        url: 'add_to_cart.php',
+                        method: 'POST',
+                        data: {
+                            product_id: productId,
+                            quantity: quantity
+                        },
+                        success: function(response) {
+                            console.log('Server response:', response);
+                            if (response.success) {
+                                alert(`${productName} added to your cart!`);
+                                updateCartCount();
+                            } else {
+                                alert('Failed to add to cart: ' + (response.message || 'Unknown error'));
                             }
-                        });
-                    } else {
-                        // Add to localStorage cart
-                        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                        const existingItem = cart.find(item => item.id === productId);
-                        
-                        if (existingItem) {
-                            existingItem.quantity += quantity;
-                        } else {
-                            cart.push({
-                                id: productId,
-                                name: productName,
-                                price: productPrice,
-                                quantity: quantity
-                            });
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error:', { status, error, response: xhr.responseText });
+                            alert('Failed to add to cart. Please try again.');
                         }
-                        
-                        localStorage.setItem('cart', JSON.stringify(cart));
-                        updateCartCount();
-                        alert(`${productName} added to your cart!`);
-                    }
+                    });
                 });
-                
+
                 // Initialize cart count
                 updateCartCount();
-                
+
                 function updateCartCount() {
-                    const isLoggedIn = <?php echo isset($_SESSION['loginok']) ? 'true' : 'false'; ?>;
-                    
-                    if (isLoggedIn) {
-                        // Get cart count from database
-                        $.get('get_cart_count.php', function(response) {
-                            if (response.success) {
-                                $('.cart-count').text(response.count);
-                            }
-                        });
-                    } else {
-                        // Get cart count from localStorage
-                        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                        let count = cart.reduce((total, item) => total + item.quantity, 0);
-                        $('.cart-count').text(count);
+                    if (!isLoggedIn) {
+                        $('.cart-count').text('0');
+                        return;
                     }
+                    
+                    $.get('get_cart_count.php', function(response) {
+                        if (response.success) {
+                            $('.cart-count').text(response.count);
+                        }
+                    });
                 }
             });
 		</script>

@@ -168,26 +168,22 @@ session_start();
             const isLoggedIn = <?php echo isset($_SESSION['loginok']) ? 'true' : 'false'; ?>;
             
             function updateCart() {
-                if (isLoggedIn) {
-                    // Fetch cart items from database
-                    $.get('get_cart_items.php', function(response) {
-                        if (response.success) {
-                            displayCartItems(response.items);
-                        } else {
-                            $('#cart-content').hide();
-                            $('#empty-cart').show();
-                        }
-                    });
-                } else {
-                    // Get cart from localStorage
-                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                    if (cart.length === 0) {
+                // Only proceed if user is logged in
+                if (!isLoggedIn) {
+                    $('#cart-content').hide();
+                    $('#empty-cart').show();
+                    return;
+                }
+                
+                // Fetch cart items from database
+                $.get('get_cart_items.php', function(response) {
+                    if (response.success) {
+                        displayCartItems(response.items);
+                    } else {
                         $('#cart-content').hide();
                         $('#empty-cart').show();
-                        return;
                     }
-                    displayCartItems(cart);
-                }
+                });
             }
 
             function displayCartItems(items) {
@@ -237,56 +233,40 @@ session_start();
             
             // Handle quantity updates
             $(document).on('click', '.update-qty', function() {
+                if (!isLoggedIn) {
+                    $('#loginModal').modal('show');
+                    return;
+                }
+
                 const id = $(this).data('id');
                 const action = $(this).data('action');
                 
-                if (isLoggedIn) {
-                    // Update quantity in database
-                    $.post('update_cart_quantity.php', {
-                        product_id: id,
-                        action: action
-                    }, function(response) {
-                        if (response.success) {
-                            updateCart();
-                        }
-                    });
-                } else {
-                    // Update quantity in localStorage
-                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                    const itemIndex = cart.findIndex(item => item.id === id);
-                    
-                    if (itemIndex !== -1) {
-                        if (action === 'increase') {
-                            cart[itemIndex].quantity++;
-                        } else if (action === 'decrease' && cart[itemIndex].quantity > 1) {
-                            cart[itemIndex].quantity--;
-                        }
-                        localStorage.setItem('cart', JSON.stringify(cart));
-                        displayCartItems(cart);
+                $.post('update_cart_quantity.php', {
+                    product_id: id,
+                    action: action
+                }, function(response) {
+                    if (response.success) {
+                        updateCart();
                     }
-                }
+                });
             });
             
             // Handle item removal
             $(document).on('click', '.remove-item', function() {
+                if (!isLoggedIn) {
+                    $('#loginModal').modal('show');
+                    return;
+                }
+
                 const id = $(this).data('id');
                 
-                if (isLoggedIn) {
-                    // Remove from database
-                    $.post('remove_from_cart.php', {
-                        product_id: id
-                    }, function(response) {
-                        if (response.success) {
-                            updateCart();
-                        }
-                    });
-                } else {
-                    // Remove from localStorage
-                    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                    cart = cart.filter(item => item.id !== id);
-                    localStorage.setItem('cart', JSON.stringify(cart));
-                    displayCartItems(cart);
-                }
+                $.post('remove_from_cart.php', {
+                    product_id: id
+                }, function(response) {
+                    if (response.success) {
+                        updateCart();
+                    }
+                });
             });
             
             // Handle checkout
@@ -296,22 +276,20 @@ session_start();
                     return;
                 }
                 
-                // Show checkout modal
                 $('#checkoutModal').modal('show');
                 updateCheckoutSummary();
             });
             
             function updateCheckoutSummary() {
-                if (isLoggedIn) {
-                    $.get('get_cart_items.php', function(response) {
-                        if (response.success) {
-                            displayCheckoutSummary(response.items);
-                        }
-                    });
-                } else {
-                    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-                    displayCheckoutSummary(cart);
+                if (!isLoggedIn) {
+                    return;
                 }
+                
+                $.get('get_cart_items.php', function(response) {
+                    if (response.success) {
+                        displayCheckoutSummary(response.items);
+                    }
+                });
             }
             
             function displayCheckoutSummary(items) {
@@ -345,7 +323,6 @@ session_start();
                     total: parseFloat($('#checkout-total').text().replace('₱', ''))
                 };
 
-                // Validate required fields
                 if (!formData.fullname || !formData.phone || !formData.address || !formData.payment) {
                     alert('Please fill in all required fields');
                     return;
@@ -359,18 +336,11 @@ session_start();
                     success: function(response) {
                         if (response.success) {
                             alert(response.message);
-                            // Clear cart for both logged in and guest users
-                            if (isLoggedIn) {
-                                // Clear cart from database
-                                $.post('remove_from_cart.php', { clear_all: true }, function() {
-                                    updateCart();
-                                });
-                            } else {
-                                // Clear localStorage cart
-                                localStorage.removeItem('cart');
-                            }
+                            // Clear cart from database
+                            $.post('remove_from_cart.php', { clear_all: true }, function() {
+                                updateCart();
+                            });
                             $('#checkoutModal').modal('hide');
-                            // Redirect to a thank you page or orders page
                             window.location.href = '<?php echo BASE_URL; ?>/index.php';
                         } else {
                             alert('Failed to place order: ' + (response.message || 'Unknown error'));

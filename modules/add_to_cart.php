@@ -15,14 +15,9 @@ if (!isset($_SESSION['loginok'])) {
     exit;
 }
 
-$input = json_decode(file_get_contents('php://input'), true);
-if (!$input) {
-    $input = $_POST;
-}
-
 $userId = $_SESSION['user_id'];
-$productId = isset($input['product_id']) ? intval($input['product_id']) : 0;
-$quantity = isset($input['quantity']) ? intval($input['quantity']) : 0;
+$productId = isset($_POST['product_id']) ? intval($_POST['product_id']) : 0;
+$quantity = isset($_POST['quantity']) ? intval($_POST['quantity']) : 0;
 
 if (!$productId || !$quantity) {
     echo json_encode(['success' => false, 'message' => 'Invalid input']);
