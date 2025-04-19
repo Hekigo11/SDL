@@ -9,7 +9,7 @@ if (!isset($_SESSION['loginok'])) {
 
 include("dbconi.php");
 
-// Get the user ID from session
+// user id mula session
 $user_id = $_SESSION['user_id'];
 
 // Validate input data
@@ -21,7 +21,7 @@ if (empty($_POST['fullname']) || empty($_POST['phone']) || empty($_POST['address
 try {
     mysqli_begin_transaction($dbc);
 
-    // Insert the order
+    // IInput after placing order
     $query = "INSERT INTO orders (user_id, full_name, phone, address, notes, payment_method, total_amount, delivery_fee, status) 
               VALUES (?, ?, ?, ?, ?, ?, ?, 50.00, 'pending')";
               
@@ -43,9 +43,9 @@ try {
     $order_id = mysqli_insert_id($dbc);
 
     // Get cart items
-    $cart_query = "SELECT ci.*, p.prod_name FROM cart_items ci 
-                   JOIN products p ON ci.product_id = p.product_id 
-                   WHERE ci.user_id = ?";
+    $cart_query = "SELECT uc.*, p.prod_name, p.prod_price as price FROM user_cart uc 
+                   JOIN products p ON uc.product_id = p.product_id 
+                   WHERE uc.user_id = ?";
     $cart_stmt = mysqli_prepare($dbc, $cart_query);
     mysqli_stmt_bind_param($cart_stmt, "i", $user_id);
     mysqli_stmt_execute($cart_stmt);
@@ -78,8 +78,8 @@ try {
         }
     }
 
-    // Clear user's cart
-    $clear_cart = "DELETE FROM cart_items WHERE user_id = ?";
+    // Clear the user's cart after successful order sa database
+    $clear_cart = "DELETE FROM user_cart WHERE user_id = ?";
     $clear_stmt = mysqli_prepare($dbc, $clear_cart);
     mysqli_stmt_bind_param($clear_stmt, "i", $user_id);
     
