@@ -94,9 +94,11 @@ require_once __DIR__ . '/../config.php';
             <?php } ?>
         }
 
-        // Add smooth scrolling to nav links
+        // Add smooth scrolling to nav links with offset
         document.addEventListener('DOMContentLoaded', function() {
             const navLinks = document.querySelectorAll('a[href^="#"]');
+            const navHeight = document.querySelector('.navbar').offsetHeight;
+            const offset = navHeight + 30; // Adding extra padding
             
             navLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
@@ -106,9 +108,12 @@ require_once __DIR__ . '/../config.php';
                     
                     const targetElement = document.querySelector(targetId);
                     if(targetElement) {
-                        targetElement.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - offset;
+                        
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
                         });
                         
                         // Close mobile menu if open

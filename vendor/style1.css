@@ -71,7 +71,7 @@ header li, header a, header button {
 /* Smooth scrolling behavior for the whole page */
 html {
     scroll-behavior: smooth;
-    scroll-padding-top: 80px; /* Adjust this value based on your navbar height */
+    scroll-padding-top: 70px; /* Match navbar height */
 }
 
 @media (max-width: 991px) {
@@ -248,6 +248,8 @@ ul.pullDown li a:hover {
 /* Modal styles */
 .modal {
     z-index: 1051 !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
 }
 
 .modal-backdrop {
@@ -277,8 +279,18 @@ ul.pullDown li a:hover {
 }
 
 /* Ensure sections have enough padding for smooth scroll */
-section {
-    padding-top: 80px;
-    margin-top: -80px;
+section, 
+div[id]:not(.modal),
+[data-section] {
+    padding-top: calc(70px + 2rem) !important;
+    margin-top: -70px !important;
+    scroll-margin-top: 70px;
+    position: relative;
+}
+
+/* Adjust spacing for product sections */
+.product-section {
+    padding-top: calc(70px + 2rem) !important;
+    margin-bottom: 2rem;
 }
 

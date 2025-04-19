@@ -12,10 +12,10 @@ require_once __DIR__ . '/../config.php';
         <!-- Desktop Navigation -->
         <div class="collapse navbar-collapse d-lg-flex justify-content-between" id="navbarNav">
             <ul class="navbar-nav pullDown">
-                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#home" aria-label="Home">Home</a></li>
-                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#services" aria-label="Services">Services</a></li>
-                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#about" aria-label="About Us">About Us</a></li>
-                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#contact" aria-label="Contact Us">Contact Us</a></li>
+                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#home" data-section="home" aria-label="Home">Home</a></li>
+                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#services" data-section="services" aria-label="Services">Services</a></li>
+                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#about" data-section="about" aria-label="About Us">About Us</a></li>
+                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#contact" data-section="contact" aria-label="Contact Us">Contact Us</a></li>
             </ul>
             
             <div class="navbar-actions d-none d-lg-flex">
@@ -41,11 +41,11 @@ require_once __DIR__ . '/../config.php';
         <!-- Mobile Navigation Menu -->
         <div class="collapse navbar-collapse mobile-nav" style="background-color:var(--accent);" id="mobileNavMenu">
             <ul class="navbar-nav mobile-menu">
-                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#home">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#home" data-section="home">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/modules/cart.php" aria-label="My Orders">My Orders</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#services">Services</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#about">About Us</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#contact">Contact Us</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#services" data-section="services">Services</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#about" data-section="about">About Us</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#contact" data-section="contact">Contact Us</a></li>
                 <?php
                     if(isset($_SESSION['loginok'])){
                         echo '<li class="nav-item">
@@ -75,6 +75,62 @@ require_once __DIR__ . '/../config.php';
                 return false;
             <?php } ?>
         }
+
+        // Add smooth scrolling to nav links with increased offset
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('a[href^="#"]');
+            const navHeight = document.querySelector('.navbar').offsetHeight;
+            const offset = navHeight + 50; // Increased padding to 50px
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if(targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if(targetElement) {
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - offset;
+                        
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Close mobile menu if open
+                        const mobileMenu = document.getElementById('mobileNavMenu');
+                        if(mobileMenu.classList.contains('show')) {
+                            mobileMenu.classList.remove('show');
+                        }
+                    }
+                });
+            });
+
+            // Handle navigation back to index.php sections
+            const navLinksIndex = document.querySelectorAll('a[href*="index.php#"]');
+            
+            navLinksIndex.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const section = this.getAttribute('data-section');
+                    if (section) {
+                        sessionStorage.setItem('scrollToSection', section);
+                    }
+                });
+            });
+        });
     </script>
-    
+
+    <style>
+        /* Add padding to sections to prevent navbar overlap */
+        section {
+            padding-top: calc(70px + 2rem) !important; /* navbar height + extra padding */
+            margin-top: -70px !important; /* negative margin to offset padding */
+        }
+        
+        /* Ensure proper spacing for elements with IDs that are targeted by navigation */
+        [id] {
+            scroll-margin-top: 70px;
+        }
+    </style>
 </header>

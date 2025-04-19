@@ -89,6 +89,32 @@ $(document).ready(function() {
 
 //END OF NAVIGATION JS
 		</script>
+
+		<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if we need to scroll to a section (coming from another page)
+        const scrollToSection = sessionStorage.getItem('scrollToSection');
+        if (scrollToSection) {
+            const targetElement = document.getElementById(scrollToSection);
+            if (targetElement) {
+                const navHeight = document.querySelector('.navbar').offsetHeight;
+                const offset = navHeight + 50;
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - offset;
+                
+                // Add a small delay to ensure proper scroll positioning
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }, 100);
+            }
+            // Clear the stored section
+            sessionStorage.removeItem('scrollToSection');
+        }
+    });
+		</script>
 	</body>
 </html>
 

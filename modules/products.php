@@ -86,7 +86,7 @@ if (session_status() === PHP_SESSION_NONE) {
             }
         ?>
 		
-		<main class="container py-5">
+		<main class="container" style="padding-top: calc(70px + 2rem);">
             <h1 class="text-center mb-5">Our Food Menu</h1>
             
             <!-- Product Categories -->

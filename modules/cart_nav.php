@@ -12,10 +12,10 @@ require_once __DIR__ . '/../config.php';
         <!-- Desktop Navigation -->
         <div class="collapse navbar-collapse d-lg-flex justify-content-between" id="navbarNav">
             <ul class="navbar-nav pullDown">
-                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#home" aria-label="Home">Home</a></li>
-                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#services" aria-label="Services">Services</a></li>
-                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#about" aria-label="About Us">About Us</a></li>
-                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#contact" aria-label="Contact Us">Contact Us</a></li>
+                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#home" data-section="home" aria-label="Home">Home</a></li>
+                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#services" data-section="services" aria-label="Services">Services</a></li>
+                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#about" data-section="about" aria-label="About Us">About Us</a></li>
+                <li class="nav-item mx-2"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#contact" data-section="contact" aria-label="Contact Us">Contact Us</a></li>
             </ul>
             
             <div class="navbar-actions d-none d-lg-flex">
@@ -38,12 +38,12 @@ require_once __DIR__ . '/../config.php';
         <!-- Mobile Navigation Menu -->
         <div class="collapse navbar-collapse mobile-nav" style="background-color:var(--accent);" id="mobileNavMenu">
             <ul class="navbar-nav mobile-menu">
-                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#home">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="#cart">My Orders</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#home" data-section="home">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="#cart" onclick="checkLogin(event)">My Orders</a></li>
                 <li class="nav-item"><a class="nav-link" href="#" aria-label="Cater">Cater</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#services">Services</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#about">About Us</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#contact">Contact Us</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#services" data-section="services">Services</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#about" data-section="about">About Us</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#contact" data-section="contact">Contact Us</a></li>
                 <?php
                     if(isset($_SESSION['loginok'])){
                         echo '<li class="nav-item">
@@ -62,6 +62,62 @@ require_once __DIR__ . '/../config.php';
             </ul>
         </div>
     </nav>
+    
+    <script>
+        function checkLogin(event) {
+            <?php if(!isset($_SESSION['loginok'])) { ?>
+                event.preventDefault();
+                if(confirm('You need to be logged in to view orders. Would you like to login?')) {
+                    $('#loginModal').modal('show');
+                }
+                return false;
+            <?php } ?>
+        }
+
+        // Add smooth scrolling to nav links with offset
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('a[href^="#"]');
+            const navHeight = document.querySelector('.navbar').offsetHeight;
+            const offset = navHeight + 30; // Adding extra padding
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if(targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if(targetElement) {
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - offset;
+                        
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Close mobile menu if open
+                        const mobileMenu = document.getElementById('mobileNavMenu');
+                        if(mobileMenu.classList.contains('show')) {
+                            mobileMenu.classList.remove('show');
+                        }
+                    }
+                });
+            });
+
+            // Handle navigation back to index.php sections
+            const navLinksToIndex = document.querySelectorAll('a[href*="index.php#"]');
+            
+            navLinksToIndex.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const section = this.getAttribute('data-section');
+                    if (section) {
+                        sessionStorage.setItem('scrollToSection', section);
+                    }
+                });
+            });
+        });
+    </script>
 </header>
 
 
