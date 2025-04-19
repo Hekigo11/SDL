@@ -93,5 +93,32 @@ require_once __DIR__ . '/../config.php';
                 return false;
             <?php } ?>
         }
+
+        // Add smooth scrolling to nav links
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('a[href^="#"]');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if(targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if(targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        
+                        // Close mobile menu if open
+                        const mobileMenu = document.getElementById('mobileNavMenu');
+                        if(mobileMenu.classList.contains('show')) {
+                            mobileMenu.classList.remove('show');
+                        }
+                    }
+                });
+            });
+        });
     </script>
 </header>
