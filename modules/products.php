@@ -91,28 +91,31 @@ if (session_status() === PHP_SESSION_NONE) {
             
             <!-- Product Categories -->
             <div class="row mb-4">
-    <div class="col-12">
-        <ul class="nav nav-pills justify-content-center" id="prodnav">
-            <div class="nav-indicator">            </div>
-            <li class="nav-item">
-                <a class="nav-link active" href="#" data-category="all">All Items</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-category="1">Main Dishes</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-category="2">Sides</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-category="3">Desserts</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#" data-category="4">Beverages</a>
-            </li>
+                <div class="col-12">
+                    <ul class="nav nav-pills justify-content-center" id="prodnav">
+                        <div class="nav-indicator"></div>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" data-category="all">All Items</a>
+                        </li>
+                        <?php
+                        // Query to fetch categories
+                        $cat_query = "SELECT category_id, category_name FROM categories";
+                        $cat_result = mysqli_query($dbc, $cat_query);
+                        
+                        if (!$cat_result) {
+                            die("Category query failed: " . mysqli_error($dbc));
+                        }
 
-        </ul>
-    </div>
-</div>
+                        while ($cat_row = mysqli_fetch_assoc($cat_result)) {
+                            echo '<li class="nav-item">';
+                            echo '<a class="nav-link" href="#" data-category="' . $cat_row['category_id'] . '">' . htmlspecialchars($cat_row['category_name']) . '</a>';
+                            echo '</li>';
+                        }
+                        ?>
+                    </ul>
+                </div>
+            </div>
+
             <!-- Products Grid -->
             <div class="row" id="products-container">
                 <?php while ($row = mysqli_fetch_assoc($result)) { ?>
