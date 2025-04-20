@@ -121,7 +121,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 <?php while ($row = mysqli_fetch_assoc($result)) { ?>
                     <div class="col-md-4 mb-4 product-item" data-category="<?php echo $row['prod_cat_id']; ?>">
                         <div class="card h-100">
-                            <img src="<?php echo BASE_URL; ?>/images/<?php echo htmlspecialchars($row['prod_img']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($row['prod_name']); ?>">
+                            <img src="<?php echo BASE_URL; ?>/images/Products/<?php echo htmlspecialchars($row['prod_img']); ?>" class="card-img-top" alt="<?php echo htmlspecialchars($row['prod_name']); ?>">
                             <div class="card-body">
                                 <h5 class="card-title"><?php echo htmlspecialchars($row['prod_name']); ?></h5>
                                 <p class="card-text"><?php echo htmlspecialchars($row['prod_desc']); ?></p>
