@@ -357,5 +357,6 @@ session_start();
             updateCart();
         });
         </script>
+        <?php include('authenticate.php')?>
 	</body>
 </html>

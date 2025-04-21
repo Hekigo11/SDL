@@ -21,7 +21,13 @@ require_once __DIR__ . '/../config.php';
             <div class="navbar-actions d-none d-lg-flex">
                 <ul class="navbar-nav">
                     <li class="nav-item mx-2 no-dropdown">
-                        <a href="<?php echo BASE_URL; ?>/modules/cart.php" class="btn rounded-pill btn-outline-light" onclick="checkLogin(event)" aria-label="My Orders">My Orders</a>
+                        <a href="<?php echo BASE_URL; ?>/modules/cart.php" class="btn rounded-pill btn-outline-light" onclick="checkLogin(event)" aria-label="Cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="badge badge-light cart-count">0</span>
+                        </a>
+                    </li>
+                    <li class="nav-item mx-2 no-dropdown">
+                        <a href="<?php echo BASE_URL; ?>/modules/orders.php" class="btn rounded-pill btn-outline-light" onclick="checkLogin(event)" aria-label="My Orders">My Orders</a>
                     </li>
                     <?php
                     if(isset($_SESSION['loginok'])){
@@ -42,7 +48,16 @@ require_once __DIR__ . '/../config.php';
         <div class="collapse navbar-collapse mobile-nav" style="background-color:var(--accent);" id="mobileNavMenu">
             <ul class="navbar-nav mobile-menu">
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#home">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/modules/cart.php" aria-label="My Orders">My Orders</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?php echo BASE_URL; ?>/modules/cart.php" onclick="checkLogin(event)">
+                        <i class="fas fa-shopping-cart"></i> Cart
+                        <span class="badge badge-light cart-count">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?php echo BASE_URL; ?>/modules/orders.php" onclick="checkLogin(event)">My Orders</a>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="#" aria-label="Cater">Cater</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#services">Services</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#about">About Us</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#contact">Contact Us</a></li>
@@ -77,4 +92,24 @@ require_once __DIR__ . '/../config.php';
         }
     </script>
     
+    <!-- LOGOUT MODAL -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="margin: 25vh auto;" role="document">
+            <div class="modal-content" style="border-radius: 30px;">
+                <div class="modal-header text-center position-center" style="background-color:var(--accent); border-radius: 30px 30px 0 0;">
+                    <h5 class="modal-title text-light" id="logoutModalLabel">Logout</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <p>Are you sure you want to log out?</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <a href="<?php echo BASE_URL; ?>/modules/logout.php" class="btn btn-danger">Yes, Logout</a>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </header>

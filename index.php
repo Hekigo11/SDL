@@ -16,7 +16,8 @@ require_once 'config.php';
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 		<!-- Latest compiled JavaScript -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
+        <!-- Font Awesome For Icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 		<link rel="stylesheet" href="vendor/style1.css">
 		<title>Deliver</title>
 
@@ -26,7 +27,7 @@ require_once 'config.php';
 		
 		<?php include("modules/navigation.php");?>
 		<?php include("modules/homepage.php"); ?>
-
+        
 		<script>
 //NAVIGATION JS
 $(document).ready(function() {
