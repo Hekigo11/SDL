@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config.php';
+
 ?>
 <header>
     <nav class="navbar navbar-expand-lg">
@@ -39,7 +40,15 @@ require_once __DIR__ . '/../config.php';
         <div class="collapse navbar-collapse mobile-nav" style="background-color:var(--accent);" id="mobileNavMenu">
             <ul class="navbar-nav mobile-menu">
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#home">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="#cart">My Orders</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?php echo BASE_URL; ?>/modules/cart.php" onclick="checkLogin(event)">
+                        <i class="fas fa-shopping-cart"></i> Cart
+                        <span class="badge badge-light cart-count">0</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?php echo BASE_URL; ?>/modules/orders.php" onclick="checkLogin(event)">My Orders</a>
+                </li>
                 <li class="nav-item"><a class="nav-link" href="#" aria-label="Cater">Cater</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#services">Services</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#about">About Us</a></li>
@@ -63,5 +72,17 @@ require_once __DIR__ . '/../config.php';
         </div>
     </nav>
 </header>
+<script>
+    function checkLogin(event) {
+        <?php if(!isset($_SESSION['loginok'])) { ?>
+            event.preventDefault();
+            if(confirm('You need to be logged in to view orders. Would you like to login?')) {
+                $('#loginModal').modal('show');
+            }
+            return false;
+        <?php } ?>
+    }
+</script>
+<?php include('authenticate.php'); ?>
 
 

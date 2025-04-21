@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config.php';
+
 ?>
 <main>
 	<!-- BANNER TO GUYS -->
@@ -125,9 +126,20 @@ require_once __DIR__ . '/../config.php';
 <?php include('authenticate.php')?>
 
 <script>
-	// $(document).ready(function() {
-	// 	$('#burgerMenu').click(function() {
-	// 		$('#customDropdown').toggleClass('show');
-	// 	});
-	// });
+function checkLogin(event) {
+    <?php if(!isset($_SESSION['loginok'])) { ?>
+        event.preventDefault();
+        if(confirm('You need to be logged in to view orders. Would you like to login?')) {
+            $('#loginModal').modal('show');
+        }
+        return false;
+    <?php } ?>
+}
+
+$(document).ready(function() {
+    // Update cart count when page loads
+    if (typeof updateCartCount === 'function') {
+        updateCartCount();
+    }
+});
 </script>

@@ -81,16 +81,33 @@ require_once __DIR__ . '/../config.php';
     </nav>
 
     <script>
-        function checkLogin(event) {
-            <?php if(!isset($_SESSION['loginok'])) { ?>
-                event.preventDefault();
-                if(confirm('You need to be logged in to view orders. Would you like to login?')) {
-                    $('#loginModal').modal('show');
-                }
-                return false;
+    function checkLogin(event) {
+        <?php if(!isset($_SESSION['loginok'])) { ?>
+            event.preventDefault();
+            if(confirm('You need to be logged in to view orders. Would you like to login?')) {
+                $('#loginModal').modal('show');
+            }
+            return false;
+        <?php } ?>
+    }
+
+    $(document).ready(function() {
+        updateCartCount();
+
+        function updateCartCount() {
+            <?php if(isset($_SESSION['loginok'])) { ?>
+                $.get('<?php echo BASE_URL; ?>/modules/get_cart_count.php', function(response) {
+                    if (response.success) {
+                        $('.cart-count').text(response.count);
+                    }
+                }, 'json');
+            <?php } else { ?>
+                $('.cart-count').text('0');
             <?php } ?>
         }
+    });
     </script>
+    <?php include('authenticate.php'); ?>
     
     <!-- LOGOUT MODAL -->
     <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
