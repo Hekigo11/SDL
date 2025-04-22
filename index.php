@@ -21,6 +21,31 @@ require_once 'config.php';
 		<link rel="stylesheet" href="vendor/style1.css">
 		<title>Deliver</title>
 
+        <style>
+            .carousel-caption {
+                background: rgba(0, 0, 0, 0.7);
+                padding: 20px;
+                border-radius: 8px;
+                bottom: 30px;
+            }
+
+            .carousel-inner {
+                border-radius: 10px;
+                overflow: hidden;
+            }
+
+            .carousel-indicators li {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                margin: 0 5px;
+            }
+
+            .shadow {
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            }
+        </style>
+
 	</head>
 
 	<body>
