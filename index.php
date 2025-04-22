@@ -22,6 +22,45 @@ require_once 'config.php';
 		<title>Deliver</title>
 
         <style>
+            .service-card {
+                transition: transform 0.3s ease;
+            }
+
+            .service-card:hover {
+                transform: translateY(-10px);
+            }
+
+            .card {
+                border-radius: 15px;
+                overflow: hidden;
+            }
+
+            .card-img-wrapper {
+                overflow: hidden;
+            }
+
+            .card-img-top {
+                transition: transform 0.5s ease;
+            }
+
+            .card-img-wrapper:hover .card-img-top {
+                transform: scale(1.05);
+            }
+
+            .btn-outline-primary {
+                border-width: 2px;
+                padding: 8px 24px;
+                border-radius: 25px;
+            }
+
+            .btn-outline-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+            .display-4 {
+                font-weight: 600;
+            }
             .carousel-caption {
                 background: rgba(0, 0, 0, 0.7);
                 padding: 20px;

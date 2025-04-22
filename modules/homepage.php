@@ -13,7 +13,7 @@ require_once __DIR__ . '/../config.php';
 	</section>
 
 	<!-- OUR SERVICES PART -->
-	<section id="services" class="bg-light py-5">
+	<!-- <section id="services" class="bg-light py-5">
 		<div class="d-flex flex-column align-items-center space-around">
 			<h2 class="text-center">Services</h2>
 			<div class="row text-center">
@@ -28,6 +28,59 @@ require_once __DIR__ . '/../config.php';
 						<img src="<?php echo BASE_URL; ?>/images/cater.jpg" class="img-fluid rounded" style="object-fit:cover; height:405px; width:575px;" alt="Catering">
 						<h5 class="mt-2">Catering</h5>
 					</a>
+				</div>
+			</div>
+		</div>
+	</section> -->
+	<!-- OUR SERVICES PART -->
+	<section id="services" class="bg-light py-5">
+		<div class="container">
+			<div class="row justify-content-center mb-5">
+				<div class="col-md-8">
+					<h2 class="text-center display-4 mb-3">Our Services</h2>
+					<p class="text-center text-muted">Choose from our premium food delivery or professional catering services</p>
+				</div>
+			</div>
+			
+			<div class="row">
+				<div class="col-md-6 mb-4">
+					<div class="service-card h-100">
+						<a href="<?php echo BASE_URL; ?>/modules/products.php" class="text-decoration-none">
+							<div class="card border-0 shadow-sm h-100">
+								<div class="card-img-wrapper">
+									<img src="<?php echo BASE_URL; ?>/images/deliver.jpg" 
+										class="card-img-top" 
+										alt="Delivery Service"
+										style="height: 400px; object-fit: cover;">
+								</div>
+								<div class="card-body text-center">
+									<h3 class="card-title h4 mb-3">Food Delivery</h3>
+									<p class="card-text text-muted">Quick and convenient delivery straight to your doorstep</p>
+									<button class="btn btn-outline-primary mt-3">Order Now</button>
+								</div>
+							</div>
+						</a>
+					</div>
+				</div>
+				
+				<div class="col-md-6 mb-4">
+					<div class="service-card h-100">
+						<a href="#catering" class="text-decoration-none">
+							<div class="card border-0 shadow-sm h-100">
+								<div class="card-img-wrapper">
+									<img src="<?php echo BASE_URL; ?>/images/cater.jpg" 
+										class="card-img-top" 
+										alt="Catering Service"
+										style="height: 400px; object-fit: cover;">
+								</div>
+								<div class="card-body text-center">
+									<h3 class="card-title h4 mb-3">Catering Service</h3>
+									<p class="card-text text-muted">Professional catering for your special events</p>
+									<button class="btn btn-outline-primary mt-3">Learn More</button>
+								</div>
+							</div>
+						</a>
+					</div>
 				</div>
 			</div>
 		</div>
