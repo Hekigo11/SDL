@@ -13,26 +13,6 @@ require_once __DIR__ . '/../config.php';
 	</section>
 
 	<!-- OUR SERVICES PART -->
-	<!-- <section id="services" class="bg-light py-5">
-		<div class="d-flex flex-column align-items-center space-around">
-			<h2 class="text-center">Services</h2>
-			<div class="row text-center">
-				<div class="col-md-6 mb-4">
-					<a href="<?php echo BASE_URL; ?>/modules/products.php">
-						<img src="<?php echo BASE_URL; ?>/images/deliver.jpg" class="img-fluid rounded" style="object-fit:cover; height:405px; width:575px;" alt="Delivery">
-						<h5 class="mt-2">Delivery</h5>
-					</a>
-				</div>
-				<div class="col-md-6 mb-4">
-					<a href="#catering">
-						<img src="<?php echo BASE_URL; ?>/images/cater.jpg" class="img-fluid rounded" style="object-fit:cover; height:405px; width:575px;" alt="Catering">
-						<h5 class="mt-2">Catering</h5>
-					</a>
-				</div>
-			</div>
-		</div>
-	</section> -->
-	<!-- OUR SERVICES PART -->
 	<section id="services" class="bg-light py-5">
 		<div class="container">
 			<div class="row justify-content-center mb-5">
