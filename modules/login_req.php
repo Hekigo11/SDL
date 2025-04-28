@@ -60,7 +60,15 @@ if($isallok) {
             $_SESSION['user_id'] = $row['user_id'];
             $_SESSION['email'] = $row['email_add'];
             $_SESSION['name'] = $row['fname'] . ' ' . $row['lname'];
-            $msg = "success";
+            $_SESSION['role'] = $row['role_id'];
+
+            //role checker if admin or customer
+            if($row['role_id'] == 1) {
+                $msg = "admin"; // Admin role
+            } else {
+                $msg = "success"; // Customer role
+            }
+           
         } else {
             $msg = "Invalid password";
         }

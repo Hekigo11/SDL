@@ -28,7 +28,14 @@ require_once __DIR__ . '/../config.php';
     $(document).ready(function(){
         $("#btnlogin").click(function(){
             $.post("<?php echo BASE_URL; ?>/modules/login_req.php", $("form#frmlogin").serialize(), function(d){
-                if(d=='success'){
+                if(d == 'admin'){
+                    alert("Admin Login Success");
+                    $("input[name='txtemail']").val('');
+                    $("input[name='txtpassword']").val('');
+                    $('#loginModal').modal('hide');
+                    window.location.href = "<?php echo BASE_URL; ?>/modules/admindashboard.php";
+                }
+                else if(d=='success'){
                     alert("Login Success");
                     $("input[name='txtemail']").val('');
                     $("input[name='txtpassword']").val('');
