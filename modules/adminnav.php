@@ -5,7 +5,7 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
     exit;
 }
 ?>
-<div class="sidebar">
+<div class="sidebar collapsed">
     <div class="logo">
         <i class="fas fa-utensils"></i>
         <span>MARJ Foods</span>
@@ -16,19 +16,19 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
     </button>
 
     <nav>
-        <a href="admindashboard.php" class="nav-link">
+        <a href="#" class="nav-link" data-page="dashboard">
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
         </a>
-        <a href="admin_order_details.php" class="nav-link">
+        <a href="#" class="nav-link" data-page="orders">
             <i class="fas fa-shopping-cart"></i>
             <span>Orders</span>
         </a>
-        <a href="admin_sales_data.php" class="nav-link">
+        <a href="#" class="nav-link" data-page="sales">
             <i class="fas fa-chart-line"></i>
             <span>Sales Report</span>
         </a>
-        <a href="#" class="nav-link">
+        <a href="#" class="nav-link" data-page="customers">
             <i class="fas fa-users"></i>
             <span>Customers</span>
         </a>
