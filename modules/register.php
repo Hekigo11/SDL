@@ -28,6 +28,7 @@ require_once __DIR__ . '/../config.php';
       <div class="card mx-auto col-md-5 my-3"  style="border-radius: 30px; background-color: var(--background);">
           <div class="card-body">
               <h5 class="card-title">Register</h5>
+              <div id="alert-container" class="mt-3"></div>
               <form id="frmstud" enctype="multipart/form-data">
 
 			  	<div class="form-group">
@@ -59,21 +60,31 @@ require_once __DIR__ . '/../config.php';
                 <button type="button" class="btn btn-primary" id="btnsave">Save</button>
                 <button type="button" class="btn btn-secondary" id="btncancel">Cancel</button>
               </form>
-              <div id="alert-container" class="mt-3"></div>
           </div>
       </div>
 </body>
 
 <script>
-function showAlert(message, type) {
-    const alertContainer = $("#alert-container");
-    const alertHtml = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                            ${message}
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                       </div>`;
-    alertContainer.html(alertHtml);
+function showAlert(message, type = 'warning') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    `;
+    
+    // Clear existing alerts
+    document.getElementById('alert-container').innerHTML = '';
+    document.getElementById('alert-container').appendChild(alertDiv);
+    
+    // Auto dismiss success alerts after 5 seconds
+    if (type === 'success') {
+        setTimeout(() => {
+            $(alertDiv).alert('close');
+        }, 5000);
+    }
 }
 
 $(document).ready(function(){
@@ -82,15 +93,20 @@ $(document).ready(function(){
     });
     
     $("#btnsave").click(function(){
-        $.post("<?php echo BASE_URL; ?>/modules/register_save.php", $("form#frmstud").serialize(), function(d){
-            if(d == 'success'){
-                showAlert("Registration successful! Please check your email for verification code.", "success");
-                setTimeout(() => {
+        // Clear previous alerts
+        $('#alert-container').empty();
+        
+        $.post("<?php echo BASE_URL; ?>/modules/register_save.php", $("#frmstud").serialize(), function(response) {
+            if(response.trim() === "success") {
+                showAlert("Registration successful! Please check your email for verification.", "success");
+                setTimeout(function() {
                     window.location.href = "<?php echo BASE_URL; ?>/modules/verify.php";
                 }, 2000);
             } else {
-                showAlert(d, "danger");
+                showAlert(response, "danger");
             }
+        }).fail(function() {
+            showAlert("Failed to connect to server. Please try again.", "danger");
         });
     });
 });
