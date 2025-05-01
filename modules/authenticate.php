@@ -29,6 +29,7 @@ require_once __DIR__ . '/../config.php';
                     </button>
                 </div>
                 <div class="modal-body text-center">
+                <i class="fas fa-sign-out-alt fa-3x text-muted mb-3"></i>
                     <p>Are you sure you want to log out?</p>
                 </div>
                 <div class="modal-footer justify-content-center">

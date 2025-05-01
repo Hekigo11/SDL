@@ -100,8 +100,8 @@ $(document).ready(function() {
         e.preventDefault();
         $('#mobileNavMenu').addClass('active');
         $('#mobileNavOverlay').addClass('active');
-        if (window.innerWidth <= 991) {  // Only add overflow:hidden on mobile
-            $('body').css('overflow', 'hidden');
+        if (window.innerWidth <= 991) { 
+            $('body').addClass('mobile-menu-open');
         }
     });
     
@@ -109,7 +109,8 @@ $(document).ready(function() {
     function closeMobileMenu() {
         $('#mobileNavMenu').removeClass('active');
         $('#mobileNavOverlay').removeClass('active');
-        $('body').css('overflow', '');
+        // $('body').css('overflow', '');
+        $('body').removeClass('mobile-menu-open');
     }
     
     // Close mobile menu when clicking the close button

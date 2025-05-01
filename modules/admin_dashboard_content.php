@@ -17,7 +17,7 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
                 <div class="card-body">
                     <h5 class="card-title">Orders</h5>
                     <p class="card-text">View and manage customer orders</p>
-                    <a href="#" class="nav-link" data-page="orders">Manage Orders</a>
+                    <a href="#" class="btn btn-outline-dark" data-page="orders">Manage Orders</a>
                 </div>
             </div>
         </div>
@@ -27,7 +27,7 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
                 <div class="card-body">
                     <h5 class="card-title">Sales Report</h5>
                     <p class="card-text">View sales statistics and reports</p>
-                    <a href="#" class="nav-link" data-page="sales">View Reports</a>
+                    <a href="#" class="btn btn-outline-dark" data-page="sales">View Reports</a>
                 </div>
             </div>
         </div>

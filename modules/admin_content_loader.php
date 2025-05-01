@@ -4,7 +4,7 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
     exit('Unauthorized');
 }
 
-$page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+$page = isset($_GET['page']) ? $_GET['page'] : 'dashboard'; //dedefault to pa dashboard
 
 switch($page) {
     case 'dashboard':
