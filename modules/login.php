@@ -27,7 +27,7 @@ require_once __DIR__ . '/../config.php';
 <div id="alert-container" class="mt-3"></div>
 
 <script>
-    function showAlert(message, type) {
+    function showAlertlogin(message, type) {
         const alertContainer = $("#alert-container");
         const alertHtml = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
                                 ${message}
@@ -40,7 +40,7 @@ require_once __DIR__ . '/../config.php';
         $("#btnlogin").click(function(){
             $.post("<?php echo BASE_URL; ?>/modules/login_req.php", $("form#frmlogin").serialize(), function(d){
                 if(d == 'admin'){
-                    showAlert("Login successful! Redirecting to admin dashboard...", "success");
+                    showAlertlogin("Login successful! Redirecting to admin dashboard...", "success");
                     $("input[name='txtemail']").val('');
                     $("input[name='txtpassword']").val('');
                     $('#loginModal').modal('hide');
@@ -49,7 +49,7 @@ require_once __DIR__ . '/../config.php';
                     }, 1500);
                 }
                 else if(d=='success'){
-                    showAlert("Login successful!", "success");
+                    showAlertlogin("Login successful!", "success");
                     $("input[name='txtemail']").val('');
                     $("input[name='txtpassword']").val('');
                     $('#loginModal').modal('hide');
@@ -57,12 +57,12 @@ require_once __DIR__ . '/../config.php';
                         location.reload();
                     }, 1500);
                 } else if(d == 'verify_required') {
-                    showAlert("Please verify your email first", "warning");
+                    showAlertlogin("Please verify your email first", "warning");
                     setTimeout(function() {
                         window.location.href = "<?php echo BASE_URL; ?>/modules/verify.php";
                     }, 1500);
                 } else {
-                    showAlert(d, "danger");
+                    showAlertlogin(d, "danger");
                 }
             });
         });

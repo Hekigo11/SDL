@@ -110,6 +110,7 @@ if (session_status() === PHP_SESSION_NONE) {
                 die("Query failed: " . mysqli_error($dbc));
             }
         ?>
+     
 		
 		<main class="container py-5">
             <h1 class="text-center mb-5">Our Food Menu</h1>
@@ -208,10 +209,17 @@ if (session_status() === PHP_SESSION_NONE) {
             
             <!-- Mini Cart Indicator -->
             <div class="fixed-bottom mb-4 mr-4 d-flex justify-content-end">
-                <a href="<?php echo BASE_URL; ?>/modules/cart.php" class="btn btn-primary position-relative">
-                    <i class="fas fa-shopping-cart"></i> View Cart
-                    <span class="badge badge-light cart-count">0</span>
-                </a>
+                <?php if(isset($_SESSION['loginok'])) { ?>
+                    <a href="<?php echo BASE_URL; ?>/modules/cart.php" class="btn btn-primary position-relative">
+                        <i class="fas fa-shopping-cart"></i> View Cart
+                        <span class="badge badge-light cart-count">0</span>
+                    </a>
+                <?php } else { ?>
+                    <a href="#" onclick="showAlert('Please login to view your cart', 'warning', true); return false;" class="btn btn-primary position-relative">
+                        <i class="fas fa-shopping-cart"></i> View Cart
+                        <span class="badge badge-light cart-count">0</span>
+                    </a>
+                <?php } ?>
             </div>
 		</main>
 		
@@ -220,10 +228,6 @@ if (session_status() === PHP_SESSION_NONE) {
         </footer>
 		
 		<?php include('authenticate.php')?>
-                    
-                </div>
-            </div>
-        </div>
 
         <!-- Product View Modal -->
         <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
@@ -267,24 +271,44 @@ if (session_status() === PHP_SESSION_NONE) {
             $(document).ready(function() {
                 const isLoggedIn = <?php echo isset($_SESSION['loginok']) ? 'true' : 'false'; ?>;
 
-                // Cart Functions
-                function showAlert(message, type, autoHide = false) {
-                    const alertBox = $(`<div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                        ${message}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>`);
-
-                    $('body').append(alertBox);
-
-                    if (autoHide) {
+                function showAlert(message, type = 'warning', showLoginButton = false) {
+                    // Remove any existing alerts
+                    $('.alert').alert('close');
+                    
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = `alert alert-${type} alert-dismissible fade show mx-3`;
+                    alertDiv.role = 'alert';
+                    
+                    let alertContent = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>${message}</div>
+                            ${showLoginButton ? '<button type="button" class="btn btn-primary btn-sm mx-2" onclick="$(\'#loginModal\').modal(\'show\')">Login Now</button>' : ''}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    `;
+                    
+                    alertDiv.innerHTML = alertContent;
+                    document.getElementById('alertContainer').appendChild(alertDiv);
+                    
+                    if (type === 'success') {
                         setTimeout(() => {
-                            alertBox.alert('close');
+                            $(alertDiv).alert('close');
                         }, 3000);
                     }
                 }
 
+                function checkCartAccess(event) {
+                    if (!isLoggedIn) {
+                        event.preventDefault();
+                        showAlert('Please login to view your cart', 'warning', true);
+                        return false;
+                    }
+                    window.location.href = '<?php echo BASE_URL; ?>/modules/cart.php';
+                }
+
+                // Cart Functions
                 function addToCart(productId, productName, quantity) {
                     if (!isLoggedIn) {
                         $('#productModal').modal('hide');
