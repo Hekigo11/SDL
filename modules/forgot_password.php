@@ -16,6 +16,7 @@ require_once __DIR__ . '/../config.php';
         <div class="card mx-auto col-md-5" style="border-radius: 30px; background-color: var(--background);">
             <div class="card-body">
                 <h5 class="card-title">Reset Password</h5>
+                <div id="alert-container" class="mt-3"></div>
                 <div id="email-form">
                     <div class="form-group">
                         <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email address" required>
@@ -40,11 +41,22 @@ require_once __DIR__ . '/../config.php';
     </div>
 
     <script>
+    function showAlert(message, type) {
+        const alertContainer = $("#alert-container");
+        const alertHtml = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                            ${message}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                       </div>`;
+        alertContainer.html(alertHtml);
+    }
+
     $(document).ready(function(){
         $("#btnRequestReset").click(function(){
             let email = $("#email").val();
             if(!email) {
-                alert("Please enter your email address");
+                showAlert("Please enter your email address", "warning");
                 return;
             }
 
@@ -54,9 +66,9 @@ require_once __DIR__ . '/../config.php';
                     if(response.success){
                         $("#email-form").hide();
                         $("#otp-form").show();
-                        alert("Password reset code has been sent to your email");
+                        showAlert("Password reset code has been sent to your email", "success");
                     } else {
-                        alert(response.message || "Error occurred");
+                        showAlert(response.message || "Error occurred", "danger");
                     }
                 }, 'json'
             );
@@ -69,12 +81,12 @@ require_once __DIR__ . '/../config.php';
             let confirmPassword = $("#confirm_password").val();
 
             if(!otp || !newPassword || !confirmPassword) {
-                alert("Please fill in all fields");
+                showAlert("Please fill in all fields", "warning");
                 return;
             }
 
             if(newPassword !== confirmPassword) {
-                alert("Passwords do not match");
+                showAlert("Passwords do not match", "warning");
                 return;
             }
 
@@ -86,10 +98,12 @@ require_once __DIR__ . '/../config.php';
                 }, 
                 function(response){
                     if(response.success){
-                        alert("Password has been reset successfully");
-                        window.location.href = "<?php echo BASE_URL; ?>/index.php";
+                        showAlert("Password has been reset successfully! Redirecting...", "success");
+                        setTimeout(() => {
+                            window.location.href = "<?php echo BASE_URL; ?>/index.php";
+                        }, 1500);
                     } else {
-                        alert(response.message || "Error occurred");
+                        showAlert(response.message || "Error occurred", "danger");
                     }
                 }, 'json'
             );

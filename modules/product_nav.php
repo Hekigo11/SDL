@@ -3,6 +3,9 @@ require_once __DIR__ . '/../config.php';
 ?>
 <header>
     <nav class="navbar navbar-expand-lg">
+        <!-- Alert Container -->
+        <div id="alertContainer" class="position-fixed w-100" style="top: 70px; z-index: 1051;"></div>
+        
         <a class="navbar-brand" href="<?php echo BASE_URL; ?>/index.php" aria-label="Home">MARJ Food Services</a>
         
         <button class="navbar-toggler custom-toggler" type="button" data-toggle="collapse" data-target="#mobileNavMenu" aria-controls="mobileNavMenu" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,12 +84,34 @@ require_once __DIR__ . '/../config.php';
     </nav>
 
     <script>
+    function showAlert(message, type = 'warning', showLoginButton = false) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show mx-3`;
+        alertDiv.role = 'alert';
+        
+        let alertContent = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>${message}</div>
+                ${showLoginButton ? '<button type="button" class="btn btn-primary btn-sm mx-2" onclick="$(\'#loginModal\').modal(\'show\')">Login Now</button>' : ''}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        `;
+        
+        alertDiv.innerHTML = alertContent;
+        document.getElementById('alertContainer').appendChild(alertDiv);
+        
+        // Auto dismiss after 5 seconds
+        setTimeout(() => {
+            $(alertDiv).alert('close');
+        }, 5000);
+    }
+
     function checkLogin(event) {
         <?php if(!isset($_SESSION['loginok'])) { ?>
             event.preventDefault();
-            if(confirm('You need to be logged in to view orders. Would you like to login?')) {
-                $('#loginModal').modal('show');
-            }
+            showAlert('You need to be logged in to view orders.', 'warning', true);
             return false;
         <?php } ?>
     }

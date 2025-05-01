@@ -234,7 +234,7 @@ session_start();
             // Handle quantity updates
             $(document).on('click', '.update-qty', function() {
                 if (!isLoggedIn) {
-                    $('#loginModal').modal('show');
+                    showAlert('Please login to manage your cart', 'warning', true);
                     return;
                 }
 
@@ -254,7 +254,7 @@ session_start();
             // Handle item removal
             $(document).on('click', '.remove-item', function() {
                 if (!isLoggedIn) {
-                    $('#loginModal').modal('show');
+                    showAlert('Please login to manage your cart', 'warning', true);
                     return;
                 }
 
@@ -264,6 +264,7 @@ session_start();
                     product_id: id
                 }, function(response) {
                     if (response.success) {
+                        showAlert('Item removed from cart', 'success');
                         updateCart();
                     }
                 });
@@ -272,7 +273,7 @@ session_start();
             // Handle checkout
             $('#checkout-btn').click(function() {
                 if (!isLoggedIn) {
-                    $('#loginModal').modal('show');
+                    showAlert('Please login to proceed to checkout', 'warning', true);
                     return;
                 }
                 
@@ -324,7 +325,7 @@ session_start();
                 };
 
                 if (!formData.fullname || !formData.phone || !formData.address || !formData.payment) {
-                    alert('Please fill in all required fields');
+                    showAlert('Please fill in all required fields', 'danger');
                     return;
                 }
 
@@ -335,23 +336,42 @@ session_start();
                     dataType: 'json',
                     success: function(response) {
                         if (response.success) {
-                            alert(response.message);
+                            showAlert(response.message || 'Order placed successfully!', 'success');
                             // Clear cart from database
                             $.post('remove_from_cart.php', { clear_all: true }, function() {
                                 updateCart();
                             });
                             $('#checkoutModal').modal('hide');
-                            window.location.href = '<?php echo BASE_URL; ?>/index.php';
+                            setTimeout(() => {
+                                window.location.href = '<?php echo BASE_URL; ?>/index.php';
+                            }, 2000);
                         } else {
-                            alert('Failed to place order: ' + (response.message || 'Unknown error'));
+                            showAlert('Failed to place order: ' + (response.message || 'Unknown error'), 'danger');
                         }
                     },
-                    error: function(xhr, status, error) {
-                        console.error('Order Error:', error);
-                        alert('Failed to place order. Please try again.');
+                    error: function() {
+                        showAlert('Error placing order. Please try again.', 'danger');
                     }
                 });
             });
+
+            // Show alert
+            function showAlert(message, type, autoHide = false) {
+                const alertHtml = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                `;
+                $('main.container').prepend(alertHtml);
+                if (autoHide) {
+                    setTimeout(() => {
+                        $('.alert').alert('close');
+                    }, 3000);
+                }
+            }
 
             // Initialize cart
             updateCart();

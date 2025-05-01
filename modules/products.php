@@ -268,10 +268,27 @@ if (session_status() === PHP_SESSION_NONE) {
                 const isLoggedIn = <?php echo isset($_SESSION['loginok']) ? 'true' : 'false'; ?>;
 
                 // Cart Functions
+                function showAlert(message, type, autoHide = false) {
+                    const alertBox = $(`<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>`);
+
+                    $('body').append(alertBox);
+
+                    if (autoHide) {
+                        setTimeout(() => {
+                            alertBox.alert('close');
+                        }, 3000);
+                    }
+                }
+
                 function addToCart(productId, productName, quantity) {
                     if (!isLoggedIn) {
-                        $('#productModal').modal('hide'); //para di magpatungan mga modal
-                        $('#loginModal').modal('show');
+                        $('#productModal').modal('hide');
+                        showAlert('Please login to add items to your cart', 'warning', true);
                         return;
                     }
 
@@ -284,15 +301,15 @@ if (session_status() === PHP_SESSION_NONE) {
                         },
                         success: function(response) {
                             if (response.success) {
-                                alert(`${productName} added to your cart!`);
+                                showAlert(`${productName} added to your cart!`, 'success');
                                 updateCartCount();
                                 $('#productModal').modal('hide');
                             } else {
-                                alert('Failed to add to cart: ' + (response.message || 'Unknown error'));
+                                showAlert('Failed to add to cart: ' + (response.message || 'Unknown error'), 'danger');
                             }
                         },
                         error: function() {
-                            alert('Error adding item to cart');
+                            showAlert('Error adding item to cart', 'danger');
                         }
                     });
                 }

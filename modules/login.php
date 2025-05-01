@@ -24,31 +24,45 @@ require_once __DIR__ . '/../config.php';
     </div>
 </div>
 
+<div id="alert-container" class="mt-3"></div>
+
 <script>
+    function showAlert(message, type) {
+        const alertContainer = $("#alert-container");
+        const alertHtml = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                                ${message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                           </div>`;
+        alertContainer.html(alertHtml);
+    }
+
     $(document).ready(function(){
         $("#btnlogin").click(function(){
             $.post("<?php echo BASE_URL; ?>/modules/login_req.php", $("form#frmlogin").serialize(), function(d){
                 if(d == 'admin'){
-                    alert("Admin Login Success");
+                    showAlert("Login successful! Redirecting to admin dashboard...", "success");
                     $("input[name='txtemail']").val('');
                     $("input[name='txtpassword']").val('');
                     $('#loginModal').modal('hide');
-                    window.location.href = "<?php echo BASE_URL; ?>/modules/admindashboard.php";
+                    setTimeout(() => {
+                        window.location.href = "<?php echo BASE_URL; ?>/modules/admindashboard.php";
+                    }, 1500);
                 }
                 else if(d=='success'){
-                    alert("Login Success");
+                    showAlert("Login successful!", "success");
                     $("input[name='txtemail']").val('');
                     $("input[name='txtpassword']").val('');
                     $('#loginModal').modal('hide');
-                location.reload();
-                    window.location.href = "<?php echo BASE_URL; ?>/";
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
                 } else if(d == 'verify_required') {
-                    alert("Please verify your email first");
-                setTimeout(function() {
-                    window.location.href = "<?php echo BASE_URL; ?>/modules/verify.php";
-                }, 100);
+                    showAlert("Please verify your email first", "warning");
+                    setTimeout(function() {
+                        window.location.href = "<?php echo BASE_URL; ?>/modules/verify.php";
+                    }, 1500);
                 } else {
-                    alert(d);
+                    showAlert(d, "danger");
                 }
             });
         });

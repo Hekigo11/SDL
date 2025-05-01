@@ -214,12 +214,33 @@ if (isset($_SESSION['loginok']) && $_SESSION['role'] == 1) {
 <?php include('authenticate.php')?>
 
 <script>
+	function showAlert(message, type = 'warning', showLoginButton = false) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show mx-3`;
+    alertDiv.role = 'alert';
+    
+    let alertContent = `
+        <div class="d-flex justify-content-between align-items-center">
+            <div>${message}</div>
+            ${showLoginButton ? '<button type="button" class="btn btn-primary btn-sm mx-2" onclick="$(\'#loginModal\').modal(\'show\')">Login Now</button>' : ''}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    `;
+    
+    alertDiv.innerHTML = alertContent;
+    document.getElementById('alertContainer').appendChild(alertDiv);
+    
+    // Auto dismiss after 5 seconds
+    setTimeout(() => {
+        $(alertDiv).alert('close');
+    }, 3000);
+}
 function checkLogin(event) {
     <?php if(!isset($_SESSION['loginok'])) { ?>
         event.preventDefault();
-        if(confirm('You need to be logged in to view orders. Would you like to login?')) {
-            $('#loginModal').modal('show');
-        }
+		showAlert('You need to be logged in to view orders.', 'warning', true);
         return false;
     <?php } ?>
 }

@@ -59,25 +59,39 @@ require_once __DIR__ . '/../config.php';
                 <button type="button" class="btn btn-primary" id="btnsave">Save</button>
                 <button type="button" class="btn btn-secondary" id="btncancel">Cancel</button>
               </form>
+              <div id="alert-container" class="mt-3"></div>
           </div>
       </div>
 </body>
 
 <script>
+function showAlert(message, type) {
+    const alertContainer = $("#alert-container");
+    const alertHtml = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                            ${message}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                       </div>`;
+    alertContainer.html(alertHtml);
+}
+
 $(document).ready(function(){
-	$("#btncancel").click(function(){
-		document.location = "../index.php";
-	});
-	
-	$("#btnsave").click(function(){
-		$.post("<?php echo BASE_URL; ?>/modules/register_save.php", $("form#frmstud").serialize(), function(d){
-			if(d == 'success'){
-				alert("Registration successful! Please check your email for verification code.");
-				window.location.href = "<?php echo BASE_URL; ?>/modules/verify.php";
-			} else {
-				alert(d);
-			}
-		});
-	});
+    $("#btncancel").click(function(){
+        document.location = "../index.php";
+    });
+    
+    $("#btnsave").click(function(){
+        $.post("<?php echo BASE_URL; ?>/modules/register_save.php", $("form#frmstud").serialize(), function(d){
+            if(d == 'success'){
+                showAlert("Registration successful! Please check your email for verification code.", "success");
+                setTimeout(() => {
+                    window.location.href = "<?php echo BASE_URL; ?>/modules/verify.php";
+                }, 2000);
+            } else {
+                showAlert(d, "danger");
+            }
+        });
+    });
 });
 </script>
