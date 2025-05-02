@@ -78,13 +78,6 @@ function showAlert(message, type = 'warning') {
     // Clear existing alerts
     document.getElementById('alert-container').innerHTML = '';
     document.getElementById('alert-container').appendChild(alertDiv);
-    
-    // Auto dismiss success alerts after 5 seconds
-    if (type === 'success') {
-        setTimeout(() => {
-            $(alertDiv).alert('close');
-        }, 5000);
-    }
 }
 
 $(document).ready(function(){
@@ -96,17 +89,27 @@ $(document).ready(function(){
         // Clear previous alerts
         $('#alert-container').empty();
         
+        // didisable na yung button after clicking, para di mag double click
+        $("#btnsave").prop('disabled', true);
+        
         $.post("<?php echo BASE_URL; ?>/modules/register_save.php", $("#frmstud").serialize(), function(response) {
             if(response.trim() === "success") {
-                showAlert("Registration successful! Please check your email for verification.", "success");
-                setTimeout(function() {
+                showAlert("Registration successful! Please check your email for verification. Redirecting...", "success");
+            
+                $("#frmstud")[0].reset();
+                
+                setTimeout(() => {
                     window.location.href = "<?php echo BASE_URL; ?>/modules/verify.php";
-                }, 2000);
+                }, 3000);
             } else {
                 showAlert(response, "danger");
+             
+                $("#btnsave").prop('disabled', false);
             }
         }).fail(function() {
             showAlert("Failed to connect to server. Please try again.", "danger");
+         
+            $("#btnsave").prop('disabled', false);
         });
     });
 });

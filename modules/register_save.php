@@ -80,7 +80,7 @@ try {
 
         if (mysqli_stmt_execute($insert_stmt)) {
             $mail = new PHPMailer(true);
-            $mail->SMTPDebug = 2; // Enable verbose debug output
+            $mail->SMTPDebug = 2; // ito nagcacause delay
             $mail->Debugoutput = function($str, $level) {
                 error_log("PHPMailer: $str");
             };
