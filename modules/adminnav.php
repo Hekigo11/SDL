@@ -20,6 +20,10 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
         </a>
+        <a href="#" class="nav-link" data-page="products">
+            <i class="fas fa-box"></i>
+            <span>Products</span>
+        </a>
         <a href="#" class="nav-link" data-page="orders">
             <i class="fas fa-shopping-cart"></i>
             <span>Orders</span>

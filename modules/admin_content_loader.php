@@ -10,6 +10,9 @@ switch($page) {
     case 'dashboard':
         include('admin_dashboard_content.php');
         break;
+    case 'products':
+        include('admin_products.php');
+        break;
     case 'orders':
         include('admin_order_details.php');
         break;
