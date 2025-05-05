@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config.php';
+require_once 'dbconi.php';  // Add database connection include
 session_start();
 
 if (!isset($_SESSION['loginok'])) {
@@ -96,15 +97,31 @@ if (!isset($_SESSION['loginok'])) {
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Full Name</label>
-                                        <input type="text" class="form-control" name="client_name" required>
+                                        <?php 
+                                        // Get user details for autofill
+                                        $user_query = "SELECT fname, mname, lname, email_add, mobile_num FROM users WHERE user_id = ?";
+                                        $stmt = mysqli_prepare($dbc, $user_query);
+                                        mysqli_stmt_bind_param($stmt, "i", $_SESSION['user_id']);
+                                        mysqli_stmt_execute($stmt);
+                                        $user_result = mysqli_stmt_get_result($stmt);
+                                        $user_data = mysqli_fetch_assoc($user_result);
+                                        
+                                        $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_data['lname']);
+                                        ?>
+                                        <input type="text" class="form-control" name="client_name" value="<?php echo htmlspecialchars($full_name); ?>" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Contact Number</label>
-                                        <input type="tel" class="form-control" name="contact_info" required>
+                                        <input type="tel" class="form-control" name="contact_info" value="<?php echo htmlspecialchars($user_data['mobile_num']); ?>" required>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" class="form-control" name="email" value="<?php echo htmlspecialchars($user_data['email_add']); ?>" required>
                             </div>
 
                             <div class="row">
@@ -117,7 +134,7 @@ if (!isset($_SESSION['loginok'])) {
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Number of Persons</label>
-                                        <input type="number" class="form-control" name="num_persons" min="20" required>
+                                        <input type="number" class="form-control" name="num_persons" min="10" value="10" required>
                                     </div>
                                 </div>
                             </div>
@@ -131,6 +148,16 @@ if (!isset($_SESSION['loginok'])) {
                                 <label>Occasion</label>
                                 <input type="text" class="form-control" name="occasion" required>
                             </div>
+
+                            <div class="form-group">
+                                <label>Payment Method</label>
+                                <select class="form-control" name="payment_method" required>
+                                    <option value="">Select Payment Method</option>
+                                    <option value="cash">Cash</option>
+                                    <option value="gcash">GCash</option>
+                                </select>
+                            </div>
+
                             <div class="packages-container mb-4">
                             <h5 class="mb-3">Available Packages</h5>
                             <div class="row">
@@ -196,9 +223,82 @@ if (!isset($_SESSION['loginok'])) {
                                 <textarea class="form-control" name="other_requests" rows="3"></textarea>
                             </div>
 
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="mb-3">Estimated Total</h5>
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <p class="mb-2">Package Cost: <span id="packageCost">₱0.00</span></p>
+                                            <p class="mb-2">Additional Services: <span id="servicesCost">₱0.00</span></p>
+                                            <hr>
+                                            <p class="font-weight-bold">Total Amount: <span id="totalAmount" class="text-primary">₱0.00</span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="text-center">
                                 <button type="submit" class="btn btn-accent px-5">Submit Catering Request</button>
                             </div>
+
+                            <script>
+                            function calculateTotal() {
+                                const numPersons = parseInt(document.querySelector('input[name="num_persons"]').value) || 0;
+                                const menuBundle = document.querySelector('select[name="menu_bundle"]').value;
+                                let total = 0;
+                                let packageCost = 0;
+                                let servicesCost = 0;
+
+                                // Calculate package cost
+                                switch(menuBundle) {
+                                    case 'Basic Filipino Package':
+                                        packageCost = numPersons * 250;
+                                        break;
+                                    case 'Premium Filipino Package':
+                                        packageCost = numPersons * 450;
+                                        break;
+                                    case 'Executive Package':
+                                        packageCost = numPersons * 650;
+                                        break;
+                                }
+
+                                // Calculate additional services
+                                const services = document.querySelectorAll('input[name="options[]"]:checked');
+                                services.forEach(service => {
+                                    switch(service.value) {
+                                        case 'setup':
+                                            servicesCost += 2000;
+                                            break;
+                                        case 'tables':
+                                            servicesCost += 3500;
+                                            break;
+                                        case 'decoration':
+                                            servicesCost += 5000;
+                                            break;
+                                    }
+                                });
+
+                                total = packageCost + servicesCost;
+
+                                // Update display
+                                document.getElementById('packageCost').textContent = '₱' + packageCost.toFixed(2);
+                                document.getElementById('servicesCost').textContent = '₱' + servicesCost.toFixed(2);
+                                document.getElementById('totalAmount').textContent = '₱' + total.toFixed(2);
+                            }
+
+                            // Add event listeners
+                            document.querySelector('input[name="num_persons"]').addEventListener('input', calculateTotal);
+                            document.querySelector('select[name="menu_bundle"]').addEventListener('change', calculateTotal);
+                            document.querySelectorAll('input[name="options[]"]').forEach(checkbox => {
+                                checkbox.addEventListener('change', calculateTotal);
+                            });
+
+                            // Reset form if submission was successful
+                            <?php if(isset($_SESSION['success'])): ?>
+                                document.querySelector('form').reset();
+                                calculateTotal(); // Reset the total amount display
+                            <?php endif; ?>
+                            </script>
                         </form>
                     </div>
                 </div>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: May 05, 2025 at 03:08 AM
+-- Generation Time: May 05, 2025 at 04:18 AM
 -- Server version: 9.1.0
 -- PHP Version: 8.3.14
 
@@ -50,30 +50,6 @@ INSERT INTO `categories` (`category_id`, `category_name`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `catering_forms`
---
-
-DROP TABLE IF EXISTS `catering_forms`;
-CREATE TABLE IF NOT EXISTS `catering_forms` (
-  `form_id` int NOT NULL AUTO_INCREMENT,
-  `user_id` int DEFAULT NULL,
-  `client_name` varchar(255) NOT NULL,
-  `contact_info` varchar(255) NOT NULL,
-  `num_persons` int NOT NULL,
-  `event_date` datetime NOT NULL,
-  `venue` varchar(255) NOT NULL,
-  `occasion` varchar(100) NOT NULL,
-  `requirements` text,
-  `options` text,
-  `menu_bundle` varchar(255) DEFAULT NULL,
-  `other_requests` text,
-  `submitted_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`form_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `catering_orders`
 --
 
@@ -81,33 +57,40 @@ DROP TABLE IF EXISTS `catering_orders`;
 CREATE TABLE IF NOT EXISTS `catering_orders` (
   `catering_id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
-  `full_name` varchar(255) NOT NULL,
-  `phone` varchar(20) NOT NULL,
-  `address` text NOT NULL,
+  `full_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `email` varchar(255) NOT NULL,
   `event_date` datetime NOT NULL,
   `num_persons` int NOT NULL,
-  `venue` varchar(255) NOT NULL,
-  `occasion` varchar(100) NOT NULL,
-  `setup_type` varchar(50) DEFAULT NULL,
-  `needs_tables` tinyint(1) DEFAULT '0',
-  `needs_chairs` tinyint(1) DEFAULT '0',
+  `venue` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `occasion` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `needs_tablesandchairs` tinyint(1) DEFAULT '0',
+  `needs_setup` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `needs_decoration` tinyint(1) DEFAULT '0',
-  `menu_package` varchar(100) DEFAULT NULL,
-  `special_requests` text,
+  `menu_package` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `special_requests` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   `total_amount` decimal(10,2) NOT NULL,
-  `payment_method` varchar(50) NOT NULL,
-  `status` varchar(20) NOT NULL DEFAULT 'pending',
+  `payment_method` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'pending',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`catering_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `catering_orders`
 --
 
-INSERT INTO `catering_orders` (`catering_id`, `user_id`, `full_name`, `phone`, `address`, `event_date`, `num_persons`, `venue`, `occasion`, `setup_type`, `needs_tables`, `needs_chairs`, `needs_decoration`, `menu_package`, `special_requests`, `total_amount`, `payment_method`, `status`, `created_at`) VALUES
-(1, 10, 'Jasper Sergio', '09288231320', '', '2025-05-17 02:30:00', 20, '112\r\n12he', 'asd', '0', 0, 0, 1, '', '', 3500.00, 'pending', 'pending', '2025-05-05 03:05:18');
+INSERT INTO `catering_orders` (`catering_id`, `user_id`, `full_name`, `phone`, `email`, `event_date`, `num_persons`, `venue`, `occasion`, `needs_tablesandchairs`, `needs_setup`, `needs_decoration`, `menu_package`, `special_requests`, `total_amount`, `payment_method`, `status`, `created_at`) VALUES
+(1, 10, 'Jasper Sergio', '09288231320', '', '2025-05-17 02:30:00', 20, '112\r\n12he', 'asd', 0, '0', 1, '', '', 3500.00, 'pending', 'pending', '2025-05-05 03:05:18'),
+(2, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 14:30:00', 20, '112\r\n12he', 'bday', 1, '0', 0, '', '', 2000.00, 'pending', 'pending', '2025-05-05 03:14:08'),
+(3, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 13:30:00', 20, '112\r\n12he', 'bday', 0, NULL, 0, '0', 'something', 2000.00, 'pending', 'pending', '2025-05-05 03:19:50'),
+(4, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 14:00:00', 20, '112\r\n12he', 'bday', 1, NULL, 1, '0', '', 15500.00, 'pending', 'pending', '2025-05-05 03:25:34'),
+(5, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 11:31:00', 20, '112\r\n12he', 'asd', 0, NULL, 0, '0', '', 7000.00, 'pending', 'pending', '2025-05-05 03:31:57'),
+(6, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 13:45:00', 20, '112\r\n12he', 'asd', 0, '1', 0, '0', 'asd', 15000.00, 'pending', 'pending', '2025-05-05 03:41:33'),
+(7, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 14:50:00', 32, '12he', 'asd', 0, '1', 0, 'Basic Filipino Package', '', 10000.00, 'cash', 'pending', '2025-05-05 03:45:23'),
+(8, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-05 14:30:00', 10, '112\r\n12he', 'asd', 0, '1', 0, 'Basic Filipino Package', 'aaa', 4500.00, 'cash', 'pending', '2025-05-05 04:15:54'),
+(9, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-05 14:30:00', 10, '112\r\n12he', 'asd', 0, '1', 0, 'Basic Filipino Package', 'aaa', 4500.00, 'cash', 'pending', '2025-05-05 04:18:01');
 
 -- --------------------------------------------------------
 

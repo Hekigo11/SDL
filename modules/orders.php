@@ -160,7 +160,7 @@ if (!isset($_SESSION['loginok'])) {
                                             <td>CTR-<?php echo $row['catering_id']; ?></td>
                                             <td><?php echo date('M j, Y g:i A', strtotime($row['event_date'])); ?></td>
                                             <td><?php echo htmlspecialchars($row['venue']); ?></td>
-                                            <td><?php echo ucfirst($row['menu_package']); ?></td>
+                                            <td><?php echo htmlspecialchars($row['menu_package'] ?: 'Not specified'); ?></td>
                                             <td>₱<?php echo number_format($row['total_amount'], 2); ?></td>
                                             <td><span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span></td>
                                         </tr>
