@@ -315,6 +315,12 @@ session_start();
 
             // Handle place order
             $('#place-order-btn').click(function() {
+                const $btn = $(this);
+                
+                // Disable button immediately
+                $btn.prop('disabled', true)
+                   .html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+
                 const formData = {
                     fullname: $('#fullname').val(),
                     phone: $('#phone').val(),
@@ -326,6 +332,7 @@ session_start();
 
                 if (!formData.fullname || !formData.phone || !formData.address || !formData.payment) {
                     showAlert('Please fill in all required fields', 'danger');
+                    $btn.prop('disabled', false).text('Place Order');
                     return;
                 }
 
@@ -347,10 +354,12 @@ session_start();
                             }, 2000);
                         } else {
                             showAlert('Failed to place order: ' + (response.message || 'Unknown error'), 'danger');
+                            $btn.prop('disabled', false).text('Place Order');
                         }
                     },
                     error: function() {
                         showAlert('Error placing order. Please try again.', 'danger');
+                        $btn.prop('disabled', false).text('Place Order');
                     }
                 });
             });

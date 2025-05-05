@@ -68,6 +68,35 @@ try {
             throw new Exception("Error adding order items");
         }
 
+        // Get product ingredients and create checklist items
+        $ingredient_query = "SELECT pi.ingredient_id, pi.quantity as quantity_needed, i.unit 
+                           FROM product_ingredients pi
+                           JOIN ingredients i ON pi.ingredient_id = i.ingredient_id
+                           WHERE pi.product_id = ?";
+        $ingredient_stmt = mysqli_prepare($dbc, $ingredient_query);
+        mysqli_stmt_bind_param($ingredient_stmt, "i", $item['product_id']);
+        mysqli_stmt_execute($ingredient_stmt);
+        $ingredient_result = mysqli_stmt_get_result($ingredient_stmt);
+
+        // Create checklist items for each ingredient
+        while ($ingredient = mysqli_fetch_assoc($ingredient_result)) {
+            $total_needed = $ingredient['quantity_needed'] * $item['quantity'];
+            
+            $checklist_query = "INSERT INTO order_checklist 
+                              (order_id, ingredient_id, quantity_needed, is_ready) 
+                              VALUES (?, ?, ?, 0)";
+            $checklist_stmt = mysqli_prepare($dbc, $checklist_query);
+            mysqli_stmt_bind_param($checklist_stmt, "iid", 
+                $order_id,
+                $ingredient['ingredient_id'],
+                $total_needed
+            );
+            
+            if (!mysqli_stmt_execute($checklist_stmt)) {
+                throw new Exception("Error creating checklist items");
+            }
+        }
+
         // Update product qty_sold
         $update_query = "UPDATE products SET qty_sold = qty_sold + ? WHERE product_id = ?";
         $update_stmt = mysqli_prepare($dbc, $update_query);
@@ -78,7 +107,7 @@ try {
         }
     }
 
-    // Clear the user's cart after successful order sa database
+    // Clear the user's cart after successful order
     $clear_cart = "DELETE FROM user_cart WHERE user_id = ?";
     $clear_stmt = mysqli_prepare($dbc, $clear_cart);
     mysqli_stmt_bind_param($clear_stmt, "i", $user_id);
