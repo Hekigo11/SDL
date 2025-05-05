@@ -52,7 +52,8 @@ require_once __DIR__ . '/../config.php';
                 <li class="nav-item">
                     <a class="nav-link" href="<?php echo BASE_URL; ?>/modules/orders.php" onclick="checkLogin(event)">My Orders</a>
                 </li>
-                <li class="nav-item"><a class="nav-link" href="#" aria-label="Cater">Cater</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/modules/products.php" aria-label="Deliver">Deliver</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/modules/catering.php" aria-label="Cater">Cater</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#services">Services</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#about">About Us</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#contact">Contact Us</a></li>
