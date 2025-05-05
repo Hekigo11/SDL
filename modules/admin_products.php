@@ -209,11 +209,7 @@ include("dbconi.php");
 
     <script>
     $(document).ready(function() {
-        // Toggle sidebar
-        $('.toggle-btn').click(function() {
-            $('.sidebar').toggleClass('collapsed');
-            $('.main-content').toggleClass('expanded');
-        });
+        // Removed redundant sidebar toggle code, nagbubug siya kamo
 
         // Add Product Form Submit
         $('#addProductForm').submit(function(e) {

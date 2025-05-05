@@ -40,6 +40,11 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
                             $('#main-content').html(data);
                             // Save current page to localStorage
                             localStorage.setItem('currentAdminPage', page);
+                            // Restore sidebar state after content load
+                            applySidebarState();
+                            // Update active state
+                            $('.nav-link').removeClass('active');
+                            $('.nav-link[data-page="' + page + '"]').addClass('active');
                         },
                         error: function() {
                             $('#main-content').html('<div class="alert alert-danger">Error loading content</div>');
@@ -47,41 +52,45 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
                     });
                 }
 
-                // Restore sidebar state
-                const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-                if (isCollapsed) {
-                    $('.sidebar').addClass('collapsed');
-                    $('.content').addClass('expanded');
-                } else {
-                    $('.sidebar').removeClass('collapsed');
-                    $('.content').removeClass('expanded');
+                // Apply sidebar state
+                function applySidebarState() {
+                    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+                    $('.sidebar').toggleClass('collapsed', isCollapsed);
+                    $('.content').toggleClass('expanded', isCollapsed);
+                    $('.toggle-btn i').toggleClass('fa-chevron-right', isCollapsed)
+                                    .toggleClass('fa-chevron-left', !isCollapsed);
                 }
+
+                // Initialize on page load
+                applySidebarState();
 
                 // Load last active page or dashboard by default
                 const lastPage = localStorage.getItem('currentAdminPage') || 'dashboard';
                 loadContent(lastPage);
-                
-                // Set active state on the correct nav link
-                $('.nav-link[data-page="' + lastPage + '"]').addClass('active');
 
                 // Handle menu clicks
                 $('.nav-link').click(function(e) {
                     if ($(this).data('toggle') === 'modal') return; // Don't handle modal toggles
                     e.preventDefault();
-                    var page = $(this).data('page');
+                    const page = $(this).data('page');
                     loadContent(page);
-                    
-                    // Update active state
-                    $('.nav-link').removeClass('active');
-                    $(this).addClass('active');
                 });
 
                 // Sidebar toggle with state persistence
                 $('.toggle-btn').click(function() {
+                    const willBeCollapsed = !$('.sidebar').hasClass('collapsed');
                     $('.sidebar').toggleClass('collapsed');
                     $('.content').toggleClass('expanded');
+                    // Update toggle button icon
+                    $(this).find('i').toggleClass('fa-chevron-right', willBeCollapsed)
+                                   .toggleClass('fa-chevron-left', !willBeCollapsed);
                     // Save sidebar state
-                    localStorage.setItem('sidebarCollapsed', $('.sidebar').hasClass('collapsed'));
+                    localStorage.setItem('sidebarCollapsed', willBeCollapsed);
+                });
+
+                // Handle page refresh and back/forward navigation
+                $(window).on('pageshow', function() {
+                    applySidebarState();
                 });
             });
         </script>

@@ -5,7 +5,7 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
     exit;
 }
 ?>
-<div class="sidebar collapsed">
+<div class="sidebar">
     <div class="logo">
         <i class="fas fa-utensils"></i>
         <span>MARJ Foods</span>
