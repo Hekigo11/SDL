@@ -24,7 +24,7 @@ require_once __DIR__ . '/../config.php';
             <div class="navbar-actions d-none d-lg-flex">
                 <ul class="navbar-nav pullDown">
                     <li class="nav-item mx-2"><a href="<?php echo BASE_URL; ?>/modules/products.php" class="nav-link" aria-label="Deliver">Deliver</a></li>
-                    <li class="nav-item mx-2"><a href="<?php echo BASE_URL; ?>/modules/catering.php" class="nav-link" aria-label="Cater">Cater</a></li>
+                    <li class="nav-item mx-2"><a href="<?php echo BASE_URL; ?>/modules/catering.php" class="nav-link" aria-label="Cater" onclick="checkLogin(event)">Cater</a></li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item mx-2 no-dropdown">
@@ -65,7 +65,7 @@ require_once __DIR__ . '/../config.php';
                     <a class="nav-link" href="<?php echo BASE_URL; ?>/modules/orders.php" onclick="checkLogin(event)">My Orders</a>
                 </li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/modules/products.php" aria-label="Deliver">Deliver</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/modules/catering.php" aria-label="Cater">Cater</a></li>
+                <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/modules/catering.php" aria-label="Cater" onclick="checkLogin(event)">Cater</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#services">Services</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#about">About Us</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#contact">Contact Us</a></li>
