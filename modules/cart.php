@@ -1,6 +1,18 @@
 <?php
 require_once __DIR__ . '/../config.php';
 session_start();
+
+// Get user details for autofill if user is logged in
+$user_data = null;
+if (isset($_SESSION['loginok']) && isset($_SESSION['user_id'])) {
+    include("dbconi.php");
+    $user_query = "SELECT fname, mname, lname, email_add, mobile_num FROM users WHERE user_id = ?";
+    $stmt = mysqli_prepare($dbc, $user_query);
+    mysqli_stmt_bind_param($stmt, "i", $_SESSION['user_id']);
+    mysqli_stmt_execute($stmt);
+    $user_result = mysqli_stmt_get_result($stmt);
+    $user_data = mysqli_fetch_assoc($user_result);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -92,11 +104,11 @@ session_start();
                                     <h4>Delivery Information</h4>
                                     <div class="form-group">
                                         <label for="fullname">Full Name</label>
-                                        <input type="text" class="form-control" id="fullname" required>
+                                        <input type="text" class="form-control" id="fullname" value="<?php echo $user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_data['lname']; ?>" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="phone">Phone Number</label>
-                                        <input type="tel" class="form-control" id="phone" required>
+                                        <input type="tel" class="form-control" id="phone" value="<?php echo $user_data['mobile_num']; ?>" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="address">Delivery Address</label>
