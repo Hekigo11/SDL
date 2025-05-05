@@ -240,7 +240,7 @@ if (isset($_SESSION['loginok']) && $_SESSION['role'] == 1) {
 function checkLogin(event) {
     <?php if(!isset($_SESSION['loginok'])) { ?>
         event.preventDefault();
-		showAlert('You need to be logged in to view orders.', 'warning', true);
+		showAlert('You need to be logged in to do this action.', 'warning', true);
         return false;
     <?php } ?>
 }
