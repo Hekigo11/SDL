@@ -128,13 +128,24 @@ if (!isset($_SESSION['loginok'])) {
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Event Date</label>
-                                        <input type="datetime-local" class="form-control" name="event_date" required>
+                                        <?php 
+                                        $today = new DateTime('today');
+                                        $min_date = clone $today;
+                                        $min_date->modify('+4 days'); // Adding 4 to get 3 full days ahead
+                                        ?>
+                                        <input type="datetime-local" 
+                                            class="form-control" 
+                                            name="event_date" 
+                                            id="event_date"
+                                            min="<?php echo $min_date->format('Y-m-d'); ?>T00:00"
+                                            required>
+                                        <small class="form-text text-muted" id="dateHelperText">Please book at least 3 days in advance.</small>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Number of Persons</label>
-                                        <input type="number" class="form-control" name="num_persons" min="10" value="10" required>
+                                        <input type="number" class="form-control" name="num_persons" id="num_persons" min="50" value="50" required>
                                     </div>
                                 </div>
                             </div>
@@ -242,6 +253,43 @@ if (!isset($_SESSION['loginok'])) {
                             </div>
 
                             <script>
+                            function updateDateRestrictions() {
+                                const numPersons = parseInt(document.getElementById('num_persons').value) || 0;
+                                const dateInput = document.getElementById('event_date');
+                                const helperText = document.getElementById('dateHelperText');
+                                
+                                // Get today's date at midnight
+                                const today = new Date();
+                                today.setHours(0, 0, 0, 0);
+                                
+                                // Calculate min date based on number of persons
+                                const minDays = numPersons >= 100 ? 15 : 4; // Adding 1 to get full days
+                                const minDate = new Date(today);
+                                minDate.setDate(today.getDate() + minDays);
+                                
+                                // Format date for datetime-local input (start of day)
+                                const minDateStr = minDate.toISOString().split('T')[0] + 'T00:00';
+                                dateInput.min = minDateStr;
+                                
+                                // Update helper text
+                                helperText.textContent = `Please book at least ${minDays-1} days in advance${numPersons >= 100 ? ' for large groups (100+ persons)' : ''}.`;
+                                
+                                // If current value is before minimum date, reset it
+                                if (dateInput.value) {
+                                    const selectedDate = new Date(dateInput.value);
+                                    selectedDate.setHours(0, 0, 0, 0);
+                                    if (selectedDate < minDate) {
+                                        dateInput.value = '';
+                                    }
+                                }
+                            }
+
+                            // Add event listener for number of persons
+                            document.getElementById('num_persons').addEventListener('input', updateDateRestrictions);
+                            
+                            // Initialize date restrictions
+                            updateDateRestrictions();
+
                             function calculateTotal() {
                                 const numPersons = parseInt(document.querySelector('input[name="num_persons"]').value) || 0;
                                 const menuBundle = document.querySelector('select[name="menu_bundle"]').value;

@@ -24,6 +24,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Validate event date - comparing dates only (not time)
+    $event_date = new DateTime($_POST['event_date']);
+    $event_date->setTime(0, 0, 0);
+    
+    $today = new DateTime('today');
+    $today->setTime(0, 0, 0);
+    
+    $num_persons = intval($_POST['num_persons']);
+    $min_days = $num_persons >= 100 ? 14 : 3; // Adding 1 to get full days
+    
+    $min_date = clone $today;
+    $min_date->modify("+$min_days days");
+    
+    if ($event_date < $min_date) {
+        $_SESSION['error'] = $num_persons >= 100 
+            ? "For groups of 100 or more, please book at least 14 days in advance (earliest available date is " . $min_date->format('M j, Y') . ")"
+            : "Please book at least 3 days in advance (earliest available date is " . $min_date->format('M j, Y') . ")";
+        header('Location: ' . BASE_URL . '/modules/catering.php');
+        exit;
+    }
+
     try {
         mysqli_begin_transaction($dbc);
 
@@ -99,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         mysqli_commit($dbc);
-        $_SESSION['success'] = 'Catering request submitted successfully! <a href="' . BASE_URL . '/modules/orders.php#catering" class="alert-link">View your order</a>';
+        $_SESSION['success'] = 'Catering request submitted successfully! <a href="' . BASE_URL . '/modules/orders.php" class="alert-link">View your order</a>';
         header('Location: ' . BASE_URL . '/modules/catering.php');
         exit;
 
