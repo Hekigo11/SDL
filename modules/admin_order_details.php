@@ -102,7 +102,8 @@ include("dbconi.php");
                                     </button>
                                     <button class="btn btn-sm btn-primary update-status"
                                             data-id="<?php echo $row['order_id']; ?>"
-                                            data-current-status="<?php echo $row['status']; ?>">
+                                            data-current-status="<?php echo $row['status']; ?>"
+                                            data-current-notes="<?php echo htmlspecialchars($row['notes']); ?>">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                 </td>
@@ -191,15 +192,14 @@ include("dbconi.php");
             $('#orderItems').html(items.split(', ').map(item => `<div class="mb-2">${item}</div>`).join(''));
             $('#orderNotes').text(notes || 'No special notes');
             
-            // Load order checklist
             $('#orderChecklist').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading checklist...</div>');
             
             $.get('admin_get_checklist.php', { order_id: orderId })
                 .done(function(response) {
                     $('#orderChecklist').html(response);
                 })
-                .fail(function(xhr) {
-                    $('#orderChecklist').html('<p class="text-danger">Failed to load checklist. Please try again.</p>');
+                .fail(function() {
+                    $('#orderChecklist').html('<p class="text-danger">Failed to load checklist</p>');
                 });
             
             $('#orderDetailsModal').modal('show');
@@ -210,7 +210,6 @@ include("dbconi.php");
             const checkbox = $(this);
             const itemId = checkbox.data('id');
             const isChecked = checkbox.prop('checked');
-            const originalState = !isChecked;
             
             $.post('admin_update_checklist.php', {
                 item_id: itemId,
@@ -218,13 +217,13 @@ include("dbconi.php");
             })
             .done(function(response) {
                 if (response !== 'success') {
-                    checkbox.prop('checked', originalState);
-                    alert('Failed to update checklist item: ' + response);
+                    checkbox.prop('checked', !isChecked);
+                    alert('Failed to update: ' + response);
                 }
             })
             .fail(function() {
-                checkbox.prop('checked', originalState);
-                alert('Failed to update checklist item. Please try again.');
+                checkbox.prop('checked', !isChecked);
+                alert('Update failed. Please try again.');
             });
         });
 
@@ -232,32 +231,38 @@ include("dbconi.php");
         $('.update-status').click(function() {
             const orderId = $(this).data('id');
             const currentStatus = $(this).data('current-status');
+            const currentNotes = $(this).data('current-notes');
             
             $('#updateOrderId').val(orderId);
             $('#orderStatus').val(currentStatus);
+            $('textarea[name="status_notes"]').val(currentNotes);
             $('#updateStatusModal').modal('show');
         });
 
         // Save Status Update
         $('#saveStatus').click(function() {
             const btn = $(this);
-            const originalText = btn.text();
-            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Updating...');
+            const form = $('#updateStatusForm');
+            const orderId = $('#updateOrderId').val();
             
-            const formData = $('#updateStatusForm').serialize();
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
             
-            $.post('admin_update_order.php', formData)
+            $.post('admin_update_order.php', form.serialize())
                 .done(function(response) {
                     if (response === 'success') {
                         location.reload();
+                    } else if (response === 'No changes to update') {
+                        alert('No changes were made');
+                        $('#updateStatusModal').modal('hide');
                     } else {
-                        alert('Error updating order status: ' + response);
-                        btn.prop('disabled', false).text(originalText);
+                        alert('Error: ' + response);
                     }
                 })
                 .fail(function() {
-                    alert('Failed to update order status. Please try again.');
-                    btn.prop('disabled', false).text(originalText);
+                    alert('Update failed. Please try again.');
+                })
+                .always(function() {
+                    btn.prop('disabled', false).text('Update Status');
                 });
         });
     });
