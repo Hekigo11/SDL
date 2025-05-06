@@ -16,12 +16,22 @@ if (!isset($_GET['order_id'])) {
 
 try {
     $order_id = intval($_GET['order_id']);
-
-    $query = "SELECT oc.*, i.name as ingredient_name, i.unit, IFNULL(u.fname, '') as checker_name
-              FROM order_checklist oc
-              JOIN ingredients i ON oc.ingredient_id = i.ingredient_id
-              LEFT JOIN users u ON oc.checked_by = u.user_id
-              WHERE oc.order_id = ?";
+    // QUERY TO PARA SA CHECKLIST
+    $query = "SELECT 
+        oc.order_id,
+        oc.ingredient_id,
+        i.name as ingredient_name, 
+        i.unit,
+        SUM(oc.quantity_needed) as quantity_needed,
+        MAX(oc.is_ready) as is_ready,
+        MAX(oc.checked_by) as checked_by,
+        MAX(oc.checked_at) as checked_at,
+        IFNULL(u.fname, '') as checker_name
+    FROM order_checklist oc
+    JOIN ingredients i ON oc.ingredient_id = i.ingredient_id
+    LEFT JOIN users u ON oc.checked_by = u.user_id
+    WHERE oc.order_id = ?
+    GROUP BY oc.ingredient_id, i.name, i.unit";
 
     $stmt = mysqli_prepare($dbc, $query);
     mysqli_stmt_bind_param($stmt, "i", $order_id);
