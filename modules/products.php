@@ -101,10 +101,13 @@ if (session_status() === PHP_SESSION_NONE) {
         <?php include("navigation.php");?>
         <?php
             include("dbconi.php");
-            $query = "SELECT p.*, 
-                    CASE WHEN pi.ingredient_id = 1 THEN 0 ELSE 1 END as is_halal 
-                    FROM products p 
-                    LEFT JOIN product_ingredients pi ON p.product_id = pi.product_id";
+            $query = "SELECT DISTINCT p.*, 
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM product_ingredients pi 
+                        WHERE pi.product_id = p.product_id 
+                        AND pi.ingredient_id = 1
+                    ) THEN 0 ELSE 1 END as is_halal 
+                    FROM products p";
             $result = mysqli_query($dbc, $query);
             if (!$result) {
                 die("Query failed: " . mysqli_error($dbc));
