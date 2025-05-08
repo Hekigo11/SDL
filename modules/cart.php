@@ -112,7 +112,49 @@ if (isset($_SESSION['loginok']) && isset($_SESSION['user_id'])) {
                                     </div>
                                     <div class="form-group">
                                         <label for="address">Delivery Address</label>
-                                        <textarea class="form-control" id="address" rows="3" required></textarea>
+                                        <select class="form-control mb-2" id="address_select" required>
+                                            <option value="">Select a delivery address</option>
+                                            <option value="new">+ Add New Address</option>
+                                        </select>
+                                        
+                                        <!-- Address Form (initially hidden) -->
+                                        <div id="new_address_form" style="display: none;">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control mb-2" id="street_number" placeholder="Street Number">
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="text" class="form-control mb-2" id="street_name" placeholder="Street Name">
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="text" class="form-control mb-2" id="barangay" placeholder="Barangay">
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="text" class="form-control mb-2" id="city" placeholder="City">
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="text" class="form-control mb-2" id="province" placeholder="Province">
+                                            </div>
+                                            <div class="form-group">
+                                                <input type="text" class="form-control mb-2" id="zip_code" placeholder="ZIP Code">
+                                            </div>
+                                            <div class="form-group">
+                                                <select class="form-control mb-2" id="label">
+                                                    <option value="Home">Home</option>
+                                                    <option value="Work">Work</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group" id="customLabelGroup" style="display: none;">
+                                                <input type="text" class="form-control mb-2" id="customLabel" placeholder="Enter custom label">
+                                            </div>
+                                            <div class="form-check mb-3">
+                                                <input type="checkbox" class="form-check-input" id="is_default">
+                                                <label class="form-check-label" for="is_default">Set as default address</label>
+                                            </div>
+                                            <button type="button" class="btn btn-primary mb-3" id="save_new_address">Save Address</button>
+                                        </div>
+
+                                        <textarea class="form-control" id="address" rows="3" style="display: none;"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label>Delivery Options</label>
@@ -498,6 +540,101 @@ if (isset($_SESSION['loginok']) && isset($_SESSION['user_id'])) {
                     $('#same_day_options').hide();
                     $('#scheduled_options').show();
                 }
+            });
+
+            // Toggle new address form
+            $('#address_select').change(function() {
+                const selectedValue = $(this).val();
+                if (selectedValue === 'new') {
+                    $('#new_address_form').show();
+                    $('#address').hide();
+                } else {
+                    $('#new_address_form').hide();
+                    $('#address').show();
+                }
+            });
+
+            // Show custom label input
+            $('#label').change(function() {
+                const selectedLabel = $(this).val();
+                if (selectedLabel === 'Other') {
+                    $('#customLabelGroup').show();
+                } else {
+                    $('#customLabelGroup').hide();
+                }
+            });
+
+            // Load saved addresses
+            function loadAddresses() {
+                $.post("<?php echo BASE_URL; ?>/modules/manage_address.php", {
+                    action: "get"
+                })
+                .done(function(response) {
+                    if (response.success) {
+                        const addressSelect = $("#address_select");
+                        // Keep the first two options (Select and Add New)
+                        addressSelect.find('option:gt(1)').remove();
+                        
+                        response.addresses.forEach(function(address) {
+                            const addressText = `${address.label}: ${address.street_number} ${address.street_name}, ${address.barangay}, ${address.city}, ${address.province} ${address.zip_code}`;
+                            const option = new Option(addressText, addressText);
+                            if (address.is_default == 1) {
+                                $(option).prop('selected', true);
+                                $('#address').val(addressText);
+                            }
+                            addressSelect.append(option);
+                        });
+                    }
+                });
+            }
+
+            // Handle new address save
+            $('#save_new_address').click(function() {
+                const formData = {
+                    action: 'add',
+                    street_number: $('#street_number').val(),
+                    street_name: $('#street_name').val(),
+                    barangay: $('#barangay').val(),
+                    city: $('#city').val(),
+                    province: $('#province').val(),
+                    zip_code: $('#zip_code').val(),
+                    label: $('#label').val(),
+                    customLabel: $('#customLabel').val(),
+                    is_default: $('#is_default').prop('checked') ? 1 : 0
+                };
+
+                $.post("<?php echo BASE_URL; ?>/modules/manage_address.php", formData)
+                    .done(function(response) {
+                        if (response.success) {
+                            showAlert('Address saved successfully', 'success');
+                            loadAddresses();
+                            $('#new_address_form').hide();
+                            $('#address').show();
+                            // Reset form
+                            $('#street_number, #street_name, #barangay, #city, #province, #zip_code, #customLabel').val('');
+                            $('#is_default').prop('checked', false);
+                            $('#label').val('Home');
+                            $('#customLabelGroup').hide();
+                        } else {
+                            showAlert(response.message || 'Error saving address', 'danger');
+                        }
+                    })
+                    .fail(function() {
+                        showAlert('An error occurred while saving the address', 'danger');
+                    });
+            });
+
+            // Update delivery address when selecting from dropdown
+            $('#address_select').change(function() {
+                const selectedValue = $(this).val();
+                if (selectedValue && selectedValue !== 'new') {
+                    $('#address').val(selectedValue);
+                }
+            });
+
+            // Load addresses when checkout modal is shown
+            $('#checkoutModal').on('show.bs.modal', function() {
+                loadAddresses();
             });
 
             // Initialize cart
