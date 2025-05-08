@@ -32,6 +32,10 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
             <i class="fas fa-chart-line"></i>
             <span>Sales Report</span>
         </a>
+        <a href="#" class="nav-link" data-page="checklist">
+        <i class="fas fa-tasks"></i>
+            <span>Order Checklist</span>
+        </a>
         <a href="#" class="nav-link" data-page="customers">
             <i class="fas fa-users"></i>
             <span>Customers</span>

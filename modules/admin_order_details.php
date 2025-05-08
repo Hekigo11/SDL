@@ -24,6 +24,43 @@ include("dbconi.php");
         .order-actions {
             min-width: 150px;
         }
+        .order-status {
+            min-width: 200px;
+        }
+        .status-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .status-time {
+            font-size: 0.813rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .status-time i {
+            width: 16px;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        tr.cancelled {
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+        tr.completed {
+            background-color: rgba(40, 167, 69, 0.05);
+        }
+        .text-danger .fa-times-circle {
+            color: #dc3545;
+        }
+        .text-success .fa-check-circle {
+            color: #28a745;
+        }
+        .text-info .fa-truck {
+            color: #17a2b8;
+        }
         .custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
             background-color: #28a745;
             border-color: #28a745;
@@ -49,14 +86,14 @@ include("dbconi.php");
                                 <th>Customer</th>
                                 <th>Items</th>
                                 <th>Total Amount</th>
-                                <th>Status</th>
+                                <th style="min-width: 200px;">Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
                             $query = "SELECT o.*, GROUP_CONCAT(CONCAT(oi.quantity, 'x ', p.prod_name) SEPARATOR ', ') as items,
-                                     u.email_add as customer_email
+                                     u.email_add as customer_email, u.fname, u.lname, u.mobile_num as phone
                                      FROM orders o
                                      JOIN order_items oi ON o.order_id = oi.order_id
                                      JOIN products p ON oi.product_id = p.product_id
@@ -71,6 +108,13 @@ include("dbconi.php");
                                         $statusClass = 'warning';
                                         break;
                                     case 'processing':
+                                    case 'in_kitchen':
+                                        $statusClass = 'info';
+                                        break;
+                                    case 'ready_for_delivery':
+                                        $statusClass = 'primary';
+                                        break;
+                                    case 'delivering':
                                         $statusClass = 'info';
                                         break;
                                     case 'completed':
@@ -82,30 +126,64 @@ include("dbconi.php");
                                     default:
                                         $statusClass = 'secondary';
                                 }
+                                $statusDisplay = str_replace('_', ' ', ucfirst($row['status']));
                             ?>
-                            <tr>
+                            <tr class="<?php echo $row['status'] === 'cancelled' ? 'cancelled' : ($row['status'] === 'completed' ? 'completed' : ''); ?>">
                                 <td>#<?php echo $row['order_id']; ?></td>
                                 <td><?php echo date('M j, Y g:i A', strtotime($row['created_at'])); ?></td>
                                 <td>
-                                    <?php echo htmlspecialchars($row['full_name']); ?><br>
+                                    <?php echo htmlspecialchars($row['fname'] . ' ' . $row['lname']); ?><br>
                                     <small class="text-muted"><?php echo $row['phone']; ?></small>
                                 </td>
                                 <td><?php echo $row['items']; ?></td>
                                 <td>₱<?php echo number_format($row['total_amount'], 2); ?></td>
-                                <td><span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span></td>
+                                <td class="order-status">
+                                    <div class="status-info">
+                                        <div class="status-badge">
+                                            <span class="badge badge-<?php echo $statusClass; ?>"><?php echo $statusDisplay; ?></span>
+                                        </div>
+                                        <?php if ($row['status'] === 'delivering'): ?>
+                                            <div class="status-time text-info">
+                                                <i class="fas fa-truck"></i> Out for delivery since <?php echo date('g:i A', strtotime($row['delivery_started_at'])); ?>
+                                            </div>
+                                        <?php elseif ($row['status'] === 'completed' && !empty($row['delivered_at'])): ?>
+                                            <div class="status-time text-success">
+                                                <i class="fas fa-check-circle"></i> Delivered on <?php echo date('M j, g:i A', strtotime($row['delivered_at'])); ?>
+                                            </div>
+                                        <?php elseif ($row['status'] === 'cancelled' && !empty($row['cancelled_at'])): ?>
+                                            <div class="status-time text-danger">
+                                                <i class="fas fa-times-circle"></i> Cancelled on <?php echo date('M j, g:i A', strtotime($row['cancelled_at'])); ?>
+                                                <?php if (!empty($row['cancellation_reason'])): ?>
+                                                    <div class="text-muted small mt-1">
+                                                        <i class="fas fa-info-circle"></i> <?php echo htmlspecialchars($row['cancellation_reason']); ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($row['status_notes'])): ?>
+                                            <div class="text-muted small mt-1">
+                                                <i class="fas fa-comment"></i> <?php echo htmlspecialchars($row['status_notes']); ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
                                 <td class="order-actions">
-                                    <button class="btn btn-sm btn-info view-order" 
-                                            data-id="<?php echo $row['order_id']; ?>"
-                                            data-items="<?php echo htmlspecialchars($row['items']); ?>"
-                                            data-notes="<?php echo htmlspecialchars($row['notes']); ?>">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-primary update-status"
-                                            data-id="<?php echo $row['order_id']; ?>"
-                                            data-current-status="<?php echo $row['status']; ?>"
-                                            data-current-notes="<?php echo htmlspecialchars($row['notes']); ?>">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-info view-order" 
+                                                data-id="<?php echo $row['order_id']; ?>"
+                                                data-items="<?php echo htmlspecialchars($row['items']); ?>"
+                                                data-notes="<?php echo htmlspecialchars($row['notes']); ?>">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <?php if ($row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
+                                        <button class="btn btn-sm btn-primary update-status"
+                                                data-id="<?php echo $row['order_id']; ?>"
+                                                data-current-status="<?php echo $row['status']; ?>"
+                                                data-current-notes="<?php echo htmlspecialchars($row['notes']); ?>">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                             </tr>
                             <?php } ?>
@@ -162,7 +240,9 @@ include("dbconi.php");
                             <label>Status</label>
                             <select class="form-control" name="status" id="orderStatus" required>
                                 <option value="pending">Pending</option>
-                                <option value="processing">Processing</option>
+                                <option value="processing">In Kitchen</option>
+                                <option value="ready_for_delivery">Ready for Delivery</option>
+                                <option value="delivering">Out for Delivery</option>
                                 <option value="completed">Completed</option>
                                 <option value="cancelled">Cancelled</option>
                             </select>

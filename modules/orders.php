@@ -19,11 +19,106 @@ if (!isset($_SESSION['loginok'])) {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
         <link rel="stylesheet" href="<?php echo BASE_URL; ?>/vendor/style1.css">
         <title>My Orders - MARJ Food Services</title>
+        <style>
+            .badge {
+                font-size: 0.875rem;
+                padding: 0.375rem 0.75rem;
+            }
+            .order-status {
+                min-width: 200px;
+            }
+            .status-info {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .status-time {
+                font-size: 0.813rem;
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+            }
+            .status-time i {
+                width: 16px;
+            }
+            .status-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            tr.cancelled {
+                background-color: rgba(220, 53, 69, 0.05);
+            }
+            tr.completed {
+                background-color: rgba(40, 167, 69, 0.05);
+            }
+            .text-danger .fa-times-circle {
+                color: #dc3545;
+            }
+            .text-success .fa-check-circle {
+                color: #28a745;
+            }
+            .text-info .fa-truck {
+                color: #17a2b8;
+            }
+            .cancel-reason {
+                font-size: 0.813rem;
+                color: #6c757d;
+                margin-left: 20px;
+                font-style: italic;
+            }
+            .btn-sm {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.875rem;
+            }
+            .modal-content {
+                border: none;
+                border-radius: 0.5rem;
+            }
+            .modal-header {
+                border-bottom: 1px solid #dee2e6;
+                border-top-left-radius: 0.5rem;
+                border-top-right-radius: 0.5rem;
+            }
+            .empty-state {
+                text-align: center;
+                padding: 2rem 0;
+            }
+            .empty-state i {
+                font-size: 3rem;
+                color: #6c757d;
+                margin-bottom: 1rem;
+            }
+        </style>
     </head>
     <body>
         <?php include("navigation.php"); ?>
         
         <main class="container py-5">
+            <?php if (isset($_SESSION['success'])): ?>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <?php 
+                    echo $_SESSION['success'];
+                    unset($_SESSION['success']);
+                    ?>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            <?php endif; ?>
+            
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <?php 
+                    echo $_SESSION['error'];
+                    unset($_SESSION['error']);
+                    ?>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            <?php endif; ?>
+
             <ul class="nav nav-tabs mb-4">
                 <li class="nav-item">
                     <a class="nav-link active" id="delivery-tab" data-toggle="tab" href="#delivery">Delivery Orders</a>
@@ -46,6 +141,7 @@ if (!isset($_SESSION['loginok'])) {
                                     <th>Items</th>
                                     <th>Total Amount</th>
                                     <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -73,29 +169,72 @@ if (!isset($_SESSION['loginok'])) {
                                                 $statusClass = 'warning';
                                                 break;
                                             case 'processing':
+                                            case 'in_kitchen':
+                                                $statusClass = 'info';
+                                                break;
+                                            case 'ready_for_delivery':
+                                                $statusClass = 'primary';
+                                                break;
+                                            case 'delivering':
                                                 $statusClass = 'info';
                                                 break;
                                             case 'completed':
                                                 $statusClass = 'success';
                                                 break;
+                                            case 'cancelled':
+                                                $statusClass = 'danger';
+                                                break;
                                             default:
                                                 $statusClass = 'secondary';
                                         }
+                                        
+                                        $statusDisplay = str_replace('_', ' ', ucfirst($row['status']));
                                         ?>
-                                        <tr>
+                                        <tr class="<?php echo $row['status'] === 'cancelled' ? 'cancelled' : ($row['status'] === 'completed' ? 'completed' : ''); ?>">
                                             <td>#<?php echo $row['order_id']; ?></td>
                                             <td><?php echo date('M j, Y g:i A', strtotime($row['created_at'])); ?></td>
                                             <td><?php echo $row['items']; ?></td>
                                             <td>₱<?php echo number_format($row['total_amount'], 2); ?></td>
-                                            <td><span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span></td>
+                                            <td class="order-status">
+                                                <div class="status-info">
+                                                    <div class="status-badge">
+                                                        <span class="badge badge-<?php echo $statusClass; ?>"><?php echo $statusDisplay; ?></span>
+                                                    </div>
+                                                    <?php if ($row['status'] === 'delivering'): ?>
+                                                        <div class="status-time text-info">
+                                                            <i class="fas fa-truck"></i> Out for delivery since <?php echo date('g:i A', strtotime($row['delivery_started_at'])); ?>
+                                                        </div>
+                                                    <?php elseif ($row['status'] === 'completed' && !empty($row['delivered_at'])): ?>
+                                                        <div class="status-time text-success">
+                                                            <i class="fas fa-check-circle"></i> Delivered on <?php echo date('M j, g:i A', strtotime($row['delivered_at'])); ?>
+                                                        </div>
+                                                    <?php elseif ($row['status'] === 'cancelled' && !empty($row['cancelled_at'])): ?>
+                                                        <div class="status-time text-danger">
+                                                            <i class="fas fa-times-circle"></i> Cancelled on <?php echo date('M j, g:i A', strtotime($row['cancelled_at'])); ?>
+                                                            <?php if (!empty($row['cancellation_reason'])): ?>
+                                                                <div class="text-muted small mt-1">
+                                                                    <i class="fas fa-info-circle"></i> <?php echo htmlspecialchars($row['cancellation_reason']); ?>
+                                                                </div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <?php if ($row['status'] !== 'delivering' && $row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
+                                                    <button class="btn btn-sm btn-danger" onclick="showCancelModal(<?php echo $row['order_id']; ?>)">
+                                                        <i class="fas fa-times"></i> Cancel
+                                                    </button>
+                                                <?php endif; ?>
+                                            </td>
                                         </tr>
                                         <?php
                                     }
                                 } else {
                                     ?>
                                     <tr>
-                                        <td colspan="5" class="text-center py-4">
-                                            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                                        <td colspan="6" class="empty-state">
+                                            <i class="fas fa-box-open"></i>
                                             <p class="text-muted">You haven't placed any delivery orders yet.</p>
                                             <a href="<?php echo BASE_URL; ?>/modules/products.php" class="btn btn-primary">Browse Products</a>
                                         </td>
@@ -169,8 +308,8 @@ if (!isset($_SESSION['loginok'])) {
                                 } else {
                                     ?>
                                     <tr>
-                                        <td colspan="6" class="text-center py-4">
-                                            <i class="fas fa-calendar-alt fa-3x text-muted mb-3"></i>
+                                        <td colspan="6" class="empty-state">
+                                            <i class="fas fa-calendar-alt"></i>
                                             <p class="text-muted">You haven't placed any catering orders yet.</p>
                                             <a href="<?php echo BASE_URL; ?>/modules/catering.php" class="btn btn-primary">Request Catering Service</a>
                                         </td>
@@ -184,6 +323,56 @@ if (!isset($_SESSION['loginok'])) {
                 </div>
             </div>
         </main>
+
+        <!-- Cancel Order Modal -->
+        <div class="modal fade" id="cancelOrderModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cancel Order</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="cancelOrderForm" method="POST" action="cancel_order.php">
+                        <div class="modal-body">
+                            <input type="hidden" name="order_id" id="cancel_order_id">
+                            <div class="form-group">
+                                <label>Reason for Cancellation:</label>
+                                <select class="form-control" name="reason" required>
+                                    <option value="">Select a reason</option>
+                                    <option value="Changed my mind">Changed my mind</option>
+                                    <option value="Ordered by mistake">Ordered by mistake</option>
+                                    <option value="Delivery time too long">Delivery time too long</option>
+                                    <option value="Payment issues">Payment issues</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="otherReasonDiv" style="display: none;">
+                                <label>Please specify:</label>
+                                <textarea class="form-control" name="other_reason"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-danger">Confirm Cancellation</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        function showCancelModal(orderId) {
+            document.getElementById('cancel_order_id').value = orderId;
+            $('#cancelOrderModal').modal('show');
+        }
+
+        document.querySelector('select[name="reason"]').addEventListener('change', function() {
+            const otherReasonDiv = document.getElementById('otherReasonDiv');
+            otherReasonDiv.style.display = this.value === 'Other' ? 'block' : 'none';
+        });
+        </script>
 
         <?php include('authenticate.php'); ?>
         

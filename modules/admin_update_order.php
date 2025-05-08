@@ -45,10 +45,39 @@ try {
         throw new Exception("Order not found");
     }
 
-    // Update order status
-    $update_query = "UPDATE orders SET status = ? WHERE order_id = ?";
+    // Update order status and timestamps
+    $update_query = "UPDATE orders SET 
+                    status = ?,
+                    delivery_started_at = CASE 
+                        WHEN ? = 'delivering' AND status != 'delivering' THEN NOW()
+                        WHEN ? != 'delivering' THEN NULL
+                        ELSE delivery_started_at
+                    END,
+                    delivered_at = CASE 
+                        WHEN ? = 'completed' AND status != 'completed' THEN NOW()
+                        WHEN ? != 'completed' THEN NULL
+                        ELSE delivered_at
+                    END,
+                    cancelled_at = CASE 
+                        WHEN ? = 'cancelled' AND status != 'cancelled' THEN NOW()
+                        WHEN ? != 'cancelled' THEN NULL
+                        ELSE cancelled_at
+                    END,
+                    status_notes = ?
+                    WHERE order_id = ?";
+    
     $update_stmt = mysqli_prepare($dbc, $update_query);
-    mysqli_stmt_bind_param($update_stmt, "si", $new_status, $order_id);
+    mysqli_stmt_bind_param($update_stmt, "ssssssssi", 
+        $new_status,
+        $new_status,
+        $new_status,
+        $new_status,
+        $new_status,
+        $new_status,
+        $new_status,
+        $status_notes,
+        $order_id
+    );
 
     if (!mysqli_stmt_execute($update_stmt)) {
         throw new Exception("Failed to update order status");

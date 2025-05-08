@@ -16,6 +16,9 @@ switch($page) {
     case 'orders':
         include('admin_order_details.php');
         break;
+    case 'checklist':
+        include('admin_checklist_content.php');
+        break;
     case 'sales':
         include('admin_sales_data.php');
         break;
