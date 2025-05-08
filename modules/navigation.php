@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/../config.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
 <header>
     <nav class="navbar navbar-expand-lg">
@@ -39,11 +42,16 @@ require_once __DIR__ . '/../config.php';
                     <?php
                     if(isset($_SESSION['loginok'])){
                         echo '<li class="nav-item mx-2 no-dropdown">
-                        <button class="btn rounded-pill btn-outline-light" data-toggle="modal" data-target="#logoutModal" aria-label="Logout">Logout</button>
+                            <a href="' . BASE_URL . '/modules/profile.php" class="btn rounded-pill btn-outline-light" aria-label="Profile">
+                                <i class="fas fa-user"></i> Profile
+                            </a>
+                        </li>
+                        <li class="nav-item mx-2 no-dropdown">
+                            <button class="btn rounded-pill btn-outline-light" data-toggle="modal" data-target="#logoutModal" aria-label="Logout">Logout</button>
                         </li>';
                     } else {
                         echo '<li class="nav-item mx-2 no-dropdown">
-                        <button class="btn rounded-pill btn-outline-light" data-toggle="modal" data-target="#loginModal" aria-label="Login">Login</button>
+                            <button class="btn rounded-pill btn-outline-light" data-toggle="modal" data-target="#loginModal" aria-label="Login">Login</button>
                         </li>';
                     }
                     ?>
@@ -64,6 +72,13 @@ require_once __DIR__ . '/../config.php';
                 <li class="nav-item">
                     <a class="nav-link" href="<?php echo BASE_URL; ?>/modules/orders.php" onclick="checkLogin(event)">My Orders</a>
                 </li>
+                <?php if(isset($_SESSION['loginok'])){ ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?php echo BASE_URL; ?>/modules/profile.php">
+                            <i class="fas fa-user"></i> Profile
+                        </a>
+                    </li>
+                <?php } ?>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/modules/products.php" aria-label="Deliver">Deliver</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/modules/catering.php" aria-label="Cater" onclick="checkLogin(event)">Cater</a></li>
                 <li class="nav-item"><a class="nav-link" href="<?php echo BASE_URL; ?>/index.php#services">Services</a></li>
@@ -74,18 +89,16 @@ require_once __DIR__ . '/../config.php';
                         echo '<li class="nav-item">
                                 <div class="d-flex flex-column">
                                 <button class="btn btn-light mb-2 w-100" data-toggle="modal" data-target="#logoutModal">Logout</button>
-                                <!-- <a href="register.php" class="btn btn-light w-100">Register</a> -->
                                 </div>
                             </li>';
                     } else {
                         echo '<li class="nav-item">
                                 <div class="d-flex flex-column">
                                 <button class="btn btn-light mb-2 w-100" data-toggle="modal" data-target="#loginModal">Login</button>
-                                <!-- <a href="register.php" class="btn btn-light w-100">Register</a> -->
                                 </div>
                             </li>';
                     }
-                    ?>
+                ?>
             </ul>
         </div>
     </nav>
