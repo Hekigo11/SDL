@@ -211,7 +211,9 @@ include("dbconi.php");
                                             data-id="<?php echo $row['order_id']; ?>"
                                             data-items="<?php echo htmlspecialchars($row['items'] ?? ''); ?>"
                                             data-notes="<?php echo htmlspecialchars($row['notes'] ?? ''); ?>"
-                                            data-scheduled-delivery="<?php echo $row['scheduled_delivery'] ?? ''; ?>">
+                                            data-scheduled-delivery="<?php echo $row['scheduled_delivery'] ?? ''; ?>"
+                                            data-payment-method="<?php echo htmlspecialchars($row['payment_method'] ?? ''); ?>"
+                                            data-delivery-address="<?php echo htmlspecialchars($row['address'] ?? ''); ?>">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                     <?php if ($row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
@@ -251,6 +253,12 @@ include("dbconi.php");
                             
                             <h6>Delivery Details</h6>
                             <div id="deliveryTime" class="mb-3"></div>
+                            
+                            <h6>Delivery Address</h6>
+                            <p id="deliveryAddress" class="text-muted"></p>
+                            
+                            <h6>Payment Method</h6>
+                            <p id="paymentMethod" class="text-muted mb-3"></p>
                             
                             <h6>Special Notes</h6>
                             <p id="orderNotes" class="text-muted"></p>
@@ -320,6 +328,8 @@ include("dbconi.php");
             const items = $(this).data('items');
             const notes = $(this).data('notes');
             const scheduledDelivery = $(this).data('scheduled-delivery');
+            const paymentMethod = $(this).data('payment-method');
+            const deliveryAddress = $(this).data('delivery-address');
             
             // Display order items
             $('#orderItems').html(items.split(', ').map(item => `<div class="mb-2">${item}</div>`).join(''));
@@ -357,6 +367,12 @@ include("dbconi.php");
             } else {
                 $('#deliveryTime').html('<p class="text-muted">No scheduled delivery time</p>');
             }
+            
+            // Display delivery address
+            $('#deliveryAddress').text(deliveryAddress || 'No delivery address provided');
+            
+            // Display payment method
+            $('#paymentMethod').text(paymentMethod || 'No payment method specified');
             
             $('#orderDetailsModal').modal('show');
         });
