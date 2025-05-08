@@ -28,29 +28,24 @@ try {
         throw new Exception('Order not found');
     }
 
-    $order = mysqli_fetch_assoc($check_result);
-    if ($order['status'] === 'cancelled') {
-        echo '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> Cannot modify checklist for cancelled orders</div>';
-        exit;
-    }
-
-    // Get the checklist items
+    // Get the checklist items with ingredient type information
     $query = "SELECT 
         oc.order_id,
         oc.ingredient_id,
-        i.name as ingredient_name, 
+        i.name as ingredient_name,
         i.unit,
-        SUM(oc.quantity_needed) as quantity_needed,
+        it.type_name as station_name,
+        oc.quantity_needed,
         oc.is_ready,
         oc.checked_by,
         oc.checked_at,
         IFNULL(u.fname, '') as checker_name
     FROM order_checklist oc
     JOIN ingredients i ON oc.ingredient_id = i.ingredient_id
+    JOIN ingredient_types it ON i.type_id = it.type_id
     LEFT JOIN users u ON oc.checked_by = u.user_id
     WHERE oc.order_id = ?
-    GROUP BY oc.ingredient_id, i.name, i.unit, oc.is_ready, oc.checked_by, oc.checked_at, u.fname
-    ORDER BY i.name ASC";
+    ORDER BY it.type_name, i.name ASC";
 
     $stmt = mysqli_prepare($dbc, $query);
     
@@ -71,32 +66,45 @@ try {
         exit;
     }
 
+    $current_station = '';
     echo '<div class="checklist-container">';
+    
     while ($row = mysqli_fetch_assoc($result)) {
-        $checked = $row['is_ready'] ? 'checked' : '';
-        $checkedInfo = '';
+        if ($current_station != $row['station_name']) {
+            if ($current_station != '') {
+                echo '</div>'; // Close previous station group
+            }
+            $current_station = $row['station_name'];
+            echo '<div class="station-group mb-3">
+                    <h6 class="mb-2 text-muted"><i class="fas fa-utensils"></i> ' . htmlspecialchars($row['station_name']) . '</h6>';
+        }
+        
+        $status_class = $row['is_ready'] ? 'success' : 'secondary';
+        $status_icon = $row['is_ready'] ? 'check-circle' : 'clock';
+        
+        echo '<div class="checklist-item mb-2">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-' . $status_icon . ' text-' . $status_class . ' mr-2"></i>
+                    <div>
+                        <div class="font-weight-medium">
+                            ' . htmlspecialchars($row['ingredient_name']) . ' 
+                            <span class="text-muted">(' . number_format($row['quantity_needed'], 2) . ' ' . htmlspecialchars($row['unit']) . ')</span>
+                        </div>';
         
         if ($row['is_ready'] && $row['checked_at']) {
             $checked_at = new DateTime($row['checked_at']);
-            $checked_at->setTimezone(new DateTimeZone('Asia/Manila')); // Convert to Philippine timezone
-            
-            $checkedInfo = '<small class="text-success ml-2">
-                <i class="fas fa-check"></i> ' . htmlspecialchars($row['checker_name']) . 
-                ' at ' . $checked_at->format('M j, Y g:i A') . 
-                '</small>';
+            $checked_at->setTimezone(new DateTimeZone('Asia/Manila'));
+            echo '<small class="text-success">
+                    Prepared by ' . htmlspecialchars($row['checker_name']) . 
+                    ' at ' . $checked_at->format('M j, Y g:i A') . 
+                  '</small>';
         }
         
-        echo '<div class="checklist-item mb-3">';
-        echo '<div class="custom-control custom-checkbox">';
-        echo '<input type="checkbox" class="custom-control-input checklist-checkbox" 
-                     id="check_' . $row['order_id'] . '_' . $row['ingredient_id'] . '" 
-                     data-id="' . $row['order_id'] . '-' . $row['ingredient_id'] . '" ' . $checked . '>';
-        echo '<label class="custom-control-label" for="check_' . $row['order_id'] . '_' . $row['ingredient_id'] . '">';
-        echo htmlspecialchars($row['ingredient_name']) . ' (' . number_format($row['quantity_needed'], 2) . ' ' . htmlspecialchars($row['unit']) . ')';
-        echo '</label>';
-        echo $checkedInfo;
-        echo '</div>';
-        echo '</div>';
+        echo '</div></div></div>';
+    }
+    
+    if ($current_station != '') {
+        echo '</div>'; // Close last station group
     }
     echo '</div>';
 

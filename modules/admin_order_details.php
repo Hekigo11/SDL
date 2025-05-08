@@ -49,6 +49,49 @@ include("dbconi.php");
     .text-info .fa-truck {
         color: #17a2b8;
     }
+    .checklist-container {
+        font-size: 0.9rem;
+    }
+    .station-group {
+        background: #fff;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+    }
+    .station-group:last-child {
+        margin-bottom: 0;
+    }
+    .checklist-item {
+        padding: 8px;
+        border-radius: 4px;
+        background: #fff;
+        transition: all 0.2s ease;
+    }
+    .checklist-item:hover {
+        background: #f8f9fa;
+    }
+    .font-weight-medium {
+        font-weight: 500;
+    }
+    /* Custom scrollbar for webkit browsers */
+    #ingredientsChecklist::-webkit-scrollbar {
+        width: 6px;
+    }
+    #ingredientsChecklist::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    #ingredientsChecklist::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 3px;
+    }
+    #ingredientsChecklist::-webkit-scrollbar-thumb:hover {
+        background: #999;
+    }
+    /* For Firefox */
+    #ingredientsChecklist {
+        scrollbar-width: thin;
+        scrollbar-color: #ccc #f1f1f1;
+    }
 </style>
 
 <div class="container-fluid">
@@ -199,9 +242,10 @@ include("dbconi.php");
                         <span>&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
+                <div class="modal-body p-0">
+                    <div class="row no-gutters">
+                        <!-- Left side: Order details -->
+                        <div class="col-md-7 p-3 border-right">
                             <h6>Order Items</h6>
                             <div id="orderItems" class="mb-4"></div>
                             
@@ -210,6 +254,19 @@ include("dbconi.php");
                             
                             <h6>Special Notes</h6>
                             <p id="orderNotes" class="text-muted"></p>
+                        </div>
+                        
+                        <!-- Right side: Ingredients checklist -->
+                        <div class="col-md-5 bg-light">
+                            <div class="sticky-top">
+                                <div class="p-3 border-bottom bg-light">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-clipboard-check"></i>
+                                        Ingredients Checklist
+                                    </h6>
+                                </div>
+                                <div id="ingredientsChecklist" class="p-3" style="max-height: 60vh; overflow-y: auto;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -266,6 +323,17 @@ include("dbconi.php");
             
             // Display order items
             $('#orderItems').html(items.split(', ').map(item => `<div class="mb-2">${item}</div>`).join(''));
+            
+            // Load and display ingredients checklist
+            $.get('admin_get_checklist.php', { order_id: orderId })
+                .done(function(response) {
+                    $('#ingredientsChecklist').html(response);
+                    // Disable all checkboxes after loading
+                    $('#ingredientsChecklist input[type="checkbox"]').prop('disabled', true);
+                })
+                .fail(function() {
+                    $('#ingredientsChecklist').html('<div class="alert alert-danger">Failed to load ingredients checklist</div>');
+                });
             
             // Display notes
             $('#orderNotes').text(notes || 'No special notes');
