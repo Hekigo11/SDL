@@ -108,7 +108,7 @@ $(document).ready(function(){
                 setTimeout(() => {
                     $('#loginModal').modal('hide');
                     setTimeout(() => {
-                        location.reload();
+                        window.location.href = window.location.href;
                     }, 500);
                 }, 2000);
             } 
