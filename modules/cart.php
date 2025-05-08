@@ -115,6 +115,94 @@ if (isset($_SESSION['loginok']) && isset($_SESSION['user_id'])) {
                                         <textarea class="form-control" id="address" rows="3" required></textarea>
                                     </div>
                                     <div class="form-group">
+                                        <label>Delivery Options</label>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="delivery_type" id="same_day" value="same_day" checked>
+                                            <label class="form-check-label" for="same_day">
+                                                Same Day Delivery
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="radio" name="delivery_type" id="scheduled" value="scheduled">
+                                            <label class="form-check-label" for="scheduled">
+                                                Schedule for Later
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- Same Day Delivery Time Selection -->
+                                        <div id="same_day_options">
+                                            <label for="same_day_time">Delivery Time</label>
+                                            <select class="form-control" id="same_day_time" required>
+                                                <?php
+                                                date_default_timezone_set('Asia/Manila'); // Set to Philippines timezone
+                                                $now = new DateTime();
+                                                $now->modify('+1 hour'); // Minimum 1 hour lead time
+                                                
+                                                // Round up to next 30 minute interval
+                                                $minutes = (int)$now->format('i');
+                                                $minutes = $minutes > 30 ? 60 : 30;
+                                                $now->setTime($now->format('H'), $minutes);
+                                                
+                                                $end = new DateTime('today 20:00'); // Last delivery at 8 PM
+                                                
+                                                if ($now >= $end) {
+                                                    echo '<option value="">No more deliveries available today</option>';
+                                                } else {
+                                                    $timeSlot = clone $now;
+                                                    while ($timeSlot <= $end) {
+                                                        $formattedTime = $timeSlot->format('H:i');
+                                                        $displayTime = $timeSlot->format('h:i A');
+                                                        echo '<option value="' . $formattedTime . '">' . $displayTime . '</option>';
+                                                        $timeSlot->modify('+30 minutes');
+                                                    }
+                                                }
+                                                ?>
+                                            </select>
+                                            <small class="form-text text-muted">
+                                                Available delivery times for today (minimum 1 hour lead time)
+                                            </small>
+                                        </div>
+
+                                        <!-- Scheduled Delivery Options -->
+                                        <div id="scheduled_options" style="display: none;">
+                                            <div class="form-group">
+                                                <label for="scheduled_date">Delivery Date</label>
+                                                <input type="date" 
+                                                       class="form-control" 
+                                                       id="scheduled_date"
+                                                       min="<?php echo (new DateTime('tomorrow'))->format('Y-m-d'); ?>"
+                                                       max="<?php echo (new DateTime('+7 days'))->format('Y-m-d'); ?>">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="scheduled_time">Delivery Time</label>
+                                                <select class="form-control" id="scheduled_time">
+                                                    <option value="09:00">9:00 AM</option>
+                                                    <option value="09:30">9:30 AM</option>
+                                                    <option value="10:00">10:00 AM</option>
+                                                    <option value="10:30">10:30 AM</option>
+                                                    <option value="11:00">11:00 AM</option>
+                                                    <option value="11:30">11:30 AM</option>
+                                                    <option value="13:00">1:00 PM</option>
+                                                    <option value="13:30">1:30 PM</option>
+                                                    <option value="14:00">2:00 PM</option>
+                                                    <option value="14:30">2:30 PM</option>
+                                                    <option value="15:00">3:00 PM</option>
+                                                    <option value="15:30">3:30 PM</option>
+                                                    <option value="16:00">4:00 PM</option>
+                                                    <option value="16:30">4:30 PM</option>
+                                                    <option value="17:00">5:00 PM</option>
+                                                    <option value="17:30">5:30 PM</option>
+                                                    <option value="18:00">6:00 PM</option>
+                                                    <option value="18:30">6:30 PM</option>
+                                                    <option value="19:00">7:00 PM</option>
+                                                </select>
+                                            </div>
+                                            <small class="form-text text-muted">
+                                                Schedule delivery up to 7 days in advance
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
                                         <label for="notes">Delivery Instructions (Optional)</label>
                                         <textarea class="form-control" id="notes" rows="2"></textarea>
                                     </div>
@@ -337,12 +425,18 @@ if (isset($_SESSION['loginok']) && isset($_SESSION['user_id'])) {
                     fullname: $('#fullname').val(),
                     phone: $('#phone').val(),
                     address: $('#address').val(),
+                    delivery_type: $('input[name="delivery_type"]:checked').val(),
+                    same_day_time: $('#same_day_time').val(),
+                    scheduled_date: $('#scheduled_date').val(),
+                    scheduled_time: $('#scheduled_time').val(),
                     notes: $('#notes').val() || '',
                     payment: $('#payment').val(),
                     total: parseFloat($('#checkout-total').text().replace('₱', ''))
                 };
 
-                if (!formData.fullname || !formData.phone || !formData.address || !formData.payment) {
+                if (!formData.fullname || !formData.phone || !formData.address || !formData.payment || 
+                    (formData.delivery_type === 'same_day' && !formData.same_day_time) || 
+                    (formData.delivery_type === 'scheduled' && (!formData.scheduled_date || !formData.scheduled_time))) {
                     showAlert('Please fill in all required fields', 'danger');
                     $btn.prop('disabled', false).text('Place Order');
                     return;
@@ -393,6 +487,18 @@ if (isset($_SESSION['loginok']) && isset($_SESSION['user_id'])) {
                     }, 3000);
                 }
             }
+
+            // Toggle delivery options
+            $('input[name="delivery_type"]').change(function() {
+                const selectedType = $(this).val();
+                if (selectedType === 'same_day') {
+                    $('#same_day_options').show();
+                    $('#scheduled_options').hide();
+                } else {
+                    $('#same_day_options').hide();
+                    $('#scheduled_options').show();
+                }
+            });
 
             // Initialize cart
             updateCart();

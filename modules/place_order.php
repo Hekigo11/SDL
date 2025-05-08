@@ -21,19 +21,42 @@ if (empty($_POST['fullname']) || empty($_POST['phone']) || empty($_POST['address
 try {
     mysqli_begin_transaction($dbc);
 
-    // IInput after placing order
-    $query = "INSERT INTO orders (user_id, full_name, phone, address, notes, payment_method, total_amount, delivery_fee, status) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, 50.00, 'pending')";
+    // Format delivery date and time
+    $scheduled_delivery = null;
+    if ($_POST['delivery_type'] === 'same_day') {
+        $date = new DateTime('today');
+        $time = $_POST['same_day_time'];
+        $scheduled_delivery = $date->format('Y-m-d') . ' ' . $time . ':00';
+    } else {
+        $scheduled_delivery = $_POST['scheduled_date'] . ' ' . $_POST['scheduled_time'] . ':00';
+    }
+
+    // Input after placing order
+    $query = "INSERT INTO orders (
+        user_id, 
+        full_name, 
+        phone, 
+        address, 
+        notes, 
+        payment_method, 
+        total_amount, 
+        delivery_fee,
+        scheduled_delivery, 
+        status
+    ) VALUES (
+        ?, ?, ?, ?, ?, ?, ?, 50.00, ?, 'pending'
+    )";
               
     $stmt = mysqli_prepare($dbc, $query);
-    mysqli_stmt_bind_param($stmt, "issssdd", 
+    mysqli_stmt_bind_param($stmt, "isssssds", 
         $user_id,
         $_POST['fullname'],
         $_POST['phone'],
         $_POST['address'],
         $_POST['notes'],
         $_POST['payment'],
-        $_POST['total']
+        $_POST['total'],
+        $scheduled_delivery
     );
 
     if (!mysqli_stmt_execute($stmt)) {

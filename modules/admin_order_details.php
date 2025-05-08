@@ -92,8 +92,14 @@ include("dbconi.php");
                         </thead>
                         <tbody>
                             <?php
-                            $query = "SELECT o.*, GROUP_CONCAT(CONCAT(oi.quantity, 'x ', p.prod_name) SEPARATOR ', ') as items,
-                                     u.email_add as customer_email, u.fname, u.lname, u.mobile_num as phone
+                            $query = "SELECT o.*, 
+                                     GROUP_CONCAT(CONCAT(oi.quantity, 'x ', p.prod_name) SEPARATOR ', ') as items,
+                                     u.email_add as customer_email, u.fname, u.lname, u.mobile_num as phone,
+                                     CASE 
+                                         WHEN o.scheduled_delivery IS NOT NULL 
+                                         THEN DATE_FORMAT(o.scheduled_delivery, '%M %e, %l:%i %p') 
+                                         ELSE NULL 
+                                     END as formatted_delivery_time
                                      FROM orders o
                                      JOIN order_items oi ON o.order_id = oi.order_id
                                      JOIN products p ON oi.product_id = p.product_id
@@ -160,6 +166,11 @@ include("dbconi.php");
                                                 <?php endif; ?>
                                             </div>
                                         <?php endif; ?>
+                                        <?php if (!empty($row['scheduled_delivery'])): ?>
+                                            <div class="status-time text-info">
+                                                <i class="fas fa-clock"></i> Scheduled for: <?php echo $row['formatted_delivery_time']; ?>
+                                            </div>
+                                        <?php endif; ?>
                                         <?php if (!empty($row['status_notes'])): ?>
                                             <div class="text-muted small mt-1">
                                                 <i class="fas fa-comment"></i> <?php echo htmlspecialchars($row['status_notes']); ?>
@@ -171,15 +182,16 @@ include("dbconi.php");
                                     <div class="btn-group">
                                         <button class="btn btn-sm btn-info view-order" 
                                                 data-id="<?php echo $row['order_id']; ?>"
-                                                data-items="<?php echo htmlspecialchars($row['items']); ?>"
-                                                data-notes="<?php echo htmlspecialchars($row['notes']); ?>">
+                                                data-items="<?php echo htmlspecialchars($row['items'] ?? ''); ?>"
+                                                data-notes="<?php echo htmlspecialchars($row['notes'] ?? ''); ?>"
+                                                data-scheduled-delivery="<?php echo $row['scheduled_delivery'] ?? ''; ?>">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         <?php if ($row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
                                         <button class="btn btn-sm btn-primary update-status"
                                                 data-id="<?php echo $row['order_id']; ?>"
                                                 data-current-status="<?php echo $row['status']; ?>"
-                                                data-current-notes="<?php echo htmlspecialchars($row['notes']); ?>">
+                                                data-current-notes="<?php echo htmlspecialchars($row['notes'] ?? ''); ?>">
                                             <i class="fas fa-edit"></i>
                                         </button>
                                         <?php endif; ?>
@@ -209,6 +221,9 @@ include("dbconi.php");
                         <div class="col-md-6">
                             <h6>Order Items</h6>
                             <div id="orderItems" class="mb-4"></div>
+                            
+                            <h6>Delivery Details</h6>
+                            <div id="deliveryTime" class="mb-3"></div>
                             
                             <h6>Special Notes</h6>
                             <p id="orderNotes" class="text-muted"></p>
@@ -268,9 +283,29 @@ include("dbconi.php");
             const orderId = $(this).data('id');
             const items = $(this).data('items');
             const notes = $(this).data('notes');
+            const scheduledDelivery = $(this).data('scheduled-delivery');
             
             $('#orderItems').html(items.split(', ').map(item => `<div class="mb-2">${item}</div>`).join(''));
             $('#orderNotes').text(notes || 'No special notes');
+            
+            if (scheduledDelivery) {
+                const deliveryDate = new Date(scheduledDelivery);
+                const formattedDate = deliveryDate.toLocaleString('en-US', { 
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                $('#deliveryTime').html(`
+                    <div class="alert alert-info">
+                        <i class="fas fa-clock"></i> 
+                        Scheduled for: ${formattedDate}
+                    </div>
+                `);
+            } else {
+                $('#deliveryTime').html('<p class="text-muted">No scheduled delivery time</p>');
+            }
             
             $('#orderChecklist').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading checklist...</div>');
             
