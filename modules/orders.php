@@ -200,7 +200,7 @@ if (!isset($_SESSION['loginok'])) {
                                                     <div class="status-badge">
                                                         <span class="badge badge-<?php echo $statusClass; ?>"><?php echo $statusDisplay; ?></span>
                                                     </div>
-                                                    <?php if ($row['status'] === 'delivering'): ?>
+                                                    <?php if ($row['status'] === 'delivering' && !empty($row['delivery_started_at'])): ?>
                                                         <div class="status-time text-info">
                                                             <i class="fas fa-truck"></i> Out for delivery since <?php echo date('g:i A', strtotime($row['delivery_started_at'])); ?>
                                                         </div>
