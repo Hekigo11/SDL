@@ -77,6 +77,82 @@ $user_data = mysqli_fetch_assoc($result);
                             </div>
                         </div>
 
+                        <!-- Address Management Section -->
+                        <div class="address-management mb-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h4>My Addresses</h4>
+                                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addAddressModal">
+                                    <i class="fas fa-plus"></i> Add New Address
+                                </button>
+                            </div>
+                            <div id="addressList" class="mt-3">
+                                <!-- Addresses will be loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- Add/Edit Address Modal -->
+                        <div class="modal fade" id="addAddressModal" tabindex="-1" role="dialog" aria-labelledby="addressModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addressModalLabel">Add New Address</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="addressForm">
+                                            <input type="hidden" id="address_id" name="address_id">
+                                            <div class="form-group">
+                                                <label for="street_number">Street Number</label>
+                                                <input type="text" class="form-control" id="street_number" name="street_number" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="street_name">Street Name</label>
+                                                <input type="text" class="form-control" id="street_name" name="street_name" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="barangay">Barangay</label>
+                                                <input type="text" class="form-control" id="barangay" name="barangay" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="city">City</label>
+                                                <input type="text" class="form-control" id="city" name="city" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="province">Province</label>
+                                                <input type="text" class="form-control" id="province" name="province" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="zip_code">ZIP Code</label>
+                                                <input type="text" class="form-control" id="zip_code" name="zip_code" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="label">Label</label>
+                                                <select class="form-control" id="label" name="label">
+                                                    <option value="Home">Home</option>
+                                                    <option value="Work">Work</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group" id="customLabelGroup" style="display: none;">
+                                                <label for="customLabel">Custom Label</label>
+                                                <input type="text" class="form-control" id="customLabel" name="customLabel" placeholder="Enter custom label">
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="is_default" name="is_default">
+                                                <label class="form-check-label" for="is_default">Set as default address</label>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" id="saveAddress">Save Address</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Change Password Section -->
                         <div class="change-password mt-4">
                             <h4>Change Password</h4>
@@ -117,7 +193,152 @@ $user_data = mysqli_fetch_assoc($result);
         alertContainer.html(alertHtml);
     }
 
+    function loadAddresses() {
+        $.post("<?php echo BASE_URL; ?>/modules/manage_address.php", {
+            action: "get"
+        })
+        .done(function(response) {
+            if (response.success) {
+                const addressList = $("#addressList");
+                addressList.empty();
+                
+                if (response.addresses.length === 0) {
+                    addressList.html('<p class="text-muted">No addresses added yet.</p>');
+                    return;
+                }
+
+                response.addresses.forEach(function(address) {
+                    const addressHtml = `
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            ${address.label}
+                                            ${address.is_default == 1 ? '<span class="badge badge-primary">Default</span>' : ''}
+                                        </h6>
+                                        <p class="mb-1">${address.street_number} ${address.street_name}</p>
+                                        <p class="mb-1">${address.barangay}</p>
+                                        <p class="mb-1">${address.city}, ${address.province} ${address.zip_code}</p>
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-sm btn-info edit-address" data-address='${JSON.stringify(address)}'>
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger delete-address" data-id="${address.address_id}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    addressList.append(addressHtml);
+                });
+            }
+        });
+    }
+
     $(document).ready(function() {
+        // Load addresses when page loads
+        loadAddresses();
+
+        // Handle form submission
+        $("#saveAddress").click(function() {
+            const formData = {
+                action: $("#address_id").val() ? "update" : "add",
+                address_id: $("#address_id").val(),
+                street_number: $("#street_number").val(),
+                street_name: $("#street_name").val(),
+                barangay: $("#barangay").val(),
+                city: $("#city").val(),
+                province: $("#province").val(),
+                zip_code: $("#zip_code").val(),
+                label: $("#label").val(),
+                customLabel: $("#customLabel").val(),
+                is_default: $("#is_default").prop("checked")
+            };
+
+            $.post("<?php echo BASE_URL; ?>/modules/manage_address.php", formData)
+                .done(function(response) {
+                    if (response.success) {
+                        $("#addAddressModal").modal("hide");
+                        $("#addressForm")[0].reset();
+                        $("#address_id").val("");
+                        showAlert(response.message, "success");
+                        loadAddresses();
+                    } else {
+                        showAlert(response.message || "Error saving address", "danger");
+                    }
+                })
+                .fail(function() {
+                    showAlert("An error occurred. Please try again.", "danger");
+                });
+        });
+
+        // Edit address
+        $(document).on("click", ".edit-address", function() {
+            const address = $(this).data("address");
+            $("#address_id").val(address.address_id);
+            $("#street_number").val(address.street_number);
+            $("#street_name").val(address.street_name);
+            $("#barangay").val(address.barangay);
+            $("#city").val(address.city);
+            $("#province").val(address.province);
+            $("#zip_code").val(address.zip_code);
+            $("#label").val(address.label);
+            $("#customLabel").val(address.customLabel || "");
+            $("#is_default").prop("checked", address.is_default == 1);
+            $("#addressModalLabel").text("Edit Address");
+            $("#addAddressModal").modal("show");
+            toggleCustomLabelGroup();
+        });
+
+        // Delete address
+        $(document).on("click", ".delete-address", function() {
+            if (confirm("Are you sure you want to delete this address?")) {
+                const addressId = $(this).data("id");
+                $.post("<?php echo BASE_URL; ?>/modules/manage_address.php", {
+                    action: "delete",
+                    address_id: addressId
+                })
+                .done(function(response) {
+                    if (response.success) {
+                        showAlert(response.message, "success");
+                        loadAddresses();
+                    } else {
+                        showAlert(response.message || "Error deleting address", "danger");
+                    }
+                })
+                .fail(function() {
+                    showAlert("An error occurred. Please try again.", "danger");
+                });
+            }
+        });
+
+        // Reset form when modal is closed
+        $("#addAddressModal").on("hidden.bs.modal", function() {
+            $("#addressForm")[0].reset();
+            $("#address_id").val("");
+            $("#addressModalLabel").text("Add New Address");
+            toggleCustomLabelGroup();
+        });
+
+        // Toggle custom label input visibility
+        $("#label").change(function() {
+            toggleCustomLabelGroup();
+        });
+
+        function toggleCustomLabelGroup() {
+            const labelValue = $("#label").val();
+            if (labelValue === "Other") {
+                $("#customLabelGroup").show();
+            } else {
+                $("#customLabelGroup").hide();
+                $("#customLabel").val("");
+            }
+        }
+
         $("#changePasswordForm").on("submit", function(e) {
             e.preventDefault();
             
