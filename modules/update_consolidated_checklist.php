@@ -19,19 +19,14 @@ try {
 
     $ingredient_id = intval($_POST['ingredient_id']);
     $order_ids = explode(',', $_POST['order_ids']);
+    $order_ids = array_map('intval', $order_ids);
+    $order_ids = array_filter($order_ids);
     $is_ready = (int)$_POST['is_ready'];
     $checked_by = $is_ready ? $_SESSION['user_id'] : null;
     $checked_at = $is_ready ? gmdate('Y-m-d H:i:s') : null;
 
-    // Verify orders exist and are in valid state
-    $order_ids_str = implode(',', array_map('intval', $order_ids));
-    $check_query = "SELECT order_id, status FROM orders WHERE order_id IN ($order_ids_str)";
-    $check_result = mysqli_query($dbc, $check_query);
-
-    while ($order = mysqli_fetch_assoc($check_result)) {
-        if ($order['status'] === 'cancelled') {
-            throw new Exception('Cannot update checklist for cancelled orders');
-        }
+    if (empty($order_ids)) {
+        throw new Exception('No valid order IDs');
     }
 
     // Update all checklist items for this ingredient across the specified orders
@@ -39,7 +34,7 @@ try {
                     SET is_ready = ?, 
                         checked_by = ?,
                         checked_at = ?
-                    WHERE order_id IN ($order_ids_str) 
+                    WHERE order_id IN (" . implode(',', $order_ids) . ") 
                     AND ingredient_id = ?";
 
     $stmt = mysqli_prepare($dbc, $update_query);
@@ -57,23 +52,44 @@ try {
         throw new Exception('No checklist items were updated');
     }
 
-    // For each affected order, update its kitchen_status to 'processing' if not already
+    // For each affected order, check if all ingredients are now ready
+    $orders_to_update = [];
     foreach ($order_ids as $order_id) {
-        $update_order = "UPDATE orders 
-                        SET kitchen_status = 'processing' 
-                        WHERE order_id = ? 
-                        AND kitchen_status = 'pending'";
-        $order_stmt = mysqli_prepare($dbc, $update_order);
-        if (!$order_stmt) {
-            throw new Exception(mysqli_error($dbc));
+        $check_query = "SELECT 
+                            COUNT(*) as total,
+                            SUM(CASE WHEN is_ready = 1 THEN 1 ELSE 0 END) as ready
+                        FROM order_checklist
+                        WHERE order_id = ?";
+        
+        $stmt = mysqli_prepare($dbc, $check_query);
+        mysqli_stmt_bind_param($stmt, "i", $order_id);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        $row = mysqli_fetch_assoc($result);
+        
+        // If all ingredients for this order are ready, update order status to "processing"
+        if ($row['total'] > 0 && $row['total'] == $row['ready']) {
+            $orders_to_update[] = $order_id;
         }
-        mysqli_stmt_bind_param($order_stmt, "i", $order_id);
-        mysqli_stmt_execute($order_stmt);
-        mysqli_stmt_close($order_stmt);
+    }
+    
+    // Update the status of orders where all ingredients are ready
+    if (!empty($orders_to_update)) {
+        $update_order_query = "UPDATE orders 
+                              SET status = 'processing', kitchen_status = 'in_kitchen' 
+                              WHERE order_id IN (" . implode(',', $orders_to_update) . ") 
+                              AND status = 'pending'";
+        
+        if (!mysqli_query($dbc, $update_order_query)) {
+            throw new Exception("Failed to update order status: " . mysqli_error($dbc));
+        }
     }
 
     mysqli_commit($dbc);
-    echo json_encode(['success' => true]);
+    echo json_encode([
+        'success' => true,
+        'orders_updated' => $orders_to_update
+    ]);
 
 } catch (Exception $e) {
     if (isset($dbc) && mysqli_ping($dbc)) {

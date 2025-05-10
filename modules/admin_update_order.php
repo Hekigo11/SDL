@@ -85,126 +85,146 @@ try {
 
     // Send email notification if status changed
     if ($order['status'] !== $new_status) {
-        $mail = new PHPMailer(true);
-        try {
-            $mail->isSMTP();
-            $mail->Host = 'smtp-relay.brevo.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = '89af28001@smtp-brevo.com';
-            $mail->Password = '2SgtjUQrEsRHwA0M';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-            $mail->Timeout = 30;
-            $mail->CharSet = 'UTF-8';
-
-            $mail->setFrom('cateringservices69420@gmail.com', 'MARJ Food Services');
-            $mail->addAddress($order['email_add']);
-
-            $mail->isHTML(true);
-            $mail->Subject = 'Order #' . $order_id . ' Status Update';
-            
-            $message = '
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body {
-                        font-family: "Montserrat", Arial, sans-serif;
-                        margin: 0;
-                        padding: 0;
-                        background-color: #f5f5f5;
-                    }
-                    .container {
-                        max-width: 600px;
-                        margin: 20px auto;
-                        background-color: #ffffff;
-                        border-radius: 15px;
-                        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-                        padding: 30px;
-                    }
-                    .header {
-                        background-color: #21233f;
-                        color: #ffffff;
-                        padding: 20px;
-                        text-align: center;
-                        border-radius: 10px 10px 0 0;
-                        margin: -30px -30px 20px -30px;
-                    }
-                    .content {
-                        padding: 20px 0;
-                    }
-                    h1 {
-                        color: #ffffff;
-                        font-size: 24px;
-                        margin: 0;
-                    }
-                    h2 {
-                        color: #21233f;
-                        font-size: 20px;
-                        margin-bottom: 15px;
-                    }
-                    p {
-                        color: #666666;
-                        line-height: 1.6;
-                        margin-bottom: 15px;
-                    }
-                    .status {
-                        background-color: #176ca1;
-                        color: #ffffff;
-                        padding: 8px 16px;
-                        border-radius: 25px;
-                        display: inline-block;
-                        font-weight: bold;
-                    }
-                    .notes {
-                        background-color: #feebd2;
-                        padding: 15px;
-                        border-radius: 10px;
-                        margin: 15px 0;
-                    }
-                    .footer {
-                        text-align: center;
-                        padding-top: 20px;
-                        border-top: 1px solid #eeeeee;
-                        margin-top: 20px;
-                        color: #888888;
-                        font-size: 14px;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>MARJ Food Services</h1>
-                    </div>
-                    <div class="content">
-                        <h2>Order Status Update</h2>
-                        <p>Your order #' . $order_id . ' has been updated to: <span class="status">' . ucfirst($new_status) . '</span></p>';
-            
-            if ($status_notes) {
+        // Only send emails for specific statuses
+        $notify_statuses = ['delivering', 'completed', 'delivered'];
+        
+        if (in_array($new_status, $notify_statuses)) {
+            $mail = new PHPMailer(true);
+            try {
+                $mail->isSMTP();
+                $mail->Host = 'smtp-relay.brevo.com';
+                $mail->SMTPAuth = true;
+                $mail->Username = '89af28001@smtp-brevo.com';
+                $mail->Password = '2SgtjUQrEsRHwA0M';
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = 587;
+                $mail->Timeout = 30;
+                $mail->CharSet = 'UTF-8';
+    
+                $mail->setFrom('cateringservices69420@gmail.com', 'MARJ Food Services');
+                $mail->addAddress($order['email_add']);
+    
+                $mail->isHTML(true);
+                $mail->Subject = 'Order #' . $order_id . ' Status Update';
+                
+                // Customized message based on status
+                $status_message = '';
+                switch($new_status) {
+                    case 'delivering':
+                        $status_message = 'Your order is now on the way to your location!';
+                        break;
+                    case 'completed':
+                        $status_message = 'Your order has been completed. We hope you enjoyed your meal!';
+                        break;
+                    case 'delivered':
+                        $status_message = 'Your order has been delivered. Enjoy your meal!';
+                        break;
+                }
+                
+                $message = '
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body {
+                            font-family: "Montserrat", Arial, sans-serif;
+                            margin: 0;
+                            padding: 0;
+                            background-color: #f5f5f5;
+                        }
+                        .container {
+                            max-width: 600px;
+                            margin: 20px auto;
+                            background-color: #ffffff;
+                            border-radius: 15px;
+                            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                            padding: 30px;
+                        }
+                        .header {
+                            background-color: #21233f;
+                            color: #ffffff;
+                            padding: 20px;
+                            text-align: center;
+                            border-radius: 10px 10px 0 0;
+                            margin: -30px -30px 20px -30px;
+                        }
+                        .content {
+                            padding: 20px 0;
+                        }
+                        h1 {
+                            color: #ffffff;
+                            font-size: 24px;
+                            margin: 0;
+                        }
+                        h2 {
+                            color: #21233f;
+                            font-size: 20px;
+                            margin-bottom: 15px;
+                        }
+                        p {
+                            color: #666666;
+                            line-height: 1.6;
+                            margin-bottom: 15px;
+                        }
+                        .status {
+                            background-color: #176ca1;
+                            color: #ffffff;
+                            padding: 8px 16px;
+                            border-radius: 25px;
+                            display: inline-block;
+                            font-weight: bold;
+                        }
+                        .notes {
+                            background-color: #feebd2;
+                            padding: 15px;
+                            border-radius: 10px;
+                            margin: 15px 0;
+                        }
+                        .footer {
+                            text-align: center;
+                            padding-top: 20px;
+                            border-top: 1px solid #eeeeee;
+                            margin-top: 20px;
+                            color: #888888;
+                            font-size: 14px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <h1>MARJ Food Services</h1>
+                        </div>
+                        <div class="content">
+                            <h2>Order Status Update</h2>
+                            <p>Your order #' . $order_id . ' has been updated to: <span class="status">' . ucfirst($new_status) . '</span></p>
+                            <p>' . $status_message . '</p>';
+                
+                if ($status_notes) {
+                    $message .= '
+                            <div class="notes">
+                                <strong>Notes from our team:</strong><br>
+                                ' . nl2br(htmlspecialchars($status_notes)) . '
+                            </div>';
+                }
+                
                 $message .= '
-                        <div class="notes">
-                            <strong>Notes from our team:</strong><br>
-                            ' . nl2br(htmlspecialchars($status_notes)) . '
-                        </div>';
+                            <p>If you have any questions about your order, please don\'t hesitate to contact us.</p>
+                        </div>
+                        <div class="footer">
+                            <p>Thank you for choosing MARJ Food Services!</p>
+                            <small>From Our Kitchen to Your Table – With Love.</small>
+                        </div>
+                    </div>
+                </body>
+                </html>';
+                
+                $mail->Body = $message;
+                $mail->send();
+            } catch (Exception $e) {
+                error_log("Email sending failed: " . $e->getMessage());
+                // Continue even if email fails
             }
-            
-            $message .= '
-                        <p>If you have any questions about your order, please don\'t hesitate to contact us.</p>
-                    </div>
-                    <div class="footer">
-                        <p>Thank you for choosing MARJ Food Services!</p>
-                        <small>From Our Kitchen to Your Table – With Love.</small>
-                    </div>
-                </div>
-            </body>
-            </html>';
-            
-            $mail->Body = $message;
-            $mail->send();
-        } catch (Exception $e) {
-            error_log("Email sending failed: " . $e->getMessage());
-            // Continue even if email fails
         }
     }
 
