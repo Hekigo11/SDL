@@ -9,9 +9,38 @@ if (!isset($_SESSION['loginok'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (empty($_POST['client_name']) || empty($_POST['contact_info']) || empty($_POST['event_date']) || 
-        empty($_POST['num_persons']) || empty($_POST['venue']) || empty($_POST['occasion']) ||
-        empty($_POST['payment_method']) || empty($_POST['menu_bundle']) || empty($_POST['email'])) {
+    // Basic required fields check
+    $required_fields = ['client_name', 'contact_info', 'email', 'num_persons', 
+                       'venue_street_number', 'venue_street_name', 'venue_barangay', 
+                       'venue_city', 'venue_province', 'venue_zip',
+                       'occasion', 'payment_method', 'menu_bundle'];
+    
+    $missing_fields = [];
+    foreach ($required_fields as $field) {
+        if (empty($_POST[$field])) {
+            $missing_fields[] = $field;
+        }
+    }
+    
+    // Date/time validation - check if either "quick date" or "specific date" is provided
+    $has_date_time = false;
+    if (isset($_POST['event_date_type']) && $_POST['event_date_type'] === 'next_available') {
+        if (!empty($_POST['quick_date']) && !empty($_POST['quick_event_time'])) {
+            $has_date_time = true;
+        } else {
+            $missing_fields[] = 'quick_date';
+            $missing_fields[] = 'quick_event_time';
+        }
+    } else {
+        if (!empty($_POST['event_date']) && !empty($_POST['event_time'])) {
+            $has_date_time = true;
+        } else {
+            $missing_fields[] = 'event_date';
+            $missing_fields[] = 'event_time';
+        }
+    }
+    
+    if (!empty($missing_fields)) {
         $_SESSION['error'] = 'Please fill in all required fields';
         header('Location: ' . BASE_URL . '/modules/catering.php');
         exit;
@@ -24,8 +53,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Combine date and time - handle both date selection methods
+    $event_datetime = '';
+    if (isset($_POST['event_date_type']) && $_POST['event_date_type'] === 'next_available') {
+        // Using the recommended date selection
+        $event_datetime = $_POST['quick_date'] . ' ' . $_POST['quick_event_time'] . ':00';
+    } else {
+        // Using the specific date selection
+        $event_datetime = $_POST['event_date'] . ' ' . $_POST['event_time'] . ':00';
+    }
+    
     // Validate event date - comparing dates only (not time)
-    $event_date = new DateTime($_POST['event_date']);
+    $event_date = new DateTime($event_datetime);
     $event_date->setTime(0, 0, 0);
     
     $today = new DateTime('today');
@@ -45,89 +84,179 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Collect and combine the segmented venue address fields
+    $venue_street_number = trim($_POST['venue_street_number'] ?? '');
+    $venue_street_name = trim($_POST['venue_street_name'] ?? '');
+    $venue_barangay = trim($_POST['venue_barangay'] ?? '');
+    $venue_city = trim($_POST['venue_city'] ?? '');
+    $venue_province = trim($_POST['venue_province'] ?? '');
+    $venue_zip = trim($_POST['venue_zip'] ?? '');
+    $venue_details = trim($_POST['venue_details'] ?? '');
+    
+    // Construct complete venue address
+    $venue = $venue_street_number . ' ' . $venue_street_name . ', ' . 
+             $venue_barangay . ', ' . $venue_city . ', ' . 
+             $venue_province . ' ' . $venue_zip;
+    
+    // Add venue details if provided
+    if (!empty($venue_details)) {
+        $venue .= ' (' . $venue_details . ')';
+    }
+
     try {
         mysqli_begin_transaction($dbc);
 
-        // Calculate total amount
-        $total_amount = 0;
-        $num_persons = intval($_POST['num_persons']);
+        // Check if custom_catering_orders table exists, create it if not
+        $table_check_query = "SHOW TABLES LIKE 'custom_catering_orders'";
+        $table_check_result = mysqli_query($dbc, $table_check_query);
         
-        // Add menu package cost
-        switch($_POST['menu_bundle']) {
-            case 'Basic Filipino Package':
-                $total_amount += $num_persons * 250;
-                break;
-            case 'Premium Filipino Package':
-                $total_amount += $num_persons * 450;
-                break;
-            case 'Executive Package':
-                $total_amount += $num_persons * 650;
-                break;
+        // Add any missing columns to the custom_catering_orders table
+        if (mysqli_num_rows($table_check_result) > 0) {
+            // Check if staff_notes column exists
+            $column_check_query = "SHOW COLUMNS FROM custom_catering_orders LIKE 'staff_notes'";
+            $column_check_result = mysqli_query($dbc, $column_check_query);
+            if (mysqli_num_rows($column_check_result) == 0) {
+                // Add staff_notes column
+                $add_column_query = "ALTER TABLE custom_catering_orders ADD COLUMN staff_notes TEXT";
+                mysqli_query($dbc, $add_column_query);
+            }
         }
 
-        // Add additional services cost
+        // Check if it's a custom package order or small group order (less than 50 people)
+        $menu_package = $_POST['menu_bundle'];
+        $is_custom_package = ($menu_package === 'Custom Package');
+        $is_small_group = ($num_persons < 50);
+        $is_special_request = $is_custom_package || $is_small_group;
+        
+        // Process options flags
         $options = isset($_POST['options']) ? $_POST['options'] : array();
+        $has_tablesandchairs = in_array('tables', $options) ? 1 : 0;
+        $has_setup = in_array('setup', $options) ? 1 : 0;
+        $has_decoration = in_array('decoration', $options) ? 1 : 0;
+        $other_requests = isset($_POST['other_requests']) ? $_POST['other_requests'] : '';
+        
+        // Calculate additional services cost 
+        $services_cost = 0;
         if (!empty($options)) {
             foreach($options as $option) {
                 switch($option) {
                     case 'setup':
-                        $total_amount += 2000;
+                        $services_cost += 2000;
                         break;
                     case 'tables':
-                        $total_amount += 3500;
+                        $services_cost += 3500;
                         break;
                     case 'decoration':
-                        $total_amount += 5000;
+                        $services_cost += 5000;
                         break;
                 }
             }
         }
+        
+        // Use different tables for standard vs. custom orders
+        if ($is_special_request) {
+            // For custom_catering_orders table
+            $query = "INSERT INTO custom_catering_orders (
+                user_id, full_name, phone, email, event_date, num_persons, 
+                venue, occasion, menu_preferences, needs_tablesandchairs, needs_setup,
+                needs_decoration, special_requests, payment_method, status, estimated_budget
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)";
+            
+            $stmt = mysqli_prepare($dbc, $query);
+            
+            if (!$stmt) {
+                throw new Exception("Prepare failed: " . mysqli_error($dbc));
+            }
+            
+            // Set estimated budget to the service costs (since package cost will be determined later)
+            $estimated_budget = $services_cost;
+            
+            mysqli_stmt_bind_param($stmt, "issssisssiiissd", 
+                $_SESSION['user_id'],
+                $_POST['client_name'],
+                $_POST['contact_info'],
+                $_POST['email'],
+                $event_datetime,
+                $num_persons,
+                $venue,
+                $_POST['occasion'],
+                $menu_package,
+                $has_tablesandchairs,
+                $has_setup,
+                $has_decoration,
+                $other_requests,
+                $_POST['payment_method'],
+                $estimated_budget
+            );
+        } else {
+            // Standard package - use regular catering_orders table
+            // Get package price from the database
+            $package_query = "SELECT prod_price FROM products WHERE prod_name = ? AND prod_cat_id = 5 LIMIT 1";
+            $stmt = mysqli_prepare($dbc, $package_query);
+            mysqli_stmt_bind_param($stmt, "s", $menu_package);
+            mysqli_stmt_execute($stmt);
+            $package_result = mysqli_stmt_get_result($stmt);
+            $package_data = mysqli_fetch_assoc($package_result);
+            
+            if (!$package_data) {
+                throw new Exception("Invalid package selected");
+            }
+            
+            // Calculate total amount
+            $package_price = $package_data['prod_price'];
+            $total_amount = ($num_persons * $package_price) + $services_cost;
 
-        // Process options flags
-        $has_tablesandchairs = in_array('tables', $options);
-        $has_setup = in_array('setup', $options);
-        $has_decoration = in_array('decoration', $options);
-        $other_requests = isset($_POST['other_requests']) ? $_POST['other_requests'] : '';
+            // Convert needs_setup from tinyint to varchar as per the database structure
+            $needs_setup_str = $has_setup ? '1' : '0';
 
-        $query = "INSERT INTO catering_orders (
-            user_id, full_name, phone, email, event_date, num_persons, 
-            venue, occasion, menu_package, needs_tablesandchairs, needs_setup,
-            needs_decoration, special_requests, total_amount, payment_method, status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')";
+            $query = "INSERT INTO catering_orders (
+                user_id, full_name, phone, email, event_date, num_persons, 
+                venue, occasion, menu_package, needs_tablesandchairs, needs_setup,
+                needs_decoration, special_requests, total_amount, payment_method, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')";
 
-        $stmt = mysqli_prepare($dbc, $query);
-        mysqli_stmt_bind_param($stmt, "issssisssiiisds", 
-            $_SESSION['user_id'],
-            $_POST['client_name'],
-            $_POST['contact_info'],
-            $_POST['email'],
-            $_POST['event_date'],
-            $num_persons,
-            $_POST['venue'],
-            $_POST['occasion'],
-            $_POST['menu_bundle'],
-            $has_tablesandchairs,
-            $has_setup,
-            $has_decoration,
-            $other_requests,
-            $total_amount,
-            $_POST['payment_method']
-        );
+            $stmt = mysqli_prepare($dbc, $query);
+            mysqli_stmt_bind_param($stmt, "issssisssiissds", 
+                $_SESSION['user_id'],
+                $_POST['client_name'],
+                $_POST['contact_info'],
+                $_POST['email'],
+                $event_datetime,
+                $num_persons,
+                $venue,
+                $_POST['occasion'],
+                $menu_package,
+                $has_tablesandchairs,
+                $needs_setup_str,
+                $has_decoration,
+                $other_requests,
+                $total_amount,
+                $_POST['payment_method']
+            );
+        }
 
         if (!mysqli_stmt_execute($stmt)) {
-            error_log("Catering Order SQL Error: " . mysqli_stmt_error($stmt));
-            throw new Exception("Error creating catering order: " . mysqli_stmt_error($stmt));
+            $error_message = mysqli_stmt_error($stmt);
+            error_log("Catering Order SQL Error: " . $error_message);
+            throw new Exception("Error creating catering order: " . $error_message);
         }
 
         mysqli_commit($dbc);
-        $_SESSION['success'] = 'Catering request submitted successfully! <a href="' . BASE_URL . '/modules/orders.php" class="alert-link">View your order</a>';
+        
+        // Different success message for custom/small group orders
+        if ($is_special_request) {
+            $_SESSION['success'] = 'Your special catering request has been submitted! Our staff will contact you shortly to discuss details and pricing. <a href="' . BASE_URL . '/modules/orders.php" class="alert-link">View your orders</a>';
+        } else {
+            $_SESSION['success'] = 'Catering request submitted successfully! <a href="' . BASE_URL . '/modules/orders.php" class="alert-link">View your order</a>';
+        }
+        
         header('Location: ' . BASE_URL . '/modules/catering.php');
         exit;
 
     } catch (Exception $e) {
         mysqli_rollback($dbc);
         error_log("Catering Order Error: " . $e->getMessage());
-        $_SESSION['error'] = 'Error submitting request. Please try again.';
+        $_SESSION['error'] = 'Error submitting request. Please try again. Error: ' . $e->getMessage();
         header('Location: ' . BASE_URL . '/modules/catering.php');
         exit;
     } finally {

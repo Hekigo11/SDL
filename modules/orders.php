@@ -263,20 +263,33 @@ if (!isset($_SESSION['loginok'])) {
                                     <th>Event Date</th>
                                     <th>Venue</th>
                                     <th>Package</th>
-                                    <th>Total Amount</th>
+                                    <th>Persons</th>
+                                    <th>Amount</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
-                                $query = "SELECT * FROM catering_orders WHERE user_id = ? ORDER BY created_at DESC";
-                                $stmt = $dbc->prepare($query);
+                                // Get standard catering orders
+                                $standard_query = "SELECT *, 'standard' AS order_type FROM catering_orders WHERE user_id = ? ORDER BY created_at DESC";
+                                $stmt = $dbc->prepare($standard_query);
                                 $stmt->bind_param('i', $_SESSION['user_id']);
                                 $stmt->execute();
-                                $result = $stmt->get_result();
+                                $standard_result = $stmt->get_result();
+                                
+                                // Get custom catering orders
+                                $custom_query = "SELECT *, 'custom' AS order_type FROM custom_catering_orders WHERE user_id = ? ORDER BY created_at DESC";
+                                $stmt = $dbc->prepare($custom_query);
+                                $stmt->bind_param('i', $_SESSION['user_id']);
+                                $stmt->execute();
+                                $custom_result = $stmt->get_result();
+                                
+                                // Count total catering orders
+                                $total_catering_orders = $standard_result->num_rows + $custom_result->num_rows;
 
-                                if ($result->num_rows > 0) {
-                                    while ($row = $result->fetch_assoc()) {
+                                if ($total_catering_orders > 0) {
+                                    // Display standard catering orders
+                                    while ($row = $standard_result->fetch_assoc()) {
                                         $statusClass = '';
                                         switch($row['status']) {
                                             case 'pending':
@@ -300,7 +313,73 @@ if (!isset($_SESSION['loginok'])) {
                                             <td><?php echo date('M j, Y g:i A', strtotime($row['event_date'])); ?></td>
                                             <td><?php echo htmlspecialchars($row['venue']); ?></td>
                                             <td><?php echo htmlspecialchars($row['menu_package'] ?: 'Not specified'); ?></td>
+                                            <td><?php echo $row['num_persons']; ?></td>
                                             <td>₱<?php echo number_format($row['total_amount'], 2); ?></td>
+                                            <td><span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span></td>
+                                        </tr>
+                                        <?php
+                                    }
+                                    
+                                    // Display custom catering orders
+                                    while ($row = $custom_result->fetch_assoc()) {
+                                        $statusClass = '';
+                                        switch($row['status']) {
+                                            case 'pending':
+                                                $statusClass = 'warning';
+                                                break;
+                                            case 'confirmed':
+                                                $statusClass = 'info';
+                                                break;
+                                            case 'completed':
+                                                $statusClass = 'success';
+                                                break;
+                                            case 'cancelled':
+                                                $statusClass = 'danger';
+                                                break;
+                                            default:
+                                                $statusClass = 'secondary';
+                                        }
+                                        
+                                        // Determine request type based on num_persons
+                                        $isCustomPackage = false;
+                                        $isSmallGroup = false;
+                                        
+                                        if (isset($row['menu_preferences']) && $row['menu_preferences'] == 'Custom Package') {
+                                            $isCustomPackage = true;
+                                        }
+                                        
+                                        if (isset($row['num_persons']) && $row['num_persons'] < 50) {
+                                            $isSmallGroup = true;
+                                        }
+                                        
+                                        // Set the request type label based on conditions
+                                        if ($isCustomPackage && $isSmallGroup) {
+                                            $requestTypeLabel = 'Custom Menu (Small Group)';
+                                        } elseif ($isCustomPackage) {
+                                            $requestTypeLabel = 'Custom Menu';
+                                        } elseif ($isSmallGroup) {
+                                            $requestTypeLabel = 'Small Group';
+                                        } else {
+                                            $requestTypeLabel = 'Special Request';
+                                        }
+                                        
+                                        ?>
+                                        <tr>
+                                            <td>CSP-<?php echo $row['custom_order_id']; ?></td>
+                                            <td><?php echo date('M j, Y g:i A', strtotime($row['event_date'])); ?></td>
+                                            <td><?php echo htmlspecialchars($row['venue']); ?></td>
+                                            <td>
+                                                <?php echo htmlspecialchars($row['menu_preferences'] ?: 'Not specified'); ?>
+                                                <span class="badge badge-info"><?php echo $requestTypeLabel; ?></span>
+                                            </td>
+                                            <td><?php echo $row['num_persons']; ?></td>
+                                            <td>
+                                                <?php if (!empty($row['quote_amount'])): ?>
+                                                    ₱<?php echo number_format($row['quote_amount'], 2); ?>
+                                                <?php else: ?>
+                                                    <em>To be quoted</em>
+                                                <?php endif; ?>
+                                            </td>
                                             <td><span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span></td>
                                         </tr>
                                         <?php
@@ -308,7 +387,7 @@ if (!isset($_SESSION['loginok'])) {
                                 } else {
                                     ?>
                                     <tr>
-                                        <td colspan="6" class="empty-state">
+                                        <td colspan="7" class="empty-state">
                                             <i class="fas fa-calendar-alt"></i>
                                             <p class="text-muted">You haven't placed any catering orders yet.</p>
                                             <a href="<?php echo BASE_URL; ?>/modules/catering.php" class="btn btn-primary">Request Catering Service</a>
