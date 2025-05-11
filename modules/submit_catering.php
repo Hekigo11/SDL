@@ -189,9 +189,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $estimated_budget
             );
         } else {
-            // Standard package - use regular catering_orders table
-            // Get package price from the database
-            $package_query = "SELECT prod_price FROM products WHERE prod_name = ? AND prod_cat_id = 5 LIMIT 1";
+            // Standard package - use regular catering_orders table            // Get package price from the packages table
+            $package_query = "SELECT base_price FROM packages WHERE name = ? LIMIT 1";
             $stmt = mysqli_prepare($dbc, $package_query);
             mysqli_stmt_bind_param($stmt, "s", $menu_package);
             mysqli_stmt_execute($stmt);
@@ -203,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             // Calculate total amount
-            $package_price = $package_data['prod_price'];
+            $package_price = $package_data['base_price'];
             $total_amount = ($num_persons * $package_price) + $services_cost;
 
             // Convert needs_setup from tinyint to varchar as per the database structure

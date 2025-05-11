@@ -8,6 +8,30 @@ if (!isset($_SESSION['loginok'])) {
     exit;
 }
 
+// Store form data in session if coming from POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $_SESSION['catering_form'] = [
+        'client_name' => $_POST['client_name'] ?? '',
+        'contact_info' => $_POST['contact_info'] ?? '',
+        'email' => $_POST['email'] ?? '',
+        'event_date' => $_POST['event_date'] ?? '',
+        'event_time' => $_POST['event_time'] ?? '',
+        'venue_street_number' => $_POST['venue_street_number'] ?? '',
+        'venue_street_name' => $_POST['venue_street_name'] ?? '',
+        'venue_barangay' => $_POST['venue_barangay'] ?? '',
+        'venue_city' => $_POST['venue_city'] ?? '',
+        'venue_province' => $_POST['venue_province'] ?? '',
+        'venue_zip' => $_POST['venue_zip'] ?? '',
+        'venue_details' => $_POST['venue_details'] ?? '',
+        'occasion' => $_POST['occasion'] ?? '',
+        'num_persons' => $_POST['num_persons'] ?? '',
+        'menu_bundle' => $_POST['menu_bundle'] ?? ''
+    ];
+}
+if (!isset($_SESSION['catering_form']) && isset($_SESSION['catering_step1'])) {
+    $_SESSION['catering_form'] = $_SESSION['catering_step1'];
+}
+
 // Get user details for autofill
 $user_query = "SELECT fname, mname, lname, email_add, mobile_num FROM users WHERE user_id = ?";
 $stmt = mysqli_prepare($dbc, $user_query);
@@ -28,7 +52,7 @@ $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/vendor/style1.css">
-    <link rel="stylesheet" href="styles.css">
+
     <title>Catering Request - Step 1 - MARJ Food Services</title>
 </head>
 <body>
@@ -60,8 +84,7 @@ $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_
                 <div class="card shadow">
                     <div class="card-header  text-white rounded-top" style="background-color: var(--accent);">
                         <h2 class="h4 mb-0">Catering Request - Step 1</h2>
-                    </div>
-                    <div class="card-body">
+                    </div>                    <div class="card-body">
                         <div class="progress mb-4">
                             <div class="progress-bar bg-accent" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">Step 1 of 2</div>
                         </div>
@@ -71,20 +94,23 @@ $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Full Name</label>
-                                        <input type="text" class="form-control" name="client_name" value="<?php echo htmlspecialchars($full_name); ?>" required>
+                                        <input type="text" class="form-control" name="client_name" 
+                                            value="<?php echo isset($_SESSION['catering_form']['client_name']) ? htmlspecialchars($_SESSION['catering_form']['client_name']) : htmlspecialchars($full_name); ?>" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Contact Number</label>
-                                        <input type="tel" class="form-control" name="contact_info" value="<?php echo htmlspecialchars($user_data['mobile_num']); ?>" required>
+                                        <input type="tel" class="form-control" name="contact_info" 
+                                            value="<?php echo isset($_SESSION['catering_form']['contact_info']) ? htmlspecialchars($_SESSION['catering_form']['contact_info']) : htmlspecialchars($user_data['mobile_num']); ?>" required>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label>Email Address</label>
-                                <input type="email" class="form-control" name="email" value="<?php echo htmlspecialchars($user_data['email_add']); ?>" required>
+                                <input type="email" class="form-control" name="email" 
+                                    value="<?php echo isset($_SESSION['catering_form']['email']) ? htmlspecialchars($_SESSION['catering_form']['email']) : htmlspecialchars($user_data['email_add']); ?>" required>
                             </div>
 
                             <?php include('date_selection.php'); ?>
@@ -97,13 +123,15 @@ $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="venue_street_number">Street Number</label>
-                                                    <input type="text" class="form-control" id="venue_street_number" name="venue_street_number" required>
+                                                    <input type="text" class="form-control" id="venue_street_number" name="venue_street_number" 
+                                                        value="<?php echo isset($_SESSION['catering_form']['venue_street_number']) ? htmlspecialchars($_SESSION['catering_form']['venue_street_number']) : ''; ?>" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="venue_street_name">Street Name</label>
-                                                    <input type="text" class="form-control" id="venue_street_name" name="venue_street_name" required>
+                                                    <input type="text" class="form-control" id="venue_street_name" name="venue_street_name" 
+                                                        value="<?php echo isset($_SESSION['catering_form']['venue_street_name']) ? htmlspecialchars($_SESSION['catering_form']['venue_street_name']) : ''; ?>" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -112,13 +140,15 @@ $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="venue_barangay">Barangay</label>
-                                                    <input type="text" class="form-control" id="venue_barangay" name="venue_barangay" required>
+                                                    <input type="text" class="form-control" id="venue_barangay" name="venue_barangay" 
+                                                        value="<?php echo isset($_SESSION['catering_form']['venue_barangay']) ? htmlspecialchars($_SESSION['catering_form']['venue_barangay']) : ''; ?>" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="venue_city">City/Municipality</label>
-                                                    <input type="text" class="form-control" id="venue_city" name="venue_city" required>
+                                                    <input type="text" class="form-control" id="venue_city" name="venue_city" 
+                                                        value="<?php echo isset($_SESSION['catering_form']['venue_city']) ? htmlspecialchars($_SESSION['catering_form']['venue_city']) : ''; ?>" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -127,20 +157,22 @@ $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="venue_province">Province</label>
-                                                    <input type="text" class="form-control" id="venue_province" name="venue_province" required>
+                                                    <input type="text" class="form-control" id="venue_province" name="venue_province" 
+                                                        value="<?php echo isset($_SESSION['catering_form']['venue_province']) ? htmlspecialchars($_SESSION['catering_form']['venue_province']) : ''; ?>" required>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="venue_zip">ZIP Code</label>
-                                                    <input type="text" class="form-control" id="venue_zip" name="venue_zip" required>
+                                                    <input type="text" class="form-control" id="venue_zip" name="venue_zip" 
+                                                        value="<?php echo isset($_SESSION['catering_form']['venue_zip']) ? htmlspecialchars($_SESSION['catering_form']['venue_zip']) : ''; ?>" required>
                                                 </div>
                                             </div>
                                         </div>
                                         
                                         <div class="form-group">
                                             <label for="venue_details">Venue Details <small class="text-muted">(Room/Floor/Building/Landmark)</small></label>
-                                            <textarea class="form-control" id="venue_details" name="venue_details" rows="2"></textarea>
+                                            <textarea class="form-control" id="venue_details" name="venue_details" rows="2"><?php echo isset($_SESSION['catering_form']['venue_details']) ? htmlspecialchars($_SESSION['catering_form']['venue_details']) : ''; ?></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -148,12 +180,14 @@ $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_
 
                             <div class="form-group">
                                 <label>Occasion</label>
-                                <input type="text" class="form-control" name="occasion" required>
+                                <input type="text" class="form-control" name="occasion" 
+                                    value="<?php echo isset($_SESSION['catering_form']['occasion']) ? htmlspecialchars($_SESSION['catering_form']['occasion']) : ''; ?>" required>
                             </div>
 
                             <div class="form-group">
                                 <label>Number of Persons</label>
-                                <input type="number" class="form-control" name="num_persons" id="num_persons" min="1" value="50" required>
+                                <input type="number" class="form-control" name="num_persons" id="num_persons" min="1" 
+                                    value="<?php echo isset($_SESSION['catering_form']['num_persons']) ? htmlspecialchars($_SESSION['catering_form']['num_persons']) : '50'; ?>" required>
                                 <small class="form-text text-muted">Minimum 50 persons for standard packages. For smaller groups, select "Custom Package" or our staff will contact you.</small>
                                 <small id="smallGroupWarning" class="form-text text-danger font-weight-bold" style="display: none;">
                                     <i class="fas fa-exclamation-triangle"></i> 
@@ -180,6 +214,7 @@ $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_
                                                                        value="<?php echo htmlspecialchars($row['name']); ?>" 
                                                                        class="custom-control-input package-select"
                                                                        data-price="<?php echo $row['base_price']; ?>"
+                                                                       <?php echo (isset($_SESSION['catering_form']['menu_bundle']) && $_SESSION['catering_form']['menu_bundle'] === $row['name']) ? 'checked' : ''; ?>
                                                                        required>
                                                                 <label class="custom-control-label font-weight-bold" for="package_<?php echo $row['package_id']; ?>">
                                                                     <?php echo htmlspecialchars($row['name']); ?> - ₱<?php echo number_format($row['base_price'], 2); ?> per head
@@ -200,7 +235,8 @@ $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_
                                                                    value="Custom Package" 
                                                                    class="custom-control-input package-select"
                                                                    data-custom="true"
-                                                                   data-price="0">
+                                                                   data-price="0"
+                                                                   <?php echo (isset($_SESSION['catering_form']['menu_bundle']) && $_SESSION['catering_form']['menu_bundle'] === 'Custom Package') ? 'checked' : ''; ?>>
                                                             <label class="custom-control-label font-weight-bold" for="package_custom">
                                                                 Custom Package - Contact us for pricing
                                                             </label>
@@ -266,15 +302,33 @@ $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_
                             </div>
 
                             <div class="text-right">
-                                <button type="submit" class="btn btn-accent px-5">Continue to Additional Services <i class="fas fa-arrow-right ml-2"></i></button>
+                                <button type="submit" class="btn btn-accent px-5" id="continueBtn">
+                                    Continue to Additional Services <i class="fas fa-arrow-right ml-2"></i>
+                                </button>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
-
+    </main>    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle form submission
+        document.getElementById('cateringForm').addEventListener('submit', function(e) {
+            const selectedPackage = document.querySelector('input[name="menu_bundle"]:checked');
+            if (!selectedPackage) {
+                e.preventDefault();
+                alert('Please select a package before continuing.');
+                return;
+            }
+            if (selectedPackage.value === 'Custom Package') {
+                e.preventDefault();
+                this.action = '../submit_catering.php';
+                this.submit();
+            }
+        });
+    });
+    </script>
     <script src="scripts.js"></script>
     <?php include('../authenticate.php'); ?>
 </body>

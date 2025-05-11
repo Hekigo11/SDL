@@ -659,7 +659,20 @@ INSERT INTO `user_cart` (`user_id`, `product_id`, `quantity`, `added_at`) VALUES
 (11, 2, 20, '2025-04-18 15:51:52'),
 (12, 3, 100, '2025-04-19 07:13:51');
 COMMIT;
-
+CREATE TABLE `catering_order_menu_items` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `catering_order_id` INT NOT NULL,
+    `product_id` INT NOT NULL,
+    `category_id` INT NOT NULL,
+    `quantity` INT DEFAULT 1,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`catering_order_id`) REFERENCES `catering_orders`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`product_id`) REFERENCES `products`(`id`),
+    FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`),
+    INDEX `idx_catering_order` (`catering_order_id`),
+    INDEX `idx_product` (`product_id`),
+    INDEX `idx_category` (`category_id`)
+);
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

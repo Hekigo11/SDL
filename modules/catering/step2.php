@@ -132,9 +132,31 @@ while ($row = mysqli_fetch_assoc($result)) {
                         </div>
 
                         <form action="../submit_catering.php" method="POST">
-                            <!-- Hidden fields for step 1 data -->
-                            <?php foreach ($_SESSION['catering_step1'] as $key => $value): ?>
-                                <input type="hidden" name="<?php echo htmlspecialchars($key); ?>" value="<?php echo htmlspecialchars($value); ?>">
+                            <?php 
+                            // Get package price from database first
+                            $package_price = 0;
+                            if(isset($_SESSION['catering_step1']['menu_bundle']) && $_SESSION['catering_step1']['menu_bundle'] !== 'Custom Package') {
+                                $package_query = "SELECT base_price FROM packages WHERE name = ?";
+                                $stmt = mysqli_prepare($dbc, $package_query);
+                                mysqli_stmt_bind_param($stmt, "s", $_SESSION['catering_step1']['menu_bundle']);
+                                mysqli_stmt_execute($stmt);
+                                $package_result = mysqli_stmt_get_result($stmt);
+                                if($package_data = mysqli_fetch_assoc($package_result)) {
+                                    $package_price = $package_data['base_price'];
+                                }
+                            }
+
+                            // Add package price as a hidden field
+                            echo "<input type='hidden' name='package_price' value='" . htmlspecialchars($package_price) . "'>";
+
+                            // Output session values as hidden fields
+                            foreach ($_SESSION['catering_step1'] as $key => $value): ?>
+                                <input type="hidden" name="<?php echo htmlspecialchars($key); ?>" 
+                                       value="<?php echo htmlspecialchars($value); ?>"
+                                       <?php if($key === 'menu_bundle'): ?>
+                                       data-price="<?php echo htmlspecialchars($package_price); ?>"
+                                       class="package-select"
+                                       <?php endif; ?>>
                             <?php endforeach; ?>
 
                             <!-- Halal Filter -->
@@ -249,10 +271,8 @@ while ($row = mysqli_fetch_assoc($result)) {
                             <div class="card mb-3">
                                 <div class="card-body">
                                     <h5 class="mb-3">Final Cost Summary</h5>
-                                    <div class="row">
-                                        <div class="col-md-8">
+                                    <div class="row">                                        <div class="col-md-8">
                                             <p class="mb-2">Package Cost: <span id="packageCost">Loading...</span></p>
-                                            <p class="mb-2">Menu Items Total: <span id="menuItemsTotal">₱0.00</span></p>
                                             <p class="mb-2">Additional Services: <span id="servicesCost">₱0.00</span></p>
                                             <hr>
                                             <p class="font-weight-bold">Total Amount: <span id="totalAmount" class="text-primary">Loading...</span></p>

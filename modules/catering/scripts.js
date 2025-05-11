@@ -189,28 +189,46 @@ function showSmallGroupWarning() {
 }
 
 function calculateTotal() {
+    console.log('Calculate total called');
+    
     const numPersons = parseInt(document.querySelector('input[name="num_persons"]').value) || 0;
+    console.log('Number of persons:', numPersons);
+    
     let packageCost = 0;
-    let menuItemsTotal = 0;
-    let servicesCost = 0;
-
-    // Calculate package cost from step 1
-    const selectedPackage = document.querySelector('input[name="menu_bundle"]:checked');
-    if (selectedPackage) {
-        if (selectedPackage.dataset.custom === 'true') {
-            updateCostDisplay('To be determined', 0, 0);
+    let servicesCost = 0;    // First try to get price from package_price field
+    let packagePrice = 0;
+    const packagePriceInput = document.querySelector('input[name="package_price"]');
+    // Try to get either a checked radio button or a hidden field for step 2
+    const packageInput = document.querySelector('input[name="menu_bundle"]:checked') || 
+                        document.querySelector('input[name="menu_bundle"][type="hidden"]');
+    
+    console.log('Package input:', packageInput);
+    console.log('Package price input:', packagePriceInput);
+    
+    if (packageInput) {
+        if (packageInput.value === 'Custom Package') {
+            console.log('Custom package detected');
+            updateCostDisplay('To be determined', 0);
             return;
         } else {
-            packageCost = parseFloat(selectedPackage.dataset.price) * numPersons;
-        }
-    }
+            // Try to get price from multiple sources
+            if (packagePriceInput) {
+                packagePrice = parseFloat(packagePriceInput.value) || 0;
+                console.log('Price from package_price input:', packagePrice);
+            }
+            
+            if (packagePrice === 0 && packageInput.dataset.price) {
+                packagePrice = parseFloat(packageInput.dataset.price) || 0;
+                console.log('Price from data-price attribute:', packagePrice);
+            }
 
-    // Calculate selected menu items cost
-    const selectedItems = document.querySelectorAll('.menu-item-select:checked');
-    selectedItems.forEach(item => {
-        const itemPrice = parseFloat(item.dataset.price) * numPersons;
-        menuItemsTotal += itemPrice;
-    });
+            packageCost = packagePrice * numPersons;
+            console.log('Final package price per person:', packagePrice);
+            console.log('Total package cost:', packageCost);
+        }
+    } else {
+        console.log('No package input found');
+    }
 
     // Calculate services cost
     const services = document.querySelectorAll('input[name="options[]"]:checked');
@@ -227,26 +245,25 @@ function calculateTotal() {
                 break;
         }
     });
+    console.log('Services cost:', servicesCost);
+    console.log('Total cost:', packageCost + servicesCost);
 
-    updateCostDisplay(packageCost, menuItemsTotal, servicesCost);
+    updateCostDisplay(packageCost, servicesCost);
 }
 
-function updateCostDisplay(packageCost, menuItemsTotal, servicesCost) {
+function updateCostDisplay(packageCost, servicesCost) {
     const packageDisplay = document.getElementById('packageCost');
-    const menuItemsDisplay = document.getElementById('menuItemsTotal');
     const servicesDisplay = document.getElementById('servicesCost');
     const totalDisplay = document.getElementById('totalAmount');
-    
+
     if (packageCost === 'To be determined') {
         if (packageDisplay) packageDisplay.textContent = 'To be determined';
         if (totalDisplay) totalDisplay.textContent = 'To be determined';
-        if (menuItemsDisplay) menuItemsDisplay.textContent = '₱' + menuItemsTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         if (servicesDisplay) servicesDisplay.textContent = '₱' + servicesCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     } else {
-        const total = packageCost + menuItemsTotal + servicesCost;
+        const total = packageCost + servicesCost;
         if (packageDisplay) packageDisplay.textContent = '₱' + packageCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        if (menuItemsDisplay) menuItemsDisplay.textContent = '₱' + menuItemsTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        if (servicesDisplay) servicesDisplay.textContent = '₱' + servicesCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        if (servicesDisplay) servicesDisplay.textContent = '₱' + servicesCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); 
         if (totalDisplay) totalDisplay.textContent = '₱' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
 }
@@ -293,11 +310,20 @@ function createAlertContainer() {
 }
 
 function initializeStep2Costs() {
-    // Get the package cost from step 1 data
-    const hiddenPackageInput = document.querySelector('input[name="menu_bundle"]');
-    const hiddenNumPersonsInput = document.querySelector('input[name="num_persons"]');
+    console.log('Step 2 initialization started');
     
-    if (hiddenPackageInput && hiddenNumPersonsInput) {
-        calculateTotal();
-    }
+    // Get the package cost from step 1 data
+    const packagePriceInput = document.querySelector('input[name="package_price"]');
+    const hiddenPackage = document.querySelector('input[name="menu_bundle"]');
+    const hiddenNumPersons = document.querySelector('input[name="num_persons"]');
+    
+    console.log('Package price input:', packagePriceInput);
+    console.log('Package price value:', packagePriceInput ? packagePriceInput.value : 'not found');
+    console.log('Hidden package element:', hiddenPackage);
+    console.log('Package name:', hiddenPackage ? hiddenPackage.value : 'not found');
+    console.log('Package data-price:', hiddenPackage ? hiddenPackage.dataset.price : 'not found');
+    console.log('Number of persons:', hiddenNumPersons ? hiddenNumPersons.value : 'not found');
+
+    // Calculate total immediately
+    calculateTotal();
 }
