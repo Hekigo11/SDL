@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: May 08, 2025 at 01:37 PM
+-- Generation Time: May 11, 2025 at 09:08 AM
 -- Server version: 9.1.0
 -- PHP Version: 8.3.14
 
@@ -22,6 +22,39 @@ SET time_zone = "+00:00";
 --
 CREATE DATABASE IF NOT EXISTS `marj` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 USE `marj`;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `address`
+--
+
+DROP TABLE IF EXISTS `address`;
+CREATE TABLE IF NOT EXISTS `address` (
+  `address_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `street_number` varchar(50) NOT NULL,
+  `street_name` varchar(100) NOT NULL,
+  `barangay` varchar(100) NOT NULL,
+  `city` varchar(100) NOT NULL,
+  `province` varchar(100) NOT NULL,
+  `zip_code` varchar(10) NOT NULL,
+  `is_default` tinyint(1) DEFAULT '0',
+  `label` varchar(50) DEFAULT 'Home',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`address_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4  ;
+
+--
+-- Dumping data for table `address`
+--
+
+INSERT INTO `address` (`address_id`, `user_id`, `street_number`, `street_name`, `barangay`, `city`, `province`, `zip_code`, `is_default`, `label`, `created_at`, `updated_at`) VALUES
+(1, 2, '356', 'Adarna', 'Bayan Luma 2', 'Imus', 'Cavite', '4103', 1, 'Home', '2025-05-08 14:38:01', '2025-05-08 15:01:49'),
+(2, 2, '132', 'Dito', 'Sa', 'Imus', 'Cavite', '4103', 0, 'Kabila', '2025-05-08 14:38:37', '2025-05-08 15:01:49'),
+(3, 3, '987', 'Flamingo', 'Bayan', 'Bacoor', 'Cavite', '888', 1, 'Home', '2025-05-08 14:39:42', '2025-05-08 14:39:42');
 
 -- --------------------------------------------------------
 
@@ -58,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `categories` (
   `category_id` int NOT NULL AUTO_INCREMENT,
   `category_name` varchar(255) NOT NULL,
   PRIMARY KEY (`category_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4  ;
 
 --
 -- Dumping data for table `categories`
@@ -68,8 +101,7 @@ INSERT INTO `categories` (`category_id`, `category_name`) VALUES
 (1, 'Main Dishes'),
 (2, 'Sides'),
 (3, 'Desserts'),
-(4, 'Beverages'),
-(5, 'Packages');
+(4, 'Beverages');
 
 -- --------------------------------------------------------
 
@@ -99,7 +131,7 @@ CREATE TABLE IF NOT EXISTS `catering_orders` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`catering_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4  ;
 
 --
 -- Dumping data for table `catering_orders`
@@ -120,7 +152,62 @@ INSERT INTO `catering_orders` (`catering_id`, `user_id`, `full_name`, `phone`, `
 (12, 10, 'Jasper Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-05 12:26:00', 50, 'das', 'asd', 1, '1', 1, 'Basic Filipino Package', '', 23000.00, 'cash', 'pending', '2025-05-05 14:26:15'),
 (13, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-08 22:47:00', 50, 'asd', 'asd', 0, '1', 0, 'Basic Filipino Package', 'asd', 14500.00, 'cash', 'pending', '2025-05-05 14:47:39'),
 (14, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-19 22:52:00', 100, 'das', 'das', 0, '0', 0, 'Premium Filipino Package', '', 45000.00, 'cash', 'pending', '2025-05-05 14:53:09'),
-(15, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-08 23:03:00', 50, 'asd', 'ads', 0, '1', 0, 'Basic Filipino Package', '', 14500.00, 'cash', 'pending', '2025-05-05 15:03:24');
+(15, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-08 23:03:00', 50, 'asd', 'ads', 0, '1', 0, 'Basic Filipino Package', '', 14500.00, 'cash', 'pending', '2025-05-05 15:03:24'),
+(16, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-16 11:00:00', 50, 'wqe', 'qwe', 0, '0', 1, 'Custom Package', 'qwe', 5000.00, 'cash', 'custom_pending', '2025-05-10 12:20:05'),
+(17, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd', 'asd', 0, '0', 0, 'Premium Filipino Package', '', 22500.00, 'cash', 'pending', '2025-05-10 13:13:07'),
+(18, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'qs qs, qs, qs, qs qs (asd)', 'asd', 0, '0', 0, 'Basic Filipino Package', '', 12500.00, 'cash', 'pending', '2025-05-10 13:21:39'),
+(19, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'ads', 0, '0', 0, 'Basic Filipino Package', '', 12500.00, 'cash', 'pending', '2025-05-10 13:54:13'),
+(20, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'asd', 0, '1', 0, 'Executive Package', 'asd', 34500.00, 'cash', 'pending', '2025-05-10 13:59:31'),
+(21, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'asd', 0, '1', 0, 'Basic Filipino Package', '', 14500.00, 'cash', 'pending', '2025-05-10 14:06:03'),
+(22, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'asd', 0, '1', 0, 'Executive Package', '', 34500.00, 'cash', 'pending', '2025-05-10 14:09:37'),
+(23, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 11:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'asd', 1, '0', 0, 'Basic Filipino Package', 'asd', 16000.00, 'cash', 'pending', '2025-05-10 14:17:30'),
+(24, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'c', 1, '0', 0, 'Basic Filipino Package', 'asd', 16000.00, 'cash', 'pending', '2025-05-10 14:28:40'),
+(25, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd, asd, asd, asd, asd (asd)', 'asd', 0, '1', 0, '0', 'asd', 14500.00, 'cash', 'pending', '2025-05-10 15:52:20'),
+(26, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'WA, WA, WA, WA, AW (AW)', 'AW', 0, '1', 0, '0', 'ASD', 14500.00, 'cash', 'pending', '2025-05-10 15:55:44'),
+(27, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd, asd, asd, asd, asd (asd)', 'asd', 0, '1', 0, '0', 'asd', 14500.00, 'cash', 'pending', '2025-05-10 16:03:49'),
+(28, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 17:00:00', 50, 'df, gdfs, dw, dfg, asd (asd)', 'asd', 0, '1', 0, '0', 'sad', 14500.00, 'cash', 'pending', '2025-05-10 16:07:35');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `custom_catering_orders`
+--
+
+DROP TABLE IF EXISTS `custom_catering_orders`;
+CREATE TABLE IF NOT EXISTS `custom_catering_orders` (
+  `custom_order_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `full_name` varchar(100) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `event_date` datetime NOT NULL,
+  `num_persons` int NOT NULL,
+  `venue` text NOT NULL,
+  `occasion` varchar(100) NOT NULL,
+  `needs_tablesandchairs` tinyint(1) DEFAULT '0',
+  `needs_setup` tinyint(1) DEFAULT '0',
+  `needs_decoration` tinyint(1) DEFAULT '0',
+  `special_requests` text,
+  `menu_preferences` text,
+  `estimated_budget` decimal(10,2) DEFAULT NULL,
+  `payment_method` varchar(50) NOT NULL,
+  `status` varchar(20) DEFAULT 'pending',
+  `staff_notes` text,
+  `quote_amount` decimal(10,2) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`custom_order_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `custom_catering_orders`
+--
+
+INSERT INTO `custom_catering_orders` (`custom_order_id`, `user_id`, `full_name`, `phone`, `email`, `event_date`, `num_persons`, `venue`, `occasion`, `needs_tablesandchairs`, `needs_setup`, `needs_decoration`, `special_requests`, `menu_preferences`, `estimated_budget`, `payment_method`, `status`, `staff_notes`, `quote_amount`, `created_at`, `updated_at`) VALUES
+(1, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-29 11:00:00', 49, 'asd', 'asd', 1, 0, 0, '', 'Basic Filipino Package', 3500.00, 'cash', 'pending', NULL, NULL, '2025-05-10 12:48:58', '2025-05-10 12:48:58'),
+(2, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-22 12:00:00', 50, 'asd', 'asd', 0, 1, 0, 'asd', 'Custom Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-10 12:53:17', '2025-05-10 12:53:17'),
+(3, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-22 11:00:00', 49, 'asd', 'asd', 0, 1, 0, 'asd', 'Custom Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-10 12:53:50', '2025-05-10 12:53:50'),
+(4, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-13 12:00:00', 49, 'dsa ads, asd, sda, sda asd (asd)', 'dsa', 0, 1, 0, '', 'Executive Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-10 13:13:47', '2025-05-10 13:13:47');
 
 -- --------------------------------------------------------
 
@@ -209,7 +296,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `delivered_at` datetime DEFAULT NULL,
   `status_notes` text,
   PRIMARY KEY (`order_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=34 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=39 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `orders`
@@ -246,9 +333,14 @@ INSERT INTO `orders` (`order_id`, `user_id`, `full_name`, `phone`, `address`, `n
 (28, 10, 'Jasper  Sergio', '09288231320', 'ads', '', 'cash', 1270.00, 50.00, '2025-05-09 15:00:00', 'pending', '2025-05-08 11:08:16', '0000-00-00 00:00:00', 'pending', NULL, NULL, NULL, NULL, NULL),
 (29, 10, 'Jasper  Sergio', '09288231320', 'asd', '', 'cash', 930.00, 50.00, '2025-05-09 09:00:00', 'pending', '2025-05-08 11:11:00', '0000-00-00 00:00:00', '', NULL, NULL, NULL, NULL, NULL),
 (30, 10, 'Jasper  Sergio', '09288231320', 'asd', '', 'cash', 390.00, 50.00, '2025-05-10 09:00:00', 'pending', '2025-05-08 11:14:42', '0000-00-00 00:00:00', '', NULL, NULL, NULL, NULL, NULL),
-(31, 10, 'Jasper  Sergio', '09288231320', 'asd', '', 'cash', 770.00, 50.00, '2025-05-09 09:00:00', 'pending', '2025-05-08 11:19:31', '0000-00-00 00:00:00', '', NULL, NULL, NULL, NULL, NULL),
+(31, 10, 'Jasper  Sergio', '09288231320', 'asd', '', 'cash', 770.00, 50.00, '2025-05-09 09:00:00', 'processing', '2025-05-08 11:19:31', '0000-00-00 00:00:00', 'in_kitchen', NULL, NULL, NULL, NULL, NULL),
 (32, 10, 'Jasper  Sergio', '09288231320', 'sad', '', 'cash', 490.00, 50.00, '2025-05-10 09:00:00', 'pending', '2025-05-08 11:19:57', '0000-00-00 00:00:00', '', NULL, NULL, NULL, NULL, NULL),
-(33, 10, 'Jasper  Sergio', '09288231320', 'asd', '', 'cash', 450.00, 50.00, '2025-05-09 09:00:00', 'pending', '2025-05-08 11:26:30', '0000-00-00 00:00:00', '', NULL, NULL, NULL, NULL, NULL);
+(33, 10, 'Jasper  Sergio', '09288231320', 'asd', '', 'cash', 450.00, 50.00, '2025-05-09 09:00:00', 'processing', '2025-05-08 11:26:30', '0000-00-00 00:00:00', 'in_kitchen', NULL, NULL, NULL, NULL, NULL),
+(34, 2, 'Justin  Cruz', '2', 'Home: 356 Adarna, Bayan Luma 2, Imus, Cavite 4103', '', 'cash', 130.00, 50.00, '2025-05-10 10:00:00', 'pending', '2025-05-08 15:02:23', '0000-00-00 00:00:00', 'pending', NULL, NULL, NULL, NULL, NULL),
+(35, 2, 'Justin  Cruz', '2', 'Kabila: 132 Dito, Sa, Imus, Cavite 4103', 'None', 'gcash', 570.00, 50.00, '2025-05-15 19:00:00', 'cancelled', '2025-05-08 15:20:31', '0000-00-00 00:00:00', 'pending', 'Changed my mind', '2025-05-08 23:21:30', NULL, NULL, NULL),
+(36, 2, 'Justin  Cruz', '2', 'Home: 356 Adarna, Bayan Luma 2, Imus, Cavite 4103', 'WALANG PERA', 'cash', 690.00, 50.00, '2025-05-15 14:00:00', 'processing', '2025-05-08 15:22:08', '0000-00-00 00:00:00', 'in_kitchen', NULL, NULL, NULL, NULL, NULL),
+(37, 2, 'Justin  Cruz', '2', 'Home: 356 Adarna, Bayan Luma 2, Imus, Cavite 4103', '', 'cash', 490.00, 50.00, '2025-05-12 18:30:00', 'pending', '2025-05-10 10:58:23', '0000-00-00 00:00:00', '', NULL, NULL, NULL, NULL, NULL),
+(38, 2, 'Justin  Cruz', '2', 'Home: 356 Adarna, Bayan Luma 2, Imus, Cavite 4103', '', 'cash', 410.00, 50.00, '2025-05-11 09:00:00', 'processing', '2025-05-10 11:07:38', '0000-00-00 00:00:00', 'in_kitchen', NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -306,12 +398,26 @@ INSERT INTO `order_checklist` (`order_id`, `ingredient_id`, `quantity_needed`, `
 (30, 1, 0.25, 1, 13, '2025-05-08 03:15:04', NULL),
 (31, 1, 4.00, 1, 13, '2025-05-08 03:19:39', NULL),
 (31, 2, 8.00, 1, 13, '2025-05-08 03:34:25', NULL),
-(31, 3, 8.00, 0, NULL, NULL, NULL),
+(31, 3, 8.00, 1, 13, '2025-05-10 03:20:47', NULL),
 (32, 1, 2.00, 1, 13, '2025-05-08 03:20:19', NULL),
-(33, 1, 1.00, 0, NULL, NULL, NULL),
-(33, 1, 1.00, 0, NULL, NULL, NULL),
+(33, 1, 1.00, 1, 13, '2025-05-10 03:20:45', NULL),
+(33, 1, 1.00, 1, 13, '2025-05-10 03:20:45', NULL),
 (33, 2, 2.00, 1, 13, '2025-05-08 03:34:25', NULL),
-(33, 3, 2.00, 0, NULL, NULL, NULL);
+(33, 3, 2.00, 1, 13, '2025-05-10 03:20:47', NULL),
+(35, 1, 1.00, 0, NULL, NULL, NULL),
+(35, 2, 2.00, 0, NULL, NULL, NULL),
+(35, 3, 2.00, 0, NULL, NULL, NULL),
+(35, 1, 1.00, 0, NULL, NULL, NULL),
+(35, 1, 0.25, 0, NULL, NULL, NULL),
+(36, 1, 0.50, 1, 13, '2025-05-10 03:20:45', NULL),
+(36, 1, 1.00, 1, 13, '2025-05-10 03:20:45', NULL),
+(36, 1, 1.00, 1, 13, '2025-05-10 03:20:45', NULL),
+(36, 2, 2.00, 1, 13, '2025-05-10 03:20:46', NULL),
+(36, 3, 2.00, 1, 13, '2025-05-10 03:20:47', NULL),
+(37, 1, 2.00, 1, 13, '2025-05-10 03:07:01', NULL),
+(38, 1, 2.00, 1, 13, '2025-05-10 03:12:52', NULL),
+(38, 2, 4.00, 1, 13, '2025-05-10 03:12:53', NULL),
+(38, 3, 4.00, 1, 13, '2025-05-10 03:12:54', NULL);
 
 -- --------------------------------------------------------
 
@@ -327,7 +433,7 @@ CREATE TABLE IF NOT EXISTS `order_items` (
   `quantity` int NOT NULL,
   `price` decimal(10,2) NOT NULL,
   PRIMARY KEY (`item_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=39 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=48 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `order_items`
@@ -371,7 +477,70 @@ INSERT INTO `order_items` (`item_id`, `order_id`, `product_id`, `quantity`, `pri
 (35, 31, 1, 4, 180.00),
 (36, 32, 2, 2, 220.00),
 (37, 33, 2, 1, 220.00),
-(38, 33, 1, 1, 180.00);
+(38, 33, 1, 1, 180.00),
+(39, 34, 4, 1, 80.00),
+(40, 35, 1, 1, 180.00),
+(41, 35, 2, 1, 220.00),
+(42, 35, 3, 1, 120.00),
+(43, 36, 3, 2, 120.00),
+(44, 36, 2, 1, 220.00),
+(45, 36, 1, 1, 180.00),
+(46, 37, 2, 2, 220.00),
+(47, 38, 1, 2, 180.00);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `packages`
+--
+
+DROP TABLE IF EXISTS `packages`;
+CREATE TABLE IF NOT EXISTS `packages` (
+  `package_id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `description` text NOT NULL,
+  `base_price` decimal(10,2) NOT NULL,
+  `is_active` tinyint(1) DEFAULT '1',
+  PRIMARY KEY (`package_id`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4  ;
+
+--
+-- Dumping data for table `packages`
+--
+
+INSERT INTO `packages` (`package_id`, `name`, `description`, `base_price`, `is_active`) VALUES
+(1, 'Basic Filipino Package', 'Budget-friendly Filipino classics including rice, 2 main dishes, 1 side dish, and dessert', 250.00, 1),
+(2, 'Premium Filipino Package', 'Premium selection with rice, 3 main dishes, 2 side dishes, soup, and dessert', 450.00, 1),
+(3, 'Executive Package', 'Luxury package with rice, 4 main dishes, 2 side dishes, soup, appetizers, and premium desserts', 650.00, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `package_products`
+--
+
+DROP TABLE IF EXISTS `package_products`;
+CREATE TABLE IF NOT EXISTS `package_products` (
+  `package_id` int NOT NULL COMMENT 'from packages table',
+  `category_id` int NOT NULL COMMENT 'from categories table',
+  `amount` int NOT NULL COMMENT 'how many per package'
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Dito ililink yung package pati category';
+
+--
+-- Dumping data for table `package_products`
+--
+
+INSERT INTO `package_products` (`package_id`, `category_id`, `amount`) VALUES
+(1, 1, 2),
+(1, 2, 1),
+(1, 3, 1),
+(1, 4, 1),
+(2, 1, 3),
+(2, 2, 2),
+(2, 3, 1),
+(2, 1, 4),
+(2, 2, 2),
+(2, 3, 2);
 
 -- --------------------------------------------------------
 
@@ -389,20 +558,18 @@ CREATE TABLE IF NOT EXISTS `products` (
   `prod_cat_id` int NOT NULL,
   `qty_sold` int NOT NULL,
   PRIMARY KEY (`product_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `products`
 --
 
 INSERT INTO `products` (`product_id`, `prod_name`, `prod_price`, `prod_desc`, `prod_img`, `prod_cat_id`, `qty_sold`) VALUES
-(1, 'Adobo', 180, 'Classic Filipino dish with chicken or pork marinated in vinegar, soy sauce, and spices.', 'adobs.jpg', 1, 20),
-(2, 'Sinigang', 220, 'Sour soup with pork, shrimp, or fish and various vegetables.', 'sinigang.jpg', 1, 24),
-(3, 'Lumpia', 120, 'Filipino spring rolls filled with ground meat and vegetables.', 'lumpia.jpg', 2, 8),
-(4, 'Calamansi Juice', 80, 'Refreshing Filipino citrus juice similar to lemonade.', 'CJ.jpg', 4, 5),
-(5, 'Basic Filipino Package', 250, 'Budget-friendly Filipino classics including rice, 2 main dishes, 1 vegetable dish, and dessert', 'basic_package.jpg', 5, 1),
-(6, 'Premium Filipino Package', 450, 'Premium selection with rice, 3 main dishes, 2 vegetable dishes, soup, and dessert', 'premium_package.jpg', 5, 1),
-(7, 'Executive Package', 650, 'Luxury package with rice, 4 main dishes, 2 vegetable dishes, soup, appetizers, and premium desserts', 'executive_package.jpg', 5, 1);
+(1, 'Adobo', 180, 'Classic Filipino dish with chicken or pork marinated in vinegar, soy sauce, and spices.', 'adobs.jpg', 1, 24),
+(2, 'Sinigang', 220, 'Sour soup with pork, shrimp, or fish and various vegetables.', 'sinigang.jpg', 1, 28),
+(3, 'Lumpia', 120, 'Filipino spring rolls filled with ground meat and vegetables.', 'lumpia.jpg', 2, 11),
+(4, 'Calamansi Juice', 80, 'Refreshing Filipino citrus juice similar to lemonade.', 'CJ.jpg', 4, 6),
+(8, 'Coffee Jelly', 50, 'test dessert', '681f76152c6fc.jpg', 3, 0);
 
 -- --------------------------------------------------------
 
@@ -482,7 +649,7 @@ CREATE TABLE IF NOT EXISTS `user_cart` (
   `added_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   KEY `user_id` (`user_id`),
   KEY `product_id` (`product_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4  ;
 
 --
 -- Dumping data for table `user_cart`
