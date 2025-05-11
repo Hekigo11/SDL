@@ -238,9 +238,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error_message = mysqli_stmt_error($stmt);
             error_log("Catering Order SQL Error: " . $error_message);
             throw new Exception("Error creating catering order: " . $error_message);
-        }
-
-        mysqli_commit($dbc);
+        }        mysqli_commit($dbc);
         
         // Different success message for custom/small group orders
         if ($is_special_request) {
@@ -248,6 +246,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $_SESSION['success'] = 'Catering request submitted successfully! <a href="' . BASE_URL . '/modules/orders.php" class="alert-link">View your order</a>';
         }
+
+        // Clear catering-related session data after successful submission
+        unset($_SESSION['catering_form']);
+        unset($_SESSION['catering_step1']);
         
         header('Location: ' . BASE_URL . '/modules/catering.php');
         exit;

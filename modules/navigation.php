@@ -138,6 +138,20 @@ function checkLogin(event) {
 }
 
 $(document).ready(function() {
+    // Function to clear catering sessions when navigating away from catering pages
+    function clearCateringSessions() {
+        const currentPath = window.location.pathname;
+        // Only clear if we're on a catering page
+        if (currentPath.includes('/modules/catering/')) {
+            $.get('<?php echo BASE_URL; ?>/modules/clear_catering_session.php');
+        }
+    }
+
+    // Attach event handlers to navigation links that aren't catering-related
+    $('a.nav-link').not('[href*="catering"]').click(function(e) {
+        clearCateringSessions();
+    });
+    
     // Update cart count when page loads
     updateCartCount();
 
