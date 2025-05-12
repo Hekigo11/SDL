@@ -103,10 +103,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $venue .= ' (' . $venue_details . ')';
     }
 
+    // Validate menu selections for standard packages
+    $menu_package = $_POST['menu_bundle'];
+    $is_custom_package = ($menu_package === 'Custom Package');
+    if (!$is_custom_package) {
+        $package_requirements = json_decode($_POST['packageRequirements'], true);
+        if ($package_requirements) {
+            $menu_selections = $_POST['menu_selections'] ?? [];
+            
+            // Validate each category's requirements
+            foreach ($package_requirements as $category => $required) {
+                $selected = isset($menu_selections[$category]) ? count($menu_selections[$category]) : 0;
+                if ($selected < $required) {
+                    $_SESSION['error'] = "Please select {$required} items from {$category}";
+                    header('Location: ' . BASE_URL . '/modules/catering/step2.php');
+                    exit;
+                }
+            }
+        }
+    }
+
     try {
         mysqli_begin_transaction($dbc);
 
         // Check if custom_catering_orders table exists, create it if not
+        $menu_package = $_POST['menu_bundle'];
+        $is_custom_package = ($menu_package === 'Custom Package');
         $table_check_query = "SHOW TABLES LIKE 'custom_catering_orders'";
         $table_check_result = mysqli_query($dbc, $table_check_query);
         
@@ -123,8 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Check if it's a custom package order or small group order (less than 50 people)
-        $menu_package = $_POST['menu_bundle'];
-        $is_custom_package = ($menu_package === 'Custom Package');
         $is_small_group = ($num_persons < 50);
         $is_special_request = $is_custom_package || $is_small_group;
         
@@ -238,7 +258,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error_message = mysqli_stmt_error($stmt);
             error_log("Catering Order SQL Error: " . $error_message);
             throw new Exception("Error creating catering order: " . $error_message);
-        }        mysqli_commit($dbc);
+        }
+        
+        // Get the newly created catering order ID
+        $catering_order_id = mysqli_insert_id($dbc);
+        
+        // Insert menu selections if not a custom package
+        if (!$is_custom_package && isset($_POST['menu_selections'])) {
+            foreach ($_POST['menu_selections'] as $category => $selections) {
+                foreach ($selections as $product_id) {
+                    // Validate product exists and belongs to the category
+                    $validate_product = "SELECT p.product_id, c.category_id 
+                                       FROM products p 
+                                       JOIN categories c ON p.prod_cat_id = c.category_id 
+                                       WHERE p.product_id = ? AND c.category_name = ?";
+                    $validate_stmt = mysqli_prepare($dbc, $validate_product);
+                    mysqli_stmt_bind_param($validate_stmt, "is", $product_id, $category);
+                    mysqli_stmt_execute($validate_stmt);
+                    $validate_result = mysqli_stmt_get_result($validate_stmt);
+                    
+                    if (!$validate_result || mysqli_num_rows($validate_result) === 0) {
+                        throw new Exception("Invalid product selection");
+                    }
+                    
+                    $product_data = mysqli_fetch_assoc($validate_result);
+
+                    // Insert menu selection
+                    $menu_query = "INSERT INTO catering_order_menu_items 
+                                 (catering_order_id, product_id, category_id) 
+                                 VALUES (?, ?, ?)";
+                    $menu_stmt = mysqli_prepare($dbc, $menu_query);
+                    mysqli_stmt_bind_param($menu_stmt, "iii", 
+                        $catering_order_id, 
+                        $product_id,
+                        $product_data['category_id']
+                    );
+
+                    if (!mysqli_stmt_execute($menu_stmt)) {
+                        throw new Exception("Error storing menu selection");
+                    }
+                }
+            }
+        }
+
+        mysqli_commit($dbc);
         
         // Different success message for custom/small group orders
         if ($is_special_request) {

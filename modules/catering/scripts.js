@@ -189,45 +189,43 @@ function showSmallGroupWarning() {
 }
 
 function calculateTotal() {
-    console.log('Calculate total called');
-    
     const numPersons = parseInt(document.querySelector('input[name="num_persons"]').value) || 0;
-    console.log('Number of persons:', numPersons);
     
     let packageCost = 0;
     let servicesCost = 0;    // First try to get price from package_price field
     let packagePrice = 0;
+    
+    // Get package price from input field
     const packagePriceInput = document.querySelector('input[name="package_price"]');
     // Try to get either a checked radio button or a hidden field for step 2
     const packageInput = document.querySelector('input[name="menu_bundle"]:checked') || 
                         document.querySelector('input[name="menu_bundle"][type="hidden"]');
-    
+    // If it's a custom package, always show "To be determined"
+    if (packageInput && packageInput.value === 'Custom Package') {
+        updateCostDisplay('To be determined', 0);
+        return;
+    }
     console.log('Package input:', packageInput);
     console.log('Package price input:', packagePriceInput);
     
     if (packageInput) {
         if (packageInput.value === 'Custom Package') {
-            console.log('Custom package detected');
             updateCostDisplay('To be determined', 0);
             return;
         } else {
-            // Try to get price from multiple sources
+            // Get price from input field
             if (packagePriceInput) {
                 packagePrice = parseFloat(packagePriceInput.value) || 0;
                 console.log('Price from package_price input:', packagePrice);
             }
             
+            // Fallback to data attribute if needed
             if (packagePrice === 0 && packageInput.dataset.price) {
                 packagePrice = parseFloat(packageInput.dataset.price) || 0;
-                console.log('Price from data-price attribute:', packagePrice);
             }
 
             packageCost = packagePrice * numPersons;
-            console.log('Final package price per person:', packagePrice);
-            console.log('Total package cost:', packageCost);
         }
-    } else {
-        console.log('No package input found');
     }
 
     // Calculate services cost
@@ -326,4 +324,114 @@ function initializeStep2Costs() {
 
     // Calculate total immediately
     calculateTotal();
+}
+
+// Track menu selections and validate requirements
+let menuSelections = {};
+
+function initializeMenuTracking(packageRequirements) {
+    // Initialize selections tracking
+    Object.keys(packageRequirements).forEach(category => {
+        menuSelections[category] = {
+            required: packageRequirements[category],
+            selected: 0
+        };
+    });
+
+    // Set up event listeners for menu item checkboxes
+    $('.menu-item-select').change(function() {
+        const category = $(this).data('category');
+        const isChecked = $(this).is(':checked');
+        if (!menuSelections[category]) return; // Prevent error if category is not tracked
+    const required = menuSelections[category]?.required || 0;        if (isChecked) {
+            // Check if we would exceed the limit
+            if ((menuSelections[category]?.selected || 0) >= required && required > 0) {
+                $(this).prop('checked', false);
+                showAlert(`You can only select ${required} item(s) from ${category}`, 'warning');
+                return;
+            }
+            menuSelections[category].selected++;
+        } else {
+            menuSelections[category].selected--;
+        }
+
+        updateCategoryStatus(category);
+        validateAllSelections();
+    });
+}
+
+function updateCategoryStatus(category) {
+    const errorElement = $(`#${category.toLowerCase().replace(' ', '-')}-error`);
+    const required = menuSelections[category]?.required || 0;
+    const selected = menuSelections[category]?.selected || 0;
+
+    if (required > 0) {
+        if (selected < required) {
+            errorElement.show().html(`Please select ${required - selected} more item(s) from ${category}`);
+        } else {
+            errorElement.hide();
+        }
+    }
+}
+
+function validateAllSelections() {
+    let isValid = true;
+    let unfulfilled = [];
+
+    Object.entries(menuSelections).forEach(([category, data]) => {
+        if (data.selected < data.required) {
+            isValid = false;
+            unfulfilled.push(`${category} (${data.required - data.selected} more needed)`);
+        }
+        
+        // Update the count display in the tab navigation
+        const categoryId = category.toLowerCase().replace(' ', '-');
+        $(`#${categoryId}-tab .selected-count`).text(data.selected);
+        
+        // Update error messages
+        const errorElement = $(`#${categoryId}-error`);
+        if (data.selected < data.required) {
+            errorElement.show().html(`Please select ${data.required - data.selected} more item(s) from ${category}`);
+        } else {
+            errorElement.hide();
+        }
+    });
+
+    const submitBtn = $('button[type="submit"]');
+    if (!isValid) {
+        submitBtn.prop('disabled', true);
+        showAlert('Please complete all required selections: ' + unfulfilled.join(', '), 'warning');
+    } else {
+        submitBtn.prop('disabled', false);
+    }
+
+    return isValid;
+}
+
+// Initialize validation on page load for step 2
+if (window.location.pathname.includes('step2.php')) {
+    $(document).ready(function() {
+        // Parse package requirements from the hidden field
+        let packageRequirements = {};
+        try {
+            packageRequirements = JSON.parse($('#packageRequirements').val() || '{}');
+        } catch (e) {
+            console.error('Error parsing package requirements:', e);
+        }
+        
+        // Initialize menu selection tracking
+        initializeMenuTracking(packageRequirements);
+        
+        // Validate selections on load 
+        validateAllSelections();
+        
+        // Add click handler for menu tabs to highlight incomplete categories
+        $('.nav-link[data-toggle="pill"]').on('shown.bs.tab', function(e) {
+            const categoryId = $(e.target).attr('href').substring(1);
+            const category = categoryId.replace('-', ' ');
+            
+            // Highlight any unfulfilled requirements in this category
+            validateAllSelections();
+        });
+    });
 }

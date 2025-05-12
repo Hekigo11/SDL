@@ -321,11 +321,11 @@ $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_
                 alert('Please select a package before continuing.');
                 return;
             }
-            if (selectedPackage.value === 'Custom Package') {
-                e.preventDefault();
-                this.action = '../submit_catering.php';
-                this.submit();
-            }
+            // if (selectedPackage.value === 'Custom Package') {
+            //     e.preventDefault();
+            //     this.action = '../submit_catering.php';
+            //     this.submit();
+            // }
         });
     });
     </script>
