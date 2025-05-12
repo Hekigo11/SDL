@@ -325,6 +325,8 @@ if (!isset($_SESSION['loginok'])) {
                                             <td>
                                                 <?php if (!empty($row['quote_amount'])): ?>
                                                     ₱<?php echo number_format($row['quote_amount'], 2); ?>
+                                                <?php elseif (!empty($row['total_amount'])): ?>
+                                                    ₱<?php echo number_format($row['total_amount'], 2); ?>
                                                 <?php else: ?>
                                                     <em>To be quoted</em>
                                                 <?php endif; ?>
@@ -359,6 +361,25 @@ if (!isset($_SESSION['loginok'])) {
                                                 $statusClass = 'secondary';
                                         }
                                         
+                                        // Fetch selected menu items for this custom order
+                                        $selected_items = '';
+                                        $custom_order_id = $row['custom_order_id'];
+                                        $items_query = "SELECT c.category_name, p.prod_name
+                                                        FROM cust_catering_order_items coi
+                                                        JOIN products p ON coi.product_id = p.product_id
+                                                        JOIN categories c ON coi.category_id = c.category_id
+                                                        WHERE coi.custom_order_id = ?
+                                                        ORDER BY c.category_name, p.prod_name";
+                                        $items_stmt = $dbc->prepare($items_query);
+                                        $items_stmt->bind_param('i', $custom_order_id);
+                                        $items_stmt->execute();
+                                        $items_result = $items_stmt->get_result();
+                                        $item_arr = [];
+                                        while ($item_row = $items_result->fetch_assoc()) {
+                                            $item_arr[] = $item_row['category_name'] . ': ' . $item_row['prod_name'];
+                                        }
+                                        $row['selected_items'] = implode(', ', $item_arr);
+                                        
                                         // Determine request type based on num_persons
                                         $isCustomPackage = false;
                                         $isSmallGroup = false;
@@ -382,6 +403,8 @@ if (!isset($_SESSION['loginok'])) {
                                             $requestTypeLabel = 'Special Request';
                                         }
                                         
+                                        $modal_row = $row;
+                                        $modal_row['selected_items'] = $row['selected_items'];
                                         ?>
                                         <tr>
                                             <td>CSP-<?php echo $row['custom_order_id']; ?></td>
@@ -401,7 +424,7 @@ if (!isset($_SESSION['loginok'])) {
                                             </td>
                                             <td><span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span></td>
                                             <td>
-                                                <button class="btn btn-sm btn-info" onclick="showCateringDetails('custom', <?php echo $row['custom_order_id']; ?>, <?php echo htmlspecialchars(json_encode($row), ENT_QUOTES); ?>)">
+                                                <button class="btn btn-sm btn-info" onclick="showCateringDetails('custom', <?php echo $row['custom_order_id']; ?>, <?php echo htmlspecialchars(json_encode($modal_row), ENT_QUOTES); ?>)">
                                                     <i class="fas fa-eye"></i> Details
                                                 </button>
                                             </td>
