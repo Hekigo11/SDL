@@ -183,6 +183,29 @@ function getStatusDisplay($status) {
     .modal-header .close:hover {
         opacity: 1;
     }
+    .menu-items-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+    }
+    .menu-item {
+        transition: all 0.3s ease;
+    }
+    .menu-item.selected {
+        border-color: var(--primary);
+        background-color: rgba(0,123,255,0.05);
+    }
+    .selected-items-summary {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .remove-item {
+        padding: 0.25rem 0.5rem;
+    }
+    .remove-item i {
+        font-size: 0.875rem;
+    }
 </style>
 
 <div class="container-fluid">
@@ -534,13 +557,32 @@ function getStatusDisplay($status) {
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                             <?php if ($row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
-                                            <button class="btn btn-sm btn-primary update-status"
-                                                    data-id="<?php echo $row['custom_order_id']; ?>"
-                                                    data-type="custom"
-                                                    data-current-status="<?php echo $row['status']; ?>"
-                                                    data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
+                                                <button class="btn btn-sm btn-primary edit-custom-order"
+                                                        data-id="<?php echo $row['custom_order_id']; ?>"
+                                                        data-items="<?php echo htmlspecialchars($row['selected_items'] ?? ''); ?>"
+                                                        data-amount="<?php echo $row['quote_amount'] ?? ''; ?>"
+                                                        data-services="<?php 
+                                                            $services = [];
+                                                            if ($row['needs_setup']) $services[] = 'setup';
+                                                            if ($row['needs_tablesandchairs']) $services[] = 'tables';
+                                                            if ($row['needs_decoration']) $services[] = 'decoration';
+                                                            echo implode(',', $services);
+                                                        ?>"
+                                                        data-preferences="<?php echo htmlspecialchars($row['menu_preferences'] ?? ''); ?>"
+                                                        data-persons="<?php echo $row['num_persons']; ?>"
+                                                        data-special-requests="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
+                                                        data-event-date="<?php echo $row['event_date']; ?>"
+                                                        data-venue="<?php echo htmlspecialchars($row['venue']); ?>"
+                                                        data-status="<?php echo $row['status']; ?>">
+                                                    <i class="fas fa-edit"></i> Edit Details
+                                                </button>
+                                                <button class="btn btn-sm btn-primary update-status"
+                                                        data-id="<?php echo $row['custom_order_id']; ?>"
+                                                        data-type="custom"
+                                                        data-current-status="<?php echo $row['status']; ?>"
+                                                        data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
                                             <?php endif; ?>
                                         </div>
                                     </td>
@@ -713,17 +755,145 @@ function getStatusDisplay($status) {
         </div>
     </div>
 
-    <script>
+    <!-- Edit Custom Catering Order Modal -->
+    <div class="modal fade" id="editCustomOrderModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Custom Catering Order</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tabs Navigation -->
+                    <ul class="nav nav-tabs mb-3" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="details-tab" data-toggle="tab" href="#detailsTab" role="tab">Order Details</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="menu-tab" data-toggle="tab" href="#menuTab" role="tab">Menu Items</a>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content">
+                        <!-- Details Tab -->
+                        <div class="tab-pane fade show active" id="detailsTab" role="tabpanel">
+                            <form id="editCustomOrderForm">
+                                <input type="hidden" name="custom_order_id" id="editOrderId">
+                                
+                                <div class="form-group">
+                                    <label>Menu Preferences</label>
+                                    <input type="text" class="form-control" name="menu_preferences" id="editMenuPreferences">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Number of Persons</label>
+                                    <input type="number" class="form-control" name="num_persons" id="editNumPersons" min="1">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Quote Amount</label>
+                                    <input type="number" step="0.01" class="form-control" name="quote_amount" id="editQuoteAmount">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Additional Services</label>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="setup" name="needs_setup">
+                                        <label class="custom-control-label" for="setup">Buffet Setup (₱2,000)</label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="tables" name="needs_tablesandchairs">
+                                        <label class="custom-control-label" for="tables">Tables and Chairs (₱3,500)</label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="decoration" name="needs_decoration">
+                                        <label class="custom-control-label" for="decoration">Venue Decoration (₱5,000)</label>
+                                    </div>
+                                </div>
+
+                                <div class="total-cost mt-3 p-3 bg-light rounded">
+                                    <h6>Total Cost Breakdown:</h6>
+                                    <div id="costBreakdown"></div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between">
+                                        <strong>Total Amount:</strong>
+                                        <strong id="totalAmount">₱0.00</strong>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Menu Items Tab -->
+                        <div class="tab-pane fade" id="menuTab" role="tabpanel">
+                            <div id="menuItemsContainer">
+                                <nav>
+                                    <div class="nav nav-pills" id="menuCategories" role="tablist">
+                                        <a class="nav-link active" id="main-dishes-tab" data-toggle="pill" href="#mainDishes" role="tab">Main Dishes</a>
+                                        <a class="nav-link" id="sides-tab" data-toggle="pill" href="#sides" role="tab">Sides</a>
+                                        <a class="nav-link" id="desserts-tab" data-toggle="pill" href="#desserts" role="tab">Desserts</a>
+                                        <a class="nav-link" id="beverages-tab" data-toggle="pill" href="#beverages" role="tab">Beverages</a>
+                                    </div>
+                                </nav>
+
+                                <div class="tab-content mt-3" id="menuItemContent">
+                                    <div class="tab-pane fade show active" id="mainDishes" role="tabpanel">
+                                        <div class="menu-items-grid" data-category="Main Dishes">
+                                            <!-- Menu items will be loaded here -->
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="sides" role="tabpanel">
+                                        <div class="menu-items-grid" data-category="Sides">
+                                            <!-- Menu items will be loaded here -->
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="desserts" role="tabpanel">
+                                        <div class="menu-items-grid" data-category="Desserts">
+                                            <!-- Menu items will be loaded here -->
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="beverages" role="tabpanel">
+                                        <div class="menu-items-grid" data-category="Beverages">
+                                            <!-- Menu items will be loaded here -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="selected-items-summary mt-3">
+                                    <h6>Selected Items:</h6>
+                                    <div id="selectedItemsList" class="list-group">
+                                        <!-- Selected items will be listed here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveCustomOrder">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>    <script>
     $(document).ready(function() {
         // View Order Details
-        $('.view-order').click(function() {
+        $(document).on('click', '.view-order', function() {
             const orderType = $(this).data('type');
+            const orderId = $(this).data('id');
+            const items = $(this).data('items');
+            const notes = $(this).data('notes');
+            const eventDate = $(this).data('event-date');
+            const venue = $(this).data('venue');
+            const persons = $(this).data('persons');
+            const packageType = $(this).data('package');
+            const amount = $(this).data('amount');
+            const services = $(this).data('services');
             
             if (orderType === 'delivery') {
-                // Handle delivery order details
-                const orderId = $(this).data('id');
-                const items = $(this).data('items');
-                const notes = $(this).data('notes');
+                // Handle delivery order
                 const scheduledDelivery = $(this).data('scheduled-delivery');
                 const paymentMethod = $(this).data('payment-method');
                 const deliveryAddress = $(this).data('delivery-address');
@@ -735,17 +905,16 @@ function getStatusDisplay($status) {
                 $.get('admin_get_checklist.php', { order_id: orderId })
                     .done(function(response) {
                         $('#ingredientsChecklist').html(response);
-                        // Disable all checkboxes after loading
                         $('#ingredientsChecklist input[type="checkbox"]').prop('disabled', true);
                     })
                     .fail(function() {
-                        $('#ingredientsChecklist').html('<div class="alert alert-danger">Failed to load ingredients checklist</div>');
+                        $('#ingredientsChecklist').html('<div class="alert alert-danger">Failed to load checklist</div>');
                     });
                 
-                // Display notes
                 $('#orderNotes').text(notes || 'No special notes');
+                $('#deliveryAddress').text(deliveryAddress || 'No delivery address provided');
+                $('#paymentMethod').text(paymentMethod || 'No payment method specified');
                 
-                // Display scheduled delivery time if exists
                 if (scheduledDelivery) {
                     const deliveryDate = new Date(scheduledDelivery);
                     const formattedDate = deliveryDate.toLocaleString('en-US', { 
@@ -757,57 +926,32 @@ function getStatusDisplay($status) {
                     });
                     $('#deliveryTime').html(`
                         <div class="alert alert-info">
-                            <i class="fas fa-clock"></i> 
-                            Scheduled for: ${formattedDate}
+                            <i class="fas fa-clock"></i> Scheduled for: ${formattedDate}
                         </div>
                     `);
                 } else {
                     $('#deliveryTime').html('<p class="text-muted">No scheduled delivery time</p>');
                 }
                 
-                // Display delivery address and payment method
-                $('#deliveryAddress').text(deliveryAddress || 'No delivery address provided');
-                $('#paymentMethod').text(paymentMethod || 'No payment method specified');
-                
                 $('#deliveryOrderModal').modal('show');
             } else {
-                // Handle catering order details
-                const orderId = $(this).data('id');
+                // Handle catering order
                 const orderPrefix = orderType === 'standard' ? 'CTR-' : 'CSP-';
-                const items = $(this).data('items');
-                const notes = $(this).data('notes');
-                const eventDate = new Date($(this).data('event-date'));
-                const venue = $(this).data('venue');
-                const persons = $(this).data('persons');
-                const package = $(this).data('package');
-                const amount = $(this).data('amount');
-                const services = $(this).data('services') ? $(this).data('services').split(',') : [];
-                
-                // Set basic details
                 $('#catering-order-id').text(`${orderPrefix}${orderId}`);
-                $('#catering-event-date').text(eventDate.toLocaleString());
+                $('#catering-event-date').text(new Date(eventDate).toLocaleString());
                 $('#catering-venue').text(venue);
                 $('#catering-persons').text(persons);
-                $('#catering-package').text(package);
-                
-                // Set amount
+                $('#catering-package').text(packageType);
                 $('#catering-amount').text(amount ? `₱${parseFloat(amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : 'To be quoted');
                 
-                // Display selected menu items
+                // Display menu items
                 if (items) {
                     const menuItems = items.split(',');
                     $('#catering-menu-items').html(`
                         <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Item Name</th>
-                                </tr>
-                            </thead>
                             <tbody>
                                 ${menuItems.map(item => `
-                                    <tr>
-                                        <td><i class="fas fa-utensils text-accent mr-2"></i>${item.trim()}</td>
-                                    </tr>
+                                    <tr><td><i class="fas fa-utensils text-accent mr-2"></i>${item.trim()}</td></tr>
                                 `).join('')}
                             </tbody>
                         </table>
@@ -816,26 +960,26 @@ function getStatusDisplay($status) {
                     $('#catering-menu-items').html('<p class="text-muted">No menu items selected yet</p>');
                 }
 
-                // Set additional services
+                // Display services
                 const servicesList = [];
-                if (services.includes('setup')) servicesList.push('Buffet Setup (₱2,000)');
-                if (services.includes('tables')) servicesList.push('Tables and Chairs (₱3,500)');
-                if (services.includes('decoration')) servicesList.push('Venue Decoration (₱5,000)');
+                if (services) {
+                    if (services.includes('setup')) servicesList.push('Buffet Setup (₱2,000)');
+                    if (services.includes('tables')) servicesList.push('Tables and Chairs (₱3,500)');
+                    if (services.includes('decoration')) servicesList.push('Venue Decoration (₱5,000)');
+                }
                 
                 $('#catering-services').html(servicesList.length ? 
                     servicesList.map(service => `<div><i class="fas fa-check text-success"></i> ${service}</div>`).join('') :
                     '<p class="text-muted">No additional services selected</p>'
                 );
 
-                // Set special requests
                 $('#catering-special-requests').text(notes || 'No special requests');
-                
                 $('#cateringOrderModal').modal('show');
             }
         });
 
-        // Update Order Status
-        $('.update-status').click(function() {
+        // Update Status
+        $(document).on('click', '.update-status', function() {
             const orderId = $(this).data('id');
             const orderType = $(this).data('type');
             const currentStatus = $(this).data('current-status');
@@ -844,20 +988,19 @@ function getStatusDisplay($status) {
             $('#updateOrderId').val(orderId);
             $('#updateOrderType').val(orderType);
             
-            // Clear and populate status options based on order type
             const $statusSelect = $('#orderStatus').empty();
             
             if (orderType === 'delivery') {
-                const deliveryStatuses = ['pending', 'processing', 'in_kitchen', 'ready_for_delivery', 'delivering', 'completed', 'cancelled'];
-                deliveryStatuses.forEach(status => {
-                    const displayStatus = status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    $statusSelect.append(`<option value="${status}"${currentStatus === status ? ' selected' : ''}>${displayStatus}</option>`);
+                const statuses = ['pending', 'processing', 'in_kitchen', 'ready_for_delivery', 'delivering', 'completed', 'cancelled'];
+                statuses.forEach(status => {
+                    const display = status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    $statusSelect.append(`<option value="${status}"${currentStatus === status ? ' selected' : ''}>${display}</option>`);
                 });
             } else {
-                const cateringStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];
-                cateringStatuses.forEach(status => {
-                    const displayStatus = status.charAt(0).toUpperCase() + status.slice(1);
-                    $statusSelect.append(`<option value="${status}"${currentStatus === status ? ' selected' : ''}>${displayStatus}</option>`);
+                const statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
+                statuses.forEach(status => {
+                    const display = status.charAt(0).toUpperCase() + status.slice(1);
+                    $statusSelect.append(`<option value="${status}"${currentStatus === status ? ' selected' : ''}>${display}</option>`);
                 });
             }
             
@@ -866,18 +1009,16 @@ function getStatusDisplay($status) {
         });
 
         // Save Status Update
-        $('#saveStatus').click(function() {
+        $(document).on('click', '#saveStatus', function() {
             const btn = $(this);
             const form = $('#updateStatusForm');
-            const orderId = $('#updateOrderId').val();
             const orderType = $('#updateOrderType').val();
             
             btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
             
-            // Determine the update endpoint based on order type
-            const updateEndpoint = orderType === 'delivery' ? 'admin_update_order.php' : 'admin_update_catering_order.php';
+            const endpoint = orderType === 'delivery' ? 'admin_update_order.php' : 'admin_update_catering_order.php';
             
-            $.post(updateEndpoint, form.serialize())
+            $.post(endpoint, form.serialize())
                 .done(function(response) {
                     if (response === 'success') {
                         location.reload();
@@ -895,6 +1036,195 @@ function getStatusDisplay($status) {
                     btn.prop('disabled', false).text('Update Status');
                 });
         });
+
+        // Initialize menu item management
+        let selectedMenuItems = new Map(); // Map to store selected items
+
+        // Load menu items when menu tab is shown
+        $('#menu-tab').on('show.bs.tab', function() {
+            loadMenuItems();
+        });
+
+        function loadMenuItems() {
+            const container = $('#menuItemContent');
+            
+            // Clear existing items
+            $('.menu-items-grid').empty();
+            
+            // Load items from database via AJAX
+            $.get('admin_get_menu_items.php', function(response) {
+                if (response.success) {
+                    // Group items by category
+                    const items = response.items;
+                    items.forEach(item => {
+                        const grid = $(`.menu-items-grid[data-category="${item.category_name}"]`);
+                        const isSelected = selectedMenuItems.has(item.product_id);
+                        
+                        const itemHtml = `
+                            <div class="card menu-item mb-3 ${isSelected ? 'selected' : ''}" data-id="${item.product_id}">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h6 class="card-title mb-1">${item.prod_name}</h6>
+                                        <span class="badge ${item.is_halal ? 'badge-success' : 'badge-danger'} ml-2">
+                                            ${item.is_halal ? 'Halal' : 'Non-Halal'}
+                                        </span>
+                                    </div>
+                                    <p class="card-text small mb-2">${item.prod_desc}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted">₱${parseFloat(item.prod_price).toFixed(2)}</span>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input menu-item-select" 
+                                                   id="item_${item.product_id}" 
+                                                   ${isSelected ? 'checked' : ''}>
+                                            <label class="custom-control-label" for="item_${item.product_id}">Select</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        grid.append(itemHtml);
+                    });
+
+                    // Restore selected items if any
+                    updateSelectedItemsList();
+                }
+            });
+        }
+
+        // Handle menu item selection
+        $(document).on('change', '.menu-item-select', function() {
+            const checkbox = $(this);
+            const card = checkbox.closest('.card');
+            const itemId = card.data('id');
+            const itemName = card.find('.card-title').text();
+            
+            if (checkbox.is(':checked')) {
+                card.addClass('selected');
+                selectedMenuItems.set(itemId, itemName);
+            } else {
+                card.removeClass('selected');
+                selectedMenuItems.delete(itemId);
+            }
+            
+            updateSelectedItemsList();
+        });
+
+        function updateSelectedItemsList() {
+            const list = $('#selectedItemsList');
+            list.empty();
+            
+            if (selectedMenuItems.size === 0) {
+                list.append('<div class="text-muted">No items selected</div>');
+                return;
+            }
+            
+            selectedMenuItems.forEach((name, id) => {
+                list.append(`
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>${name}</span>
+                        <button type="button" class="btn btn-sm btn-danger remove-item" data-id="${id}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `);
+            });
+        }
+
+        // Handle menu item removal from selected items list
+        $(document).on('click', '.remove-item', function() {
+            const itemId = $(this).data('id');
+            $(`#item_${itemId}`).prop('checked', false).trigger('change');
+        });
+
+        // Edit Custom Order
+        $(document).on('click', '.edit-custom-order', function() {
+            const orderId = $(this).data('id');
+            const preferences = $(this).data('preferences');
+            const persons = $(this).data('persons');
+            const amount = $(this).data('amount');
+            const services = $(this).data('services') ? $(this).data('services').split(',') : [];
+            const items = $(this).data('items') ? $(this).data('items').split(',') : [];
+
+            // Reset selected items
+            selectedMenuItems.clear();
+            
+            // Process selected items
+            items.forEach(item => {
+                const [category, name] = item.split(': ');
+                if (name) { // Only add if name exists (valid format)
+                    selectedMenuItems.set(name.trim(), name.trim()); // Using name as ID temporarily
+                }
+            });
+
+            $('#editOrderId').val(orderId);
+            $('#editMenuPreferences').val(preferences);
+            $('#editNumPersons').val(persons);
+            $('#editQuoteAmount').val(amount);
+
+            $('#setup').prop('checked', services.includes('setup'));
+            $('#tables').prop('checked', services.includes('tables'));
+            $('#decoration').prop('checked', services.includes('decoration'));
+
+            updateCostBreakdown();
+            $('#editCustomOrderModal').modal('show');
+        });
+
+        // Save Custom Order Changes
+        $(document).on('click', '#saveCustomOrder', function() {
+            const btn = $(this);
+            const form = $('#editCustomOrderForm');
+            
+            const selectedServices = [];
+            if ($('#setup').prop('checked')) selectedServices.push('setup');
+            if ($('#tables').prop('checked')) selectedServices.push('tables');
+            if ($('#decoration').prop('checked')) selectedServices.push('decoration');
+            
+            const formData = new FormData(form[0]);
+            formData.append('services', selectedServices.join(','));
+            formData.append('selectedItems', JSON.stringify(Array.from(selectedMenuItems.keys())));
+            
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+            
+            $.ajax({
+                url: 'admin_update_custom_order.php',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response === 'success') {
+                        location.reload();
+                    } else {
+                        alert('Error: ' + response);
+                    }
+                },
+                error: function() {
+                    alert('Failed to save changes. Please try again.');
+                },
+                complete: function() {
+                    btn.prop('disabled', false).text('Save Changes');
+                }
+            });
+        });
+
+        // Cost Breakdown Updates
+        $(document).on('change', '#editQuoteAmount, #setup, #tables, #decoration', updateCostBreakdown);
+
+        function updateCostBreakdown() {
+            const baseAmount = parseFloat($('#editQuoteAmount').val()) || 0;
+            const setupCost = $('#setup').is(':checked') ? 2000 : 0;
+            const tablesCost = $('#tables').is(':checked') ? 3500 : 0;
+            const decorationCost = $('#decoration').is(':checked') ? 5000 : 0;
+            const totalAmount = baseAmount + setupCost + tablesCost + decorationCost;
+
+            let breakdown = `<div class="mb-2">Base Amount: ₱${baseAmount.toFixed(2)}</div>`;
+            if (setupCost) breakdown += `<div class="mb-2">Buffet Setup: ₱${setupCost.toFixed(2)}</div>`;
+            if (tablesCost) breakdown += `<div class="mb-2">Tables and Chairs: ₱${tablesCost.toFixed(2)}</div>`;
+            if (decorationCost) breakdown += `<div class="mb-2">Venue Decoration: ₱${decorationCost.toFixed(2)}</div>`;
+
+            $('#costBreakdown').html(breakdown);
+            $('#totalAmount').text(`₱${totalAmount.toFixed(2)}`);
+        }
     });
     </script>
 </div>
