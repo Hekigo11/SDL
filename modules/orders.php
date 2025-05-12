@@ -266,12 +266,20 @@ if (!isset($_SESSION['loginok'])) {
                                     <th>Persons</th>
                                     <th>Amount</th>
                                     <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php
-                                // Get standard catering orders
-                                $standard_query = "SELECT *, 'standard' AS order_type FROM catering_orders WHERE user_id = ? ORDER BY created_at DESC";
+                                <?php                                // Get standard catering orders with menu selections
+                                $standard_query = "SELECT co.*, 'standard' AS order_type,
+                                    GROUP_CONCAT(DISTINCT CONCAT(c.category_name, ': ', p.prod_name)) as selected_items
+                                    FROM catering_orders co
+                                    LEFT JOIN catering_order_menu_items comi ON co.catering_id = comi.catering_order_id
+                                    LEFT JOIN products p ON comi.product_id = p.product_id
+                                    LEFT JOIN categories c ON p.prod_cat_id = c.category_id
+                                    WHERE co.user_id = ?
+                                    GROUP BY co.catering_id
+                                    ORDER BY co.created_at DESC";
                                 $stmt = $dbc->prepare($standard_query);
                                 $stmt->bind_param('i', $_SESSION['user_id']);
                                 $stmt->execute();
@@ -314,8 +322,19 @@ if (!isset($_SESSION['loginok'])) {
                                             <td><?php echo htmlspecialchars($row['venue']); ?></td>
                                             <td><?php echo htmlspecialchars($row['menu_package'] ?: 'Not specified'); ?></td>
                                             <td><?php echo $row['num_persons']; ?></td>
-                                            <td>₱<?php echo number_format($row['total_amount'], 2); ?></td>
+                                            <td>
+                                                <?php if (!empty($row['quote_amount'])): ?>
+                                                    ₱<?php echo number_format($row['quote_amount'], 2); ?>
+                                                <?php else: ?>
+                                                    <em>To be quoted</em>
+                                                <?php endif; ?>
+                                            </td>
                                             <td><span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-info" onclick="showCateringDetails('standard', <?php echo $row['catering_id']; ?>, <?php echo htmlspecialchars(json_encode($row), ENT_QUOTES); ?>)">
+                                                    <i class="fas fa-eye"></i> Details
+                                                </button>
+                                            </td>
                                         </tr>
                                         <?php
                                     }
@@ -381,6 +400,11 @@ if (!isset($_SESSION['loginok'])) {
                                                 <?php endif; ?>
                                             </td>
                                             <td><span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-info" onclick="showCateringDetails('custom', <?php echo $row['custom_order_id']; ?>, <?php echo htmlspecialchars(json_encode($row), ENT_QUOTES); ?>)">
+                                                    <i class="fas fa-eye"></i> Details
+                                                </button>
+                                            </td>
                                         </tr>
                                         <?php
                                     }
@@ -441,6 +465,88 @@ if (!isset($_SESSION['loginok'])) {
             </div>
         </div>
 
+        <!-- Catering Details Modal -->
+        <div class="modal fade" id="cateringDetailsModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:var(--accent);">
+                        <h5 class="modal-title text-white">Catering Order Details</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Event Details</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th>Order ID:</th>
+                                        <td id="details-order-id"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Event Date:</th>
+                                        <td id="details-event-date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Venue:</th>
+                                        <td id="details-venue"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Number of Persons:</th>
+                                        <td id="details-persons"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Package Details</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th>Package Type:</th>
+                                        <td id="details-package"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Status:</th>
+                                        <td id="details-status"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Amount:</th>
+                                        <td id="details-amount"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h6>Selected Items</h6>
+                                <div id="details-menu-items" class="table-responsive" style="max-height:220px; overflow-y:auto; border:1px solid #eee; border-radius:6px;">
+                                    <!-- Menu items will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h6>Additional Services</h6>
+                                <div id="details-services"></div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h6>Special Requests</h6>
+                                <p id="details-special-requests" class="text-muted"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script>
         function showCancelModal(orderId) {
             document.getElementById('cancel_order_id').value = orderId;
@@ -450,7 +556,77 @@ if (!isset($_SESSION['loginok'])) {
         document.querySelector('select[name="reason"]').addEventListener('change', function() {
             const otherReasonDiv = document.getElementById('otherReasonDiv');
             otherReasonDiv.style.display = this.value === 'Other' ? 'block' : 'none';
-        });
+        });        function showCateringDetails(type, orderId, orderData) {
+            const modal = $('#cateringDetailsModal');
+            
+            // Set basic details
+            $('#details-order-id').text(type === 'standard' ? `CTR-${orderId}` : `CSP-${orderId}`);
+            $('#details-event-date').text(new Date(orderData.event_date).toLocaleString());
+            $('#details-venue').text(orderData.venue);
+            $('#details-persons').text(orderData.num_persons);
+            $('#details-package').text(orderData.menu_package || orderData.menu_preferences || 'Custom Package');
+            
+            // Set status with badge
+            const statusBadgeClass = {
+                'pending': 'warning',
+                'confirmed': 'info',
+                'completed': 'success',
+                'cancelled': 'danger'
+            }[orderData.status] || 'secondary';
+            
+            $('#details-status').html(`<span class="badge badge-${statusBadgeClass}">${orderData.status.charAt(0).toUpperCase() + orderData.status.slice(1)}</span>`);
+            
+            // Set amount
+            const amount = type === 'standard' ? orderData.total_amount : (orderData.quote_amount || 'To be quoted');
+            $('#details-amount').text(typeof amount === 'number' ? `₱${amount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : amount);
+
+            // Display selected menu items
+            if (orderData.selected_items) {
+                const items = orderData.selected_items.split(',');
+                $('#details-menu-items').html(`
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${items.map(item => `
+                                <tr>
+                                    <td><i class="fas fa-utensils text-accent mr-2"></i>${item.trim()}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `);
+            } else {
+                $('#details-menu-items').html('<p class="text-muted">No menu items selected yet</p>');
+            }
+
+            // Set additional services
+            const services = [];
+            const selectedServices = orderData.selected_services ? orderData.selected_services.split(',') : [];
+            
+            if (orderData.needs_setup === '1' || selectedServices.includes('setup')) {
+                services.push('Buffet Setup (₱2,000)');
+            }
+            if (orderData.needs_tablesandchairs === '1' || selectedServices.includes('tables')) {
+                services.push('Tables and Chairs (₱3,500)');
+            }
+            if (orderData.needs_decoration === '1' || selectedServices.includes('decoration')) {
+                services.push('Venue Decoration (₱5,000)');
+            }
+            
+            $('#details-services').html(services.length ? 
+                services.map(service => `<div><i class="fas fa-check text-success"></i> ${service}</div>`).join('') :
+                '<p class="text-muted">No additional services selected</p>'
+            );
+
+            // Set special requests
+            $('#details-special-requests').text(orderData.special_requests || 'No special requests');
+
+            modal.modal('show');
+        }
         </script>
 
         <?php include('authenticate.php'); ?>

@@ -98,100 +98,93 @@ while ($row = mysqli_fetch_assoc($result)) {
     <style>
         .menu-category {
             margin-bottom: 2rem;
-            padding: 1rem;
-            border-radius: 15px;
+            padding: 1rem 0.5rem;
+            border-radius: 10px;
             background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         .menu-category h3 {
             color: var(--accent);
-            margin-bottom: 1.5rem;
-        }
-        .menu-item {
             margin-bottom: 1rem;
-            padding: 1rem;
-            border-radius: 10px;
-            background-color: #f8f9fa;
-            transition: all 0.3s ease;
+            font-size: 1.3rem;
         }
-        .menu-item:hover {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
-        }
-        .menu-item img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-        .halal-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #28a745;
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-        }
-        .non-halal-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #dc3545;
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-        }
-        .required-badge {
-            display: inline-block;
-            background-color: var(--accent);
-            color: #fff;
-            padding: 0.2rem 0.4rem;
-            border-radius: 10px;
-            margin-left: 0.5rem;
-            font-size: 0.8rem;
-            font-weight: normal;
-        }
-        
-        .nav-pills .nav-link.active .required-badge {
-            background-color: #fff;
-            color: var(--accent);
-        }
-        
-        .category-error {
-            color: #dc3545;
-            font-size: 0.875rem;
+        .menu-item-card {
             padding: 0.5rem;
-            margin: 0.5rem 0;
-            border-radius: 4px;
-            display: none;
         }
-        
-        .category-error.show {
-            display: block;
-            animation: fadeIn 0.3s ease-in;
+        .card.h-100 {
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            transition: box-shadow 0.2s;
+            height: 100%;
         }
-        
-        .menu-item.selected {
-            border: 2px solid var(--accent);
-            transform: translateY(-2px);
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        .menu-actions {
-            margin-top: 1rem;
-            text-align: right;
+        .card.h-100:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.10);
         }
         .card-img-top {
-            aspect-ratio: 16/9;
-            object-fit: cover;
             width: 100%;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 6px 6px 0 0;
+        }
+        .card-body {
+            padding: 0.7rem 0.7rem 0.5rem 0.7rem;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .card-title {
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+        .card-text {
+            font-size: 0.92rem;
+            margin-bottom: 0.2rem;
+        }
+        .halal-badge, .non-halal-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+        }
+        .halal-badge { background-color: #28a745; color: #fff; }
+        .non-halal-badge { background-color: #dc3545; color: #fff; }
+        .custom-control.custom-checkbox {
+            margin-bottom: 0.2rem;
+        }
+        .menu-item-select + label {
+            font-size: 0.95rem;
+        }
+        .row.menu-items-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-left: -8px;
+            margin-right: -8px;
+        }
+        .menu-item-card {
+            flex: 0 0 100%;
+            max-width: 100%;
+            padding-left: 8px;
+            padding-right: 8px;
+            margin-bottom: 16px;
+        }
+        @media (min-width: 576px) {
+            .menu-item-card { flex: 0 0 50%; max-width: 50%; }
+        }
+        @media (min-width: 768px) {
+            .menu-item-card { flex: 0 0 33.3333%; max-width: 33.3333%; }
+        }
+        @media (min-width: 992px) {
+            .menu-item-card { flex: 0 0 33.3333%; max-width: 33.3333%; }
+        }
+        .menu-category .row.menu-items-row {
+            max-height: 420px;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -212,7 +205,6 @@ while ($row = mysqli_fetch_assoc($result)) {
 
                         <form action="../submit_catering.php" method="POST">
                             <?php 
-                            // Get package price from database first
                             $package_price = 0;
                             if(isset($_SESSION['catering_step1']['menu_bundle']) && $_SESSION['catering_step1']['menu_bundle'] !== 'Custom Package') {
                                 $package_query = "SELECT base_price FROM packages WHERE name = ?";
@@ -225,10 +217,8 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 }
                             }
 
-                            // Add package price as a hidden field
                             echo "<input type='hidden' name='package_price' value='" . htmlspecialchars($package_price) . "'>";
 
-                            // Output session values as hidden fields
                             foreach ($_SESSION['catering_step1'] as $key => $value): ?>
                                 <input type="hidden" name="<?php echo htmlspecialchars($key); ?>" 
                                        value="<?php echo htmlspecialchars($value); ?>"
@@ -238,7 +228,6 @@ while ($row = mysqli_fetch_assoc($result)) {
                                        <?php endif; ?>>
                             <?php endforeach; ?>
 
-                            <!-- Halal Filter -->
                             <div class="mb-4 text-center">
                                 <div class="custom-control custom-checkbox">
                                     <input type="checkbox" class="custom-control-input" id="halalOnly">
@@ -246,7 +235,11 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 </div>
                             </div>
 
-                            <!-- Menu Categories -->
+                            <!-- Search box above menu grid -->
+                            <div class="mb-3 text-right">
+                                <input type="text" id="menuSearchBox" class="form-control" style="max-width:320px;display:inline-block;" placeholder="Search menu by name...">
+                            </div>
+
                             <div class="nav nav-pills justify-content-center mb-4" id="menu-tabs" role="tablist">
                                 <?php 
                                 $first = true;
@@ -272,7 +265,6 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 ?>
                             </div>
 
-                            <!-- Menu Items -->
                             <div class="tab-content" id="menu-content">
                                 <?php 
                                 $first = true;
@@ -292,25 +284,36 @@ while ($row = mysqli_fetch_assoc($result)) {
                                                 <?php endif; ?>
                                             </h3>
                                             <div id="<?php echo $categoryId; ?>-error" class="category-error"></div>
-                                            <div class="row">
+                                            <div class="row menu-items-row">
                                                 <?php foreach ($items as $item): ?>
-                                                    <div class="col-md-4 mb-4 menu-item-card" data-halal="<?php echo $item['is_halal']; ?>">
-                                                        <div class="card h-100">
-                                                            <div class="position-relative">
-                                                                <?php if ($item['is_halal']): ?>
-                                                                    <span class="halal-badge">Halal</span>
-                                                                <?php else: ?>
-                                                                    <span class="non-halal-badge">Non-Halal</span>
-                                                                <?php endif; ?>
-                                                                <img src="<?php echo BASE_URL; ?>/images/Products/<?php echo $item['prod_img']; ?>" 
-                                                                     class="card-img-top" 
+                                                    <div class="col-md-4 mb-4 menu-item-card" data-halal="<?php echo $item['is_halal']; ?>" data-name="<?php echo htmlspecialchars(strtolower($item['prod_name'])); ?>">
+                                                        <div class="card h-100 p-2 d-flex flex-row align-items-center" style="min-height:70px;">
+                                                            <div class="position-relative mr-3" style="flex-shrink:0;">
+                                                                <img src="<?php echo BASE_URL; ?>/images/Products/<?php echo $item['prod_img']; ?>"
+                                                                     class="rounded" style="width:60px;height:60px;object-fit:cover;" 
                                                                      alt="<?php echo htmlspecialchars($item['prod_name']); ?>">
                                                             </div>
-                                                            <div class="card-body">
-                                                                <h5 class="card-title"><?php echo htmlspecialchars($item['prod_name']); ?></h5>
-                                                                <p class="card-text"><?php echo htmlspecialchars($item['prod_desc']); ?></p>
-                                                                <p class="card-text"><strong>₱<?php echo number_format($item['prod_price'], 2); ?></strong></p>                                                                <?php $required = isset($package_requirements[$category]) ? $package_requirements[$category] : 0; ?>
-                                                                <div class="custom-control custom-checkbox">
+                                                            <div class="card-body p-2 d-flex flex-column justify-content-center" style="min-width:100px ;flex:1 1 0;max-width:calc(100% - 70px);">
+                                                                <div class="d-flex align-items-center mb-1" style="min-width:0;">
+                                                                    <h5 class="card-title mb-0 mr-2 text-truncate" style="font-size:1rem;max-width:calc(100% - 24px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;">
+                                                                        <?php echo htmlspecialchars($item['prod_name']); ?>
+                                                                    </h5>
+                                                                    <button type="button" class="btn btn-link btn-sm p-0 ml-2 eye-detail-btn" style="line-height:1;" 
+                                                                        data-toggle="modal" data-target="#itemDetailModal"
+                                                                        data-img="<?php echo BASE_URL; ?>/images/Products/<?php echo $item['prod_img']; ?>"
+                                                                        data-name="<?php echo htmlspecialchars($item['prod_name']); ?>"
+                                                                        data-desc="<?php echo htmlspecialchars($item['prod_desc']); ?>"
+                                                                        data-price="<?php echo number_format($item['prod_price'], 2); ?>"
+                                                                        data-halal="<?php echo $item['is_halal']; ?>"
+                                                                        title="View Details">
+                                                                        <i class="fas fa-eye fa-sm text-accent"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <span class="badge mt-1 mb-2 align-self-start" style="<?php echo $item['is_halal'] ? 'background:#28a745;color:#fff;' : 'background:#dc3545;color:#fff;'; ?>font-size:0.8rem;">
+                                                                    <?php echo $item['is_halal'] ? 'Halal' : 'Non-Halal'; ?>
+                                                                </span>
+                                                                <?php $required = isset($package_requirements[$category]) ? $package_requirements[$category] : 0; ?>
+                                                                <div class="custom-control custom-checkbox mt-1">
                                                                     <input type="checkbox" 
                                                                            class="custom-control-input menu-item-select" 
                                                                            id="item_<?php echo $item['product_id']; ?>" 
@@ -391,100 +394,142 @@ while ($row = mysqli_fetch_assoc($result)) {
         </div>
     </main>
 
-    <script src="scripts.js"></script>    <script>
+    <!-- Item Detail Modal -->
+    <div class="modal fade" id="itemDetailModal" tabindex="-1" role="dialog" aria-labelledby="itemDetailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itemDetailModalLabel"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="itemDetailImg" src="" alt="" class="img-fluid mb-3" style="max-height:180px; border-radius:8px;">
+                    <p id="itemDetailDesc" class="mb-2"></p>
+                    <p id="itemDetailPrice" class="mb-1 font-weight-bold"></p>
+                    <span id="itemDetailHalal" class="badge"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
         $(document).ready(function() {
-    // Initialize package cost calculation and show it right away
-    calculateTotal();
-    
-    // Halal filter functionality
-    $('#halalOnly').change(function() {
-        const showHalalOnly = $(this).is(':checked');
-        $('.menu-item-card').each(function() {
-            const isHalal = $(this).data('halal') === 1;
-            $(this).toggle(!showHalalOnly || isHalal);
-        });
-    });
-    
-    // Menu item selection with requirements check
-    $('.menu-item-select').change(function() {
-        const category = $(this).data('category');
-        const required = $(this).data('required') || 0;
-        
-        // Add or remove .selected class on card
-        const card = $(this).closest('.card');
-        if ($(this).is(':checked')) {
-            card.addClass('border-primary');
-        } else {
-            card.removeClass('border-primary');
-        }
-        
-        // Count selections in this category
-        const selectedCount = $(`input[data-category="${category}"]:checked`).length;
-        
-        // If trying to select more than required and required is greater than 0
-        if (selectedCount > required && required > 0) {
-            $(this).prop('checked', false);
-            card.removeClass('border-primary');
-            alert(`You can only select ${required} item(s) from ${category}`);
-            return;
-        }
-        
-        // Update the selection counter in the tab
-        const safeCategory = category.toLowerCase().replace(/ /g, '-');
-        $(`#${safeCategory}-tab .selected-count`).text(selectedCount);
-        
-        // Show or hide error message
-        const errorMsg = $(`#${safeCategory}-error`);
-        if (required > 0) {
-            if (selectedCount < required) {
-                errorMsg.show().html(`Please select ${required - selectedCount} more item(s) from ${category}`);
-                errorMsg.addClass('show');
-            } else {
-                errorMsg.removeClass('show').hide();
+            // Function to filter menu items based on both search and halal criteria
+            function filterMenuItems() {
+                const searchText = $('#menuSearchBox').val().toLowerCase();
+                const showHalalOnly = $('#halalOnly').is(':checked');
+                
+                // Only filter items in the active tab
+                $('.tab-pane.active .menu-item-card').each(function() {
+                    const $item = $(this);
+                    const itemName = $item.data('name').toLowerCase();
+                    const isHalal = $item.data('halal') === 1;
+                    
+                    const matchesSearch = !searchText || itemName.includes(searchText);
+                    const matchesHalal = !showHalalOnly || isHalal;
+                    
+                    $item.toggle(matchesSearch && matchesHalal);
+                });
             }
-        }
-        
-        calculateTotal();
-        validateMenuSelections();
-    });
-    
-    // Add services cost calculation
-    $('input[name="options[]"]').change(function() {
-        calculateTotal();
-    });
-    
-    // Form validation
-    $('form').submit(function(e) {
-        if (!validateMenuSelections()) {
-            e.preventDefault();
-            $('html, body').animate({ scrollTop: 0 }, 'slow');
-            showAlert('Please complete all required menu selections before proceeding.', 'warning');
-            return false;
-        }
-    });
-    
-    // Calculate the total cost of the order
-    function calculateTotal() {
-        let packageCost = parseFloat($('.package-select').data('price')) || 0;
-        const numPersons = parseInt($('input[name="num_persons"]').val()) || 0;
-        
-        // Calculate package base cost
-        let servicesCost = 0;
-    $('input[name="options[]"]:checked').each(function() {
-        const service = $(this).val();
-        if (service === 'setup') servicesCost += 2000;
-        if (service === 'tables') servicesCost += 3500;
-        if (service === 'decoration') servicesCost += 5000;
-    });
-        // For custom package, add up selected items
+
+            // Search box event handler
+            $('#menuSearchBox').on('input', function() {
+                filterMenuItems();
+            });
+
+            // Halal filter functionality
+            $('#halalOnly').change(function() {
+                filterMenuItems();
+            });
+
+            // Also filter when changing tabs to maintain filter state
+            $('.nav-link').on('shown.bs.tab', function() {
+                filterMenuItems();
+            });
+
+            // Initialize package cost calculation and show it right away
+            calculateTotal();
+            
+            // Menu item selection with requirements check
+            $('.menu-item-select').change(function() {
+                const category = $(this).data('category');
+                const required = $(this).data('required') || 0;
+                
+                // Add or remove .selected class on card
+                const card = $(this).closest('.card');
+                if ($(this).is(':checked')) {
+                    card.addClass('border-primary');
+                } else {
+                    card.removeClass('border-primary');
+                }
+                
+                // Count selections in this category
+                const selectedCount = $(`input[data-category="${category}"]:checked`).length;
+                
+                // If trying to select more than required and required is greater than 0
+                if (selectedCount > required && required > 0) {
+                    $(this).prop('checked', false);
+                    card.removeClass('border-primary');
+                    alert(`You can only select ${required} item(s) from ${category}`);
+                    return;
+                }
+                
+                // Update the selection counter in the tab
+                const safeCategory = category.toLowerCase().replace(/ /g, '-');
+                $(`#${safeCategory}-tab .selected-count`).text(selectedCount);
+                
+                // Show or hide error message
+                const errorMsg = $(`#${safeCategory}-error`);
+                if (required > 0) {
+                    if (selectedCount < required) {
+                        errorMsg.show().html(`Please select ${required - selectedCount} more item(s) from ${category}`);
+                        errorMsg.addClass('show');
+                    } else {
+                        errorMsg.removeClass('show').hide();
+                    }
+                }
+                
+                calculateTotal();
+                validateMenuSelections();
+            });
+            
+            // Add services cost calculation
+            $('input[name="options[]"]').change(function() {
+                calculateTotal();
+            });
+            
+            // Form validation
+            $('form').submit(function(e) {
+                if (!validateMenuSelections()) {
+                    e.preventDefault();
+                    $('html, body').animate({ scrollTop: 0 }, 'slow');
+                    showAlert('Please complete all required menu selections before proceeding.', 'warning');
+                    return false;
+                }
+            });
+            
+            // Calculate the total cost of the order
+            function calculateTotal() {
+                let packageCost = parseFloat($('.package-select').data('price')) || 0;
+                const numPersons = parseInt($('input[name="num_persons"]').val()) || 0;
+                
+                // Calculate package base cost
+                let servicesCost = 0;
+                $('input[name="options[]"]:checked').each(function() {
+                    const service = $(this).val();
+                    if (service === 'setup') servicesCost += 2000;
+                    if (service === 'tables') servicesCost += 3500;
+                    if (service === 'decoration') servicesCost += 5000;
+                });
+                   // For custom package, add up selected items
         if ($('.package-select').val() === 'Custom Package') {
     $('#packageCost').text('To be determined');
     $('#servicesCost').text('₱' + servicesCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
     $('#totalAmount').text('To be determined');
     return;
-}
-        
-        // Calculate services cost
+}// Calculate services cost
         // let servicesCost = 0;
         // $('input[name="options[]"]:checked').each(function() {
         //     const service = $(this).val();
@@ -492,77 +537,95 @@ while ($row = mysqli_fetch_assoc($result)) {
         //     if (service === 'tables') servicesCost += 3500;
         //     if (service === 'decoration') servicesCost += 5000;
         // });
-        let baseCost = packageCost * numPersons;
-        // Update the display
-        if (numPersons < 50) {
-            $('#packageCost').text('₱' + (baseCost).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})+ ' (Subject to change)');
-        } else {
-           $('#packageCost').text('₱' + baseCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-        }
-        
-
-        $('#servicesCost').text('₱' + servicesCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-        $('#totalAmount').text('₱' + (baseCost + servicesCost).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
-    }
-    
-    function validateMenuSelections() {
-        let isValid = true;
-        let unfulfilled = [];
-        
-        // Iterate through each category tab to check requirements
-        $('#menu-tabs .nav-link').each(function() {
-            const tab = $(this);
-            const badge = tab.find('.required-badge');
-            
-            if (badge.length > 0) {
-                const required = parseInt(badge.text().split('/')[1]);
-                const selected = parseInt(badge.find('.selected-count').text());
-                const category = tab.text().trim().split('\n')[0];  // Get category name from tab text
-                
-                if (selected < required) {
-                    isValid = false;
-                    unfulfilled.push(`${category} (${required - selected} more needed)`);
-                    
-                    // Show error in the tab pane
-                    const categoryId = tab.attr('href').substring(1);
-                    $(`#${categoryId}-error`).show().html(`Please select ${required - selected} more item(s) from ${category}`);
-                    $(`#${categoryId}-error`).addClass('show');
+                let baseCost = packageCost * numPersons;
+                // Update the display
+                if (numPersons < 50) {
+                    $('#packageCost').text('₱' + (baseCost).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})+ ' (Subject to change)');
+                } else {
+                   $('#packageCost').text('₱' + baseCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
                 }
+                
+
+                $('#servicesCost').text('₱' + servicesCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                $('#totalAmount').text('₱' + (baseCost + servicesCost).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            }
+            
+            function validateMenuSelections() {
+                let isValid = true;
+                let unfulfilled = [];
+                
+                // Iterate through each category tab to check requirements
+                $('#menu-tabs .nav-link').each(function() {
+                    const tab = $(this);
+                    const badge = tab.find('.required-badge');
+                    
+                    if (badge.length > 0) {
+                        const required = parseInt(badge.text().split('/')[1]);
+                        const selected = parseInt(badge.find('.selected-count').text());
+                        const category = tab.text().trim().split('\n')[0];  // Get category name from tab text
+                        
+                        if (selected < required) {
+                            isValid = false;
+                            unfulfilled.push(`${category} (${required - selected} more needed)`);
+                            
+                            // Show error in the tab pane
+                            const categoryId = tab.attr('href').substring(1);
+                            $(`#${categoryId}-error`).show().html(`Please select ${required - selected} more item(s) from ${category}`);
+                            $(`#${categoryId}-error`).addClass('show');
+                        }
+                    }
+                });
+                
+                // Show a summary warning if needed
+                if (!isValid) {
+                    showAlert('Please complete all required selections: ' + unfulfilled.join(', '), 'warning');
+                }
+                
+                return isValid;
+            }
+            
+            function showAlert(message, type) {
+                // Create alert container if it doesn't exist
+                if ($('#alertContainer').length === 0) {
+                    $('<div id="alertContainer" class="alert-container my-3"></div>').insertBefore($('form'));
+                }
+                
+                const alertHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>`;
+                
+                $('#alertContainer').html(alertHTML);
+                
+                // Auto-close after 5 seconds
+                setTimeout(() => {
+                    $('.alert').alert('close');
+                }, 5000);
+            }
+            
+            // Initialize validation on page load
+            validateMenuSelections();
+        });
+
+        // Eye icon modal logic
+        $(document).on('click', '.eye-detail-btn', function() {
+            const name = $(this).data('name');
+            const img = $(this).data('img');
+            const desc = $(this).data('desc');
+            const price = $(this).data('price');
+            const halal = $(this).data('halal');
+            $('#itemDetailModalLabel').text(name);
+            $('#itemDetailImg').attr('src', img).attr('alt', name);
+            $('#itemDetailDesc').text(desc);
+            $('#itemDetailPrice').text('₱' + price);
+            if (halal == 1 || halal === '1') {
+                $('#itemDetailHalal').removeClass('badge-danger').addClass('badge-success').text('Halal');
+            } else {
+                $('#itemDetailHalal').removeClass('badge-success').addClass('badge-danger').text('Non-Halal');
             }
         });
-        
-        // Show a summary warning if needed
-        if (!isValid) {
-            showAlert('Please complete all required selections: ' + unfulfilled.join(', '), 'warning');
-        }
-        
-        return isValid;
-    }
-    
-    function showAlert(message, type) {
-        // Create alert container if it doesn't exist
-        if ($('#alertContainer').length === 0) {
-            $('<div id="alertContainer" class="alert-container my-3"></div>').insertBefore($('form'));
-        }
-        
-        const alertHTML = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>`;
-        
-        $('#alertContainer').html(alertHTML);
-        
-        // Auto-close after 5 seconds
-        setTimeout(() => {
-            $('.alert').alert('close');
-        }, 5000);
-    }
-    
-    // Initialize validation on page load
-    validateMenuSelections();
-});
     </script>
     <?php include('../authenticate.php'); ?>
 </body>
