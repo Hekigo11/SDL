@@ -271,7 +271,8 @@ if (!isset($_SESSION['loginok'])) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php                                // Get standard catering orders with menu selections
+                                <?php
+                                // Get standard catering orders with menu selections
                                 $standard_query = "SELECT co.*, 'standard' AS order_type,
                                     GROUP_CONCAT(DISTINCT CONCAT(c.category_name, ': ', p.prod_name)) as selected_items
                                     FROM catering_orders co
@@ -286,15 +287,8 @@ if (!isset($_SESSION['loginok'])) {
                                 $stmt->execute();
                                 $standard_result = $stmt->get_result();
                                 
-                                // Get custom catering orders
-                                $custom_query = "SELECT *, 'custom' AS order_type FROM custom_catering_orders WHERE user_id = ? ORDER BY created_at DESC";
-                                $stmt = $dbc->prepare($custom_query);
-                                $stmt->bind_param('i', $_SESSION['user_id']);
-                                $stmt->execute();
-                                $custom_result = $stmt->get_result();
-                                
-                                // Count total catering orders
-                                $total_catering_orders = $standard_result->num_rows + $custom_result->num_rows;
+                                // Only count standard catering orders for this tab
+                                $total_catering_orders = $standard_result->num_rows;
 
                                 if ($total_catering_orders > 0) {
                                     // Display standard catering orders
@@ -341,101 +335,10 @@ if (!isset($_SESSION['loginok'])) {
                                         </tr>
                                         <?php
                                     }
-                                    
-                                    // Display custom catering orders
-                                    while ($row = $custom_result->fetch_assoc()) {
-                                        $statusClass = '';
-                                        switch($row['status']) {
-                                            case 'pending':
-                                                $statusClass = 'warning';
-                                                break;
-                                            case 'confirmed':
-                                                $statusClass = 'info';
-                                                break;
-                                            case 'completed':
-                                                $statusClass = 'success';
-                                                break;
-                                            case 'cancelled':
-                                                $statusClass = 'danger';
-                                                break;
-                                            default:
-                                                $statusClass = 'secondary';
-                                        }
-                                        
-                                        // Fetch selected menu items for this custom order
-                                        $selected_items = '';
-                                        $custom_order_id = $row['custom_order_id'];
-                                        $items_query = "SELECT c.category_name, p.prod_name
-                                                        FROM cust_catering_order_items coi
-                                                        JOIN products p ON coi.product_id = p.product_id
-                                                        JOIN categories c ON coi.category_id = c.category_id
-                                                        WHERE coi.custom_order_id = ?
-                                                        ORDER BY c.category_name, p.prod_name";
-                                        $items_stmt = $dbc->prepare($items_query);
-                                        $items_stmt->bind_param('i', $custom_order_id);
-                                        $items_stmt->execute();
-                                        $items_result = $items_stmt->get_result();
-                                        $item_arr = [];
-                                        while ($item_row = $items_result->fetch_assoc()) {
-                                            $item_arr[] = $item_row['category_name'] . ': ' . $item_row['prod_name'];
-                                        }
-                                        $row['selected_items'] = implode(', ', $item_arr);
-                                        
-                                        // Determine request type based on num_persons
-                                        $isCustomPackage = false;
-                                        $isSmallGroup = false;
-                                        
-                                        if (isset($row['menu_preferences']) && $row['menu_preferences'] == 'Custom Package') {
-                                            $isCustomPackage = true;
-                                        }
-                                        
-                                        if (isset($row['num_persons']) && $row['num_persons'] < 50) {
-                                            $isSmallGroup = true;
-                                        }
-                                        
-                                        // Set the request type label based on conditions
-                                        if ($isCustomPackage && $isSmallGroup) {
-                                            $requestTypeLabel = 'Custom Menu (Small Group)';
-                                        } elseif ($isCustomPackage) {
-                                            $requestTypeLabel = 'Custom Menu';
-                                        } elseif ($isSmallGroup) {
-                                            $requestTypeLabel = 'Small Group';
-                                        } else {
-                                            $requestTypeLabel = 'Special Request';
-                                        }
-                                        
-                                        $modal_row = $row;
-                                        $modal_row['selected_items'] = $row['selected_items'];
-                                        ?>
-                                        <tr>
-                                            <td>CSP-<?php echo $row['custom_order_id']; ?></td>
-                                            <td><?php echo date('M j, Y g:i A', strtotime($row['event_date'])); ?></td>
-                                            <td><?php echo htmlspecialchars($row['venue']); ?></td>
-                                            <td>
-                                                <?php echo htmlspecialchars($row['menu_preferences'] ?: 'Not specified'); ?>
-                                                <span class="badge badge-info"><?php echo $requestTypeLabel; ?></span>
-                                            </td>
-                                            <td><?php echo $row['num_persons']; ?></td>
-                                            <td>
-                                                <?php if (!empty($row['quote_amount'])): ?>
-                                                    ₱<?php echo number_format($row['quote_amount'], 2); ?>
-                                                <?php else: ?>
-                                                    <em>To be quoted</em>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span></td>
-                                            <td>
-                                                <button class="btn btn-sm btn-info" onclick="showCateringDetails('custom', <?php echo $row['custom_order_id']; ?>, <?php echo htmlspecialchars(json_encode($modal_row), ENT_QUOTES); ?>)">
-                                                    <i class="fas fa-eye"></i> Details
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <?php
-                                    }
                                 } else {
                                     ?>
                                     <tr>
-                                        <td colspan="7" class="empty-state">
+                                        <td colspan="8" class="empty-state">
                                             <i class="fas fa-calendar-alt"></i>
                                             <p class="text-muted">You haven't placed any catering orders yet.</p>
                                             <a href="<?php echo BASE_URL; ?>/modules/catering.php" class="btn btn-primary">Request Catering Service</a>
