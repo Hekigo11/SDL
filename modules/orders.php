@@ -407,13 +407,22 @@ if (!isset($_SESSION['loginok'])) {
                                                     <span class="badge badge-info">Small Group</span>
                                                 <?php endif; ?>
                                             </td>
-                                            <td><?php echo $row['num_persons']; ?></td>
-                                            <td>
-                                                <?php if (!empty($row['quote_amount'])): ?>
-                                                    ₱<?php echo number_format($row['quote_amount'], 2); ?>
-                                                <?php else: ?>
-                                                    <em>To be quoted</em>
-                                                <?php endif; ?>
+                                            <td><?php echo $row['num_persons']; ?></td>                                            <td>
+                                                <?php
+                                                $total_amount = 0;
+                                                if (!empty($row['quote_amount'])) {
+                                                    $total_amount = $row['quote_amount'];
+                                                    
+                                                    // Add costs for additional services
+                                                    if ($row['needs_setup'] == '1') $total_amount += 2000;
+                                                    if ($row['needs_tablesandchairs'] == '1') $total_amount += 3500;
+                                                    if ($row['needs_decoration'] == '1') $total_amount += 5000;
+                                                    
+                                                    echo '₱' . number_format($total_amount, 2);
+                                                } else {
+                                                    echo '<em>To be quoted</em>';
+                                                }
+                                                ?>
                                             </td>
                                             <td class="order-status">
                                                 <div class="status-info">
