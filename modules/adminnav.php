@@ -19,10 +19,13 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
         <a href="#" class="nav-link" data-page="dashboard">
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
-        </a>
-        <a href="#" class="nav-link" data-page="products">
+        </a>        <a href="#" class="nav-link" data-page="products">
             <i class="fas fa-box"></i>
             <span>Products</span>
+        </a>
+        <a href="#" class="nav-link" data-page="ingredients">
+            <i class="fas fa-mortar-pestle"></i>
+            <span>Ingredients</span>
         </a>
         <a href="#" class="nav-link" data-page="orders">
             <i class="fas fa-shopping-cart"></i>

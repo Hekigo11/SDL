@@ -34,6 +34,7 @@ try {
         echo "<td>" . htmlspecialchars($row['quantity']) . "</td>";
         echo "<td>" . htmlspecialchars($row['unit']) . "</td>";
         echo "<td>";
+        echo '<button class="btn btn-sm btn-primary edit-product-ingredient mr-1" data-id="' . $row['ingredient_id'] . '"><i class="fas fa-edit"></i></button>';
         echo '<button class="btn btn-sm btn-danger delete-ingredient" data-id="' . $row['ingredient_id'] . '">';
         echo '<i class="fas fa-trash"></i>';
         echo '</button>';
