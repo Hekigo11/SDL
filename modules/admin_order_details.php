@@ -6,6 +6,26 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
 }
 
 include("dbconi.php");
+
+// Helper function for status class
+function getStatusClass($status) {
+    switch($status) {
+        case 'pending': return 'warning';
+        case 'confirmed': return 'info';
+        case 'processing':
+        case 'in_kitchen': return 'info';
+        case 'ready_for_delivery': return 'primary';
+        case 'delivering': return 'info';
+        case 'completed': return 'success';
+        case 'cancelled': return 'danger';
+        default: return 'secondary';
+    }
+}
+
+// Helper function for status display
+function getStatusDisplay($status) {
+    return ucwords(str_replace('_', ' ', $status));
+}
 ?>
 
 <style>
@@ -96,30 +116,23 @@ include("dbconi.php");
         border-bottom: 2px solid #eee;
     }
     .nav-tabs .nav-link {
-        border: none;
-        color: #666;
-        font-weight: 500;
-        padding: 1rem 1.5rem;
-        position: relative;
-        transition: color 0.2s;
+        font-weight: bold;
+        color: var(--accent);
+        transition: color 0.2s, background 0.2s, box-shadow 0.2s;
     }
     .nav-tabs .nav-link:hover {
         color: var(--accent);
-        border: none;
+        background: #e9ecef;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        border-bottom: 2.5px var(--accent);
+        text-shadow: 0 1px 2px rgba(0,0,0,0.04);
     }
     .nav-tabs .nav-link.active {
-        color: var(--accent);
-        border: none;
-        background: none;
-    }
-    .nav-tabs .nav-link.active::after {
-        content: '';
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background-color: var(--accent);
+        font-weight: bold;
+        color:var(--accent);
+        background: #e9ecef;
+        border-bottom: 3px solid var(--accent);
+        box-shadow: 0 4px 12px rgba(0,123,255,0.08);
     }
     .tab-content {
         padding-top: 1.5rem;
@@ -320,7 +333,7 @@ include("dbconi.php");
                             </thead>
                             <tbody>
                                 <?php
-                                // Query both standard and custom catering orders
+                                // Query standard catering orders only for this tab
                                 $standard_query = "SELECT co.*, 'standard' AS order_type,
                                     GROUP_CONCAT(DISTINCT CONCAT(c.category_name, ': ', p.prod_name)) as selected_items,
                                     u.fname, u.lname, u.mobile_num as phone, u.email_add
@@ -331,20 +344,8 @@ include("dbconi.php");
                                     JOIN users u ON co.user_id = u.user_id
                                     GROUP BY co.catering_id
                                     ORDER BY co.created_at DESC";
-                                
-                                $custom_query = "SELECT cco.*, 'custom' AS order_type,
-                                    GROUP_CONCAT(DISTINCT CONCAT(c.category_name, ': ', p.prod_name)) as selected_items,
-                                    u.fname, u.lname, u.mobile_num as phone, u.email_add
-                                    FROM custom_catering_orders cco
-                                    LEFT JOIN cust_catering_order_items ccoi ON cco.custom_order_id = ccoi.custom_order_id
-                                    LEFT JOIN products p ON ccoi.product_id = p.product_id
-                                    LEFT JOIN categories c ON ccoi.category_id = c.category_id
-                                    JOIN users u ON cco.user_id = u.user_id
-                                    GROUP BY cco.custom_order_id
-                                    ORDER BY cco.created_at DESC";
 
                                 $standard_result = mysqli_query($dbc, $standard_query);
-                                $custom_result = mysqli_query($dbc, $custom_query);
 
                                 // Function to render catering order row
                                 function renderCateringRow($row, $order_type) {
@@ -360,16 +361,7 @@ include("dbconi.php");
                                             <small class="text-muted"><?php echo $row['phone']; ?></small>
                                         </td>
                                         <td>
-                                            <?php 
-                                            if ($order_type === 'standard') {
-                                                echo htmlspecialchars($row['menu_package']);
-                                            } else {
-                                                echo htmlspecialchars($row['menu_preferences'] ?: 'Custom Package');
-                                                if (isset($row['num_persons']) && $row['num_persons'] < 50) {
-                                                    echo ' <span class="badge badge-info">Small Group</span>';
-                                                }
-                                            }
-                                            ?>
+                                            <?php echo htmlspecialchars($row['menu_package']); ?>
                                         </td>
                                         <td><?php echo $row['num_persons']; ?></td>
                                         <td>
@@ -403,7 +395,7 @@ include("dbconi.php");
                                                         data-event-date="<?php echo $row['event_date']; ?>"
                                                         data-venue="<?php echo htmlspecialchars($row['venue']); ?>"
                                                         data-persons="<?php echo $row['num_persons']; ?>"
-                                                        data-package="<?php echo htmlspecialchars($order_type === 'standard' ? $row['menu_package'] : ($row['menu_preferences'] ?: 'Custom Package')); ?>"
+                                                        data-package="<?php echo htmlspecialchars($row['menu_package']); ?>"
                                                         data-amount="<?php echo !empty($row['quote_amount']) ? $row['quote_amount'] : ($row['total_amount'] ?? ''); ?>"
                                                         data-services="<?php 
                                                             $services = [];
@@ -429,34 +421,9 @@ include("dbconi.php");
                                     <?php
                                 }
 
-                                // Helper function for status class
-                                function getStatusClass($status) {
-                                    switch($status) {
-                                        case 'pending': return 'warning';
-                                        case 'confirmed': return 'info';
-                                        case 'processing':
-                                        case 'in_kitchen': return 'info';
-                                        case 'ready_for_delivery': return 'primary';
-                                        case 'delivering': return 'info';
-                                        case 'completed': return 'success';
-                                        case 'cancelled': return 'danger';
-                                        default: return 'secondary';
-                                    }
-                                }
-
-                                // Helper function for status display
-                                function getStatusDisplay($status) {
-                                    return ucwords(str_replace('_', ' ', $status));
-                                }
-
-                                // Display standard catering orders
+                                // Display standard catering orders only
                                 while ($row = mysqli_fetch_assoc($standard_result)) {
                                     renderCateringRow($row, 'standard');
-                                }
-
-                                // Display custom catering orders
-                                while ($row = mysqli_fetch_assoc($custom_result)) {
-                                    renderCateringRow($row, 'custom');
                                 }
                                 ?>
                             </tbody>
