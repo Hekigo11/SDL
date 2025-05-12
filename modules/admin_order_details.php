@@ -177,15 +177,16 @@ include("dbconi.php");
         <div class="col-md-6">
             <h2>Manage Orders</h2>
         </div>
-    </div>
-
-    <!-- Tabs -->
+    </div>    <!-- Tabs -->
     <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
             <a class="nav-link active" id="delivery-tab" data-toggle="tab" href="#delivery">Delivery Orders</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="catering-tab" data-toggle="tab" href="#catering">Catering Orders</a>
+            <a class="nav-link" id="catering-tab" data-toggle="tab" href="#catering">Standard Catering</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="custom-catering-tab" data-toggle="tab" href="#custom-catering">Custom Catering</a>
         </li>
     </ul>
 
@@ -458,6 +459,126 @@ include("dbconi.php");
                                     renderCateringRow($row, 'custom');
                                 }
                                 ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>        </div>
+
+        <!-- Custom Catering Orders Tab -->
+        <div class="tab-pane fade" id="custom-catering">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Event Date</th>
+                                    <th>Customer</th>
+                                    <th>Package</th>
+                                    <th>Persons</th>
+                                    <th>Amount</th>
+                                    <th style="min-width: 200px;">Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                // Query custom catering orders
+                                $custom_query = "SELECT cco.*, 
+                                    u.email_add as customer_email, u.fname, u.lname, u.mobile_num as phone,
+                                    GROUP_CONCAT(DISTINCT CONCAT(c.category_name, ': ', p.prod_name)) as selected_items
+                                    FROM custom_catering_orders cco
+                                    LEFT JOIN cust_catering_order_items ccoi ON cco.custom_order_id = ccoi.custom_order_id
+                                    LEFT JOIN products p ON ccoi.product_id = p.product_id
+                                    LEFT JOIN categories c ON ccoi.category_id = c.category_id
+                                    JOIN users u ON cco.user_id = u.user_id
+                                    GROUP BY cco.custom_order_id
+                                    ORDER BY cco.created_at DESC";
+
+                                $custom_result = mysqli_query($dbc, $custom_query);
+                                while ($row = mysqli_fetch_assoc($custom_result)) {
+                                    $statusClass = getStatusClass($row['status']);
+                                    $isCustomPackage = ($row['menu_preferences'] == 'Custom Package');
+                                    $isSmallGroup = ($row['num_persons'] < 50);
+                                    
+                                    // Determine request type label
+                                    if ($isCustomPackage && $isSmallGroup) {
+                                        $requestTypeLabel = 'Custom Menu (Small Group)';
+                                    } elseif ($isCustomPackage) {
+                                        $requestTypeLabel = 'Custom Menu';
+                                    } elseif ($isSmallGroup) {
+                                        $requestTypeLabel = 'Small Group';
+                                    } else {
+                                        $requestTypeLabel = 'Special Request';
+                                    }
+                                ?>
+                                <tr>
+                                    <td>CSP-<?php echo $row['custom_order_id']; ?></td>
+                                    <td><?php echo date('M j, Y g:i A', strtotime($row['event_date'])); ?></td>
+                                    <td>
+                                        <?php echo htmlspecialchars($row['fname'] . ' ' . $row['lname']); ?><br>
+                                        <small class="text-muted"><?php echo $row['phone']; ?></small>
+                                    </td>
+                                    <td>
+                                        <?php echo htmlspecialchars($row['menu_preferences'] ?: 'Not specified'); ?>
+                                        <span class="badge badge-info"><?php echo $requestTypeLabel; ?></span>
+                                    </td>
+                                    <td><?php echo $row['num_persons']; ?></td>
+                                    <td>
+                                        <?php if (!empty($row['quote_amount'])): ?>
+                                            ₱<?php echo number_format($row['quote_amount'], 2); ?>
+                                        <?php else: ?>
+                                            <em>To be quoted</em>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="order-status">
+                                        <div class="status-info">
+                                            <div class="status-badge">
+                                                <span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span>
+                                            </div>
+                                            <?php if (!empty($row['staff_notes'])): ?>
+                                                <div class="text-muted small mt-1">
+                                                    <i class="fas fa-comment"></i> <?php echo htmlspecialchars($row['staff_notes']); ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td class="order-actions">
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-info view-order" 
+                                                    data-id="<?php echo $row['custom_order_id']; ?>"
+                                                    data-type="custom"
+                                                    data-items="<?php echo htmlspecialchars($row['selected_items'] ?? ''); ?>"
+                                                    data-notes="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
+                                                    data-event-date="<?php echo $row['event_date']; ?>"
+                                                    data-venue="<?php echo htmlspecialchars($row['venue']); ?>"
+                                                    data-persons="<?php echo $row['num_persons']; ?>"
+                                                    data-package="<?php echo htmlspecialchars($row['menu_preferences'] ?: 'Custom Package'); ?>"
+                                                    data-amount="<?php echo $row['quote_amount'] ?? ''; ?>"
+                                                    data-services="<?php 
+                                                        $services = [];
+                                                        if ($row['needs_setup']) $services[] = 'setup';
+                                                        if ($row['needs_tablesandchairs']) $services[] = 'tables';
+                                                        if ($row['needs_decoration']) $services[] = 'decoration';
+                                                        echo implode(',', $services); 
+                                                    ?>">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <?php if ($row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
+                                            <button class="btn btn-sm btn-primary update-status"
+                                                    data-id="<?php echo $row['custom_order_id']; ?>"
+                                                    data-type="custom"
+                                                    data-current-status="<?php echo $row['status']; ?>"
+                                                    data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php } ?>
                             </tbody>
                         </table>
                     </div>

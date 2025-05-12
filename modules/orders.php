@@ -117,14 +117,15 @@ if (!isset($_SESSION['loginok'])) {
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-            <?php endif; ?>
-
-            <ul class="nav nav-tabs mb-4">
+            <?php endif; ?>            <ul class="nav nav-tabs mb-4">
                 <li class="nav-item">
                     <a class="nav-link active" id="delivery-tab" data-toggle="tab" href="#delivery">Delivery Orders</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="catering-tab" data-toggle="tab" href="#catering">Catering Orders</a>
+                    <a class="nav-link" id="catering-tab" data-toggle="tab" href="#catering">Standard Catering</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="custom-catering-tab" data-toggle="tab" href="#custom-catering">Custom Catering</a>
                 </li>
             </ul>
             
@@ -447,6 +448,126 @@ if (!isset($_SESSION['loginok'])) {
                         </table>
                     </div>
                 </div>
+
+                <!-- Custom Catering Orders Tab -->
+                <div class="tab-pane fade" id="custom-catering">
+                    <h2 class="h4 mb-4">Custom Catering Orders</h2>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Event Date</th>
+                                    <th>Package</th>
+                                    <th>Persons</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $custom_query = "SELECT co.*, 
+                                    GROUP_CONCAT(DISTINCT CONCAT(c.category_name, ': ', p.prod_name)) as items
+                                    FROM custom_catering_orders co
+                                    LEFT JOIN cust_catering_order_items coi ON co.custom_order_id = coi.custom_order_id
+                                    LEFT JOIN products p ON coi.product_id = p.product_id
+                                    LEFT JOIN categories c ON coi.category_id = c.category_id
+                                    WHERE co.user_id = " . $_SESSION['user_id'] . "
+                                    GROUP BY co.custom_order_id
+                                    ORDER BY co.created_at DESC";
+                                
+                                $custom_result = mysqli_query($dbc, $custom_query);
+
+                                if (mysqli_num_rows($custom_result) > 0) {
+                                    while ($row = mysqli_fetch_assoc($custom_result)) {
+                                        // Determine the status class for the badge
+                                        $statusClass = '';
+                                        switch($row['status']) {
+                                            case 'pending': $statusClass = 'warning'; break;
+                                            case 'confirmed': $statusClass = 'info'; break;
+                                            case 'completed': $statusClass = 'success'; break;
+                                            case 'cancelled': $statusClass = 'danger'; break;
+                                            default: $statusClass = 'secondary';
+                                        }
+
+                                        // Determine if it's a small group
+                                        $isSmallGroup = ($row['num_persons'] < 50);
+                                        
+                                        ?>
+                                        <tr class="<?php echo $row['status'] === 'cancelled' ? 'cancelled' : ($row['status'] === 'completed' ? 'completed' : ''); ?>">
+                                            <td>CSP-<?php echo $row['custom_order_id']; ?></td>
+                                            <td><?php echo date('M j, Y', strtotime($row['event_date'])); ?></td>
+                                            <td>
+                                                <?php echo htmlspecialchars($row['menu_preferences'] ?: 'Custom Package'); ?>
+                                                <?php if ($isSmallGroup): ?>
+                                                    <span class="badge badge-info">Small Group</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td><?php echo $row['num_persons']; ?></td>
+                                            <td>
+                                                <?php if (!empty($row['quote_amount'])): ?>
+                                                    ₱<?php echo number_format($row['quote_amount'], 2); ?>
+                                                <?php else: ?>
+                                                    <em>To be quoted</em>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td class="order-status">
+                                                <div class="status-info">
+                                                    <div class="status-badge">
+                                                        <span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span>
+                                                    </div>
+                                                    <?php if (!empty($row['staff_notes'])): ?>
+                                                        <div class="text-muted small">
+                                                            <i class="fas fa-comment"></i> <?php echo htmlspecialchars($row['staff_notes']); ?>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-info view-custom-order" 
+                                                        data-id="<?php echo $row['custom_order_id']; ?>"
+                                                        data-items="<?php echo htmlspecialchars($row['items'] ?? ''); ?>"
+                                                        data-event-date="<?php echo date('M j, Y', strtotime($row['event_date'])); ?>"
+                                                        data-venue="<?php echo htmlspecialchars($row['venue']); ?>"
+                                                        data-persons="<?php echo $row['num_persons']; ?>"
+                                                        data-package="<?php echo htmlspecialchars($row['menu_preferences'] ?: 'Custom Package'); ?>"
+                                                        data-amount="<?php echo $row['quote_amount'] ?? ''; ?>"
+                                                        data-notes="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
+                                                        data-services="<?php 
+                                                            $services = [];
+                                                            if ($row['needs_setup']) $services[] = 'setup';
+                                                            if ($row['needs_tablesandchairs']) $services[] = 'tables';
+                                                            if ($row['needs_decoration']) $services[] = 'decoration';
+                                                            echo implode(',', $services); 
+                                                        ?>">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <?php if ($row['status'] === 'pending'): ?>
+                                                    <button class="btn btn-sm btn-danger cancel-custom-order" 
+                                                            data-id="<?php echo $row['custom_order_id']; ?>">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                <?php endif; ?>
+                                            </td>
+                                        </tr>
+                                    <?php }
+                                } else { ?>
+                                    <tr>
+                                        <td colspan="7">
+                                            <div class="empty-state">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                <p class="lead">No custom catering orders yet</p>
+                                                <p>Book a custom catering package for your special events!</p>
+                                                <a href="catering.php" class="btn btn-primary">Book Custom Catering</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </main>
 
@@ -570,6 +691,72 @@ if (!isset($_SESSION['loginok'])) {
             </div>
         </div>
 
+        <!-- Custom Catering Order Details Modal -->
+        <div class="modal fade" id="customCateringModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Custom Catering Order Details</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Event Details</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th>Event Date:</th>
+                                        <td id="custom-event-date"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Venue:</th>
+                                        <td id="custom-venue"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Number of Persons:</th>
+                                        <td id="custom-persons"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Package Type:</th>
+                                        <td id="custom-package"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Amount Details</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th>Base Amount:</th>
+                                        <td id="custom-amount"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Additional Services:</th>
+                                        <td id="custom-services"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h6>Menu Preferences</h6>
+                                <div id="custom-menu-items"></div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h6>Special Requests</h6>
+                                <p id="custom-notes" class="text-muted"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script>
         function showCancelModal(orderId) {
             document.getElementById('cancel_order_id').value = orderId;
@@ -579,7 +766,9 @@ if (!isset($_SESSION['loginok'])) {
         document.querySelector('select[name="reason"]').addEventListener('change', function() {
             const otherReasonDiv = document.getElementById('otherReasonDiv');
             otherReasonDiv.style.display = this.value === 'Other' ? 'block' : 'none';
-        });        function showCateringDetails(type, orderId, orderData) {
+        });
+
+        function showCateringDetails(type, orderId, orderData) {
             const modal = $('#cateringDetailsModal');
             
             // Set basic details
@@ -650,6 +839,84 @@ if (!isset($_SESSION['loginok'])) {
 
             modal.modal('show');
         }
+
+        $(document).ready(function() {
+            // View Custom Catering Order Details
+            $('.view-custom-order').click(function() {
+                const data = $(this).data();
+                
+                // Set basic details
+                $('#custom-event-date').text(data.eventDate);
+                $('#custom-venue').text(data.venue);
+                $('#custom-persons').text(data.persons + ' persons');
+                $('#custom-package').text(data.package);
+                
+                // Set amount and format it with PHP currency format
+                $('#custom-amount').html(
+                    data.amount ? 
+                    '₱' + parseFloat(data.amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) :
+                    '<em>To be quoted</em>'
+                );
+                
+                // Set selected menu items
+                if (data.items) {
+                    const menuItems = data.items.split(',');
+                    $('#custom-menu-items').html(`
+                        <div class="table-responsive" style="max-height:200px; overflow-y:auto;">
+                            <table class="table table-sm">
+                                <tbody>
+                                    ${menuItems.map(item => `
+                                        <tr>
+                                            <td><i class="fas fa-utensils text-accent mr-2"></i>${item.trim()}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `);
+                } else {
+                    $('#custom-menu-items').html('<p class="text-muted">Menu items to be finalized</p>');
+                }
+
+                // Set additional services
+                const services = data.services ? data.services.split(',') : [];
+                const servicesList = [];
+                if (services.includes('setup')) servicesList.push('Buffet Setup (₱2,000)');
+                if (services.includes('tables')) servicesList.push('Tables and Chairs (₱3,500)');
+                if (services.includes('decoration')) servicesList.push('Venue Decoration (₱5,000)');
+                
+                $('#custom-services').html(servicesList.length ? 
+                    servicesList.map(service => `<div><i class="fas fa-check text-success"></i> ${service}</div>`).join('') :
+                    '<p class="text-muted mb-0">No additional services selected</p>'
+                );
+
+                // Set special requests
+                $('#custom-notes').text(data.notes || 'No special requests');
+
+                $('#customCateringModal').modal('show');
+            });
+
+            // Cancel Custom Catering Order
+            $('.cancel-custom-order').click(function() {
+                if (confirm('Are you sure you want to cancel this custom catering order?')) {
+                    const orderId = $(this).data('id');
+                    $.post('cancel_order.php', {
+                        order_id: orderId,
+                        order_type: 'custom'
+                    })
+                    .done(function(response) {
+                        if (response === 'success') {
+                            location.reload();
+                        } else {
+                            alert('Failed to cancel order: ' + response);
+                        }
+                    })
+                    .fail(function() {
+                        alert('Failed to cancel order. Please try again.');
+                    });
+                }
+            });
+        });
         </script>
 
         <?php include('authenticate.php'); ?>
