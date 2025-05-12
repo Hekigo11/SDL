@@ -271,7 +271,7 @@ $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_
                             <div class="modal fade" id="customRequestModal" tabindex="-1" role="dialog" aria-labelledby="customRequestModalLabel" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
-                                        <div class="modal-header bg-accent text-white">
+                                        <div class="modal-header bg-accent text-white" style="background-color: var(--accent) !important;">
                                             <h5 class="modal-title" id="customRequestModalLabel">Special Request</h5>
                                             <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>

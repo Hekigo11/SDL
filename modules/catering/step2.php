@@ -202,7 +202,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         <div class="row justify-content-center">
             <div class="col-md-10">
                 <div class="card shadow">
-                    <div class="card-header bg-accent text-white rounded-top">
+                    <div class="card-header bg-accent text-white rounded-top" style="background-color: var(--accent);">
                         <h2 class="h4 mb-0">Menu Selection - Step 2</h2>
                     </div>
                     <div class="card-body">
@@ -494,7 +494,13 @@ while ($row = mysqli_fetch_assoc($result)) {
         // });
         let baseCost = packageCost * numPersons;
         // Update the display
-        $('#packageCost').text('₱' + baseCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+        if (numPersons < 50) {
+            $('#packageCost').text('₱' + (baseCost).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})+ ' (Subject to change)');
+        } else {
+           $('#packageCost').text('₱' + baseCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+        }
+        
+
         $('#servicesCost').text('₱' + servicesCost.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
         $('#totalAmount').text('₱' + (baseCost + servicesCost).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
     }
