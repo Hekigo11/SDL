@@ -36,6 +36,9 @@ try {
         throw new Exception("Product image is required");
     }
 
+    // Start transaction
+    mysqli_begin_transaction($dbc);
+
     // Insert product
     $query = "INSERT INTO products (prod_name, prod_price, prod_desc, prod_img, prod_cat_id, qty_sold) 
               VALUES (?, ?, ?, ?, ?, 0)";
@@ -52,10 +55,37 @@ try {
     if (!mysqli_stmt_execute($stmt)) {
         throw new Exception("Database error: " . mysqli_stmt_error($stmt));
     }
+    
+    // Get the newly inserted product ID
+    $product_id = mysqli_insert_id($dbc);
+    
+    // Insert ingredients if any
+    if (isset($_POST['ingredients']) && is_array($_POST['ingredients'])) {
+        $ing_query = "INSERT INTO product_ingredients (product_id, ingredient_id, quantity) VALUES (?, ?, ?)";
+        $ing_stmt = mysqli_prepare($dbc, $ing_query);
+        
+        foreach ($_POST['ingredients'] as $ingredient) {
+            if (isset($ingredient['ingredient_id']) && isset($ingredient['quantity'])) {
+                mysqli_stmt_bind_param($ing_stmt, "iid", 
+                    $product_id, 
+                    $ingredient['ingredient_id'], 
+                    $ingredient['quantity']
+                );
+                
+                if (!mysqli_stmt_execute($ing_stmt)) {
+                    throw new Exception("Error adding ingredient: " . mysqli_stmt_error($ing_stmt));
+                }
+            }
+        }
+    }
 
+    // Commit the transaction
+    mysqli_commit($dbc);
     echo "success";
 
 } catch (Exception $e) {
+    // Rollback on error
+    mysqli_rollback($dbc);
     echo $e->getMessage();
 } finally {
     mysqli_close($dbc);

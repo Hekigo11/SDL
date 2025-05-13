@@ -16,6 +16,182 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
         <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap4.min.css">
         <link rel="stylesheet" href="../vendor/style1.css">
         <link rel="stylesheet" href="../vendor/admin.css">
+        <style>
+            /* Custom Select Styles */
+            .custom-select {
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                background: #fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%23343a40' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") right .75rem center/8px 10px no-repeat;
+                padding-right: 1.75rem;
+            }
+
+            .custom-select:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 0.2rem rgba(var(--accent-rgb), 0.25);
+            }
+
+            /* Modal and Form Styles */
+            .modal-content {
+                border: none;
+                box-shadow: 0 5px 30px rgba(0,0,0,0.15);
+                border-radius: 15px;
+            }
+            .modal-header {
+                padding: 1.5rem;
+                border-bottom: none;
+            }
+            .modal-body {
+                padding: 1.8rem;
+            }
+            .modal-footer {
+                padding: 1.2rem 1.8rem;
+                border-top: 1px solid rgba(0,0,0,0.05);
+            }
+            .form-control {
+                border-radius: 8px;
+                border: 1px solid rgba(0,0,0,0.1);
+                padding: 0.6rem 1rem;
+                transition: all 0.3s ease;
+            }
+            .form-control:focus {
+                box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
+                border-color: var(--accent);
+            }
+
+            /* Button Styles */
+            .btn {
+                border-radius: 8px;
+                padding: 0.5rem 1.2rem;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+            .btn-primary {
+                background: var(--accent);
+                border: none;
+                box-shadow: 0 2px 6px rgba(var(--accent-rgb), 0.2);
+            }
+            .btn-primary:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
+            }
+            .btn-secondary {
+                background: #f8f9fa;
+                border: 1px solid rgba(0,0,0,0.1);
+                color: #6c757d;
+            }
+            .btn-secondary:hover {
+                background: #e9ecef;
+            }
+            .btn-sm {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.875rem;
+            }
+
+            /* Card and Table Styles */
+            .card {
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+                border-radius: 15px;
+                border: none;
+            }
+            .card-header {
+                background-color: #fff;
+                border-bottom: 1px solid #eee;
+            }
+            .table th {
+                border-top: none;
+                font-weight: 600;
+                color: #495057;
+                background: #f8f9fa;
+            }
+            .table td {
+                vertical-align: middle;
+            }
+
+            /* Image Styles */
+            .product-image {
+                max-width: 100px;
+                max-height: 100px;
+                object-fit: cover;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            #currentProductImage {
+                border-radius: 12px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+
+            /* Tab Styles */
+            #details-tab, #ingredients-tab {
+                font-weight: 600;
+                color: var(--primary1);
+                border: solid 2px var(--primary1);
+                margin: 0 10px;
+            }
+
+            /* Optgroup Styles */
+            optgroup {
+                font-weight: 600;
+                color: #495057;
+                background-color: #f8f9fa;
+                padding: 6px 12px;
+            }
+
+            option {
+                padding: 6px 12px;
+                color: #495057;
+                background-color: #fff;
+            }
+
+            /* Ingredient Search Styles */
+            .ingredient-search-container {
+                position: relative;
+            }
+
+            .ingredient-search-container .dropdown-menu {
+                margin-top: 0;
+                border: 1px solid rgba(0,0,0,0.1);
+                box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+                border-radius: 8px;
+                padding: 8px 0;
+            }
+
+            .ingredient-search-container .dropdown-header {
+                font-weight: 600;
+                color: var(--accent);
+                padding: 8px 16px;
+                font-size: 0.875rem;
+                background: rgba(var(--accent-rgb), 0.05);
+            }
+
+            .ingredient-search-container .dropdown-item {
+                padding: 8px 16px;
+                color: #495057;
+                transition: all 0.2s ease;
+            }
+
+            .ingredient-search-container .dropdown-item:hover {
+                background-color: rgba(var(--accent-rgb), 0.1);
+            }
+
+            .ingredient-search-container .dropdown-item small {
+                margin-left: 8px;
+                color: #6c757d;
+            }
+
+            .ingredient-search-container .dropdown-divider {
+                margin: 4px 0;
+            }
+
+            .ingredient-search-container .dropdown-item-text {
+                padding: 8px 16px;
+                color: #6c757d;
+                font-style: italic;
+            }
+        </style>
+        <!-- Add Select2 CSS and JS -->
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
         <title>Admin Dashboard - MARJ</title>
     </head>
 
@@ -31,9 +207,92 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
         <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+        <!-- Add Select2 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
         <script>
             $(document).ready(function() {
+                // Initialize Select2 for dynamically loaded content
+                function initSelect2() {
+                    $('.ingredient-select').each(function() {
+                        var $select = $(this);
+                        var $modal = $select.closest('.modal');
+                        
+                        // Destroy existing Select2 instance if any
+                        if ($select.hasClass('select2-hidden-accessible')) {
+                            $select.select2('destroy');
+                        }
+                        
+                        // Configure Select2
+                        var config = {
+                            theme: 'bootstrap4',
+                            width: '100%',
+                            dropdownAutoWidth: true,
+                            allowClear: true,
+                            placeholder: 'Search for an ingredient...',
+                            minimumInputLength: 1,
+                            templateResult: formatIngredientOption,
+                            templateSelection: formatIngredientSelection,
+                            escapeMarkup: function(markup) { return markup; },
+                            dropdownPosition: 'below',
+                            dropdownParent: $modal.find('.modal-content'),
+                            closeOnSelect: true
+                        };
+
+                        // Initialize Select2
+                        $select.select2(config)
+                            .on('select2:open', function() {
+                                // Ensure proper positioning
+                                setTimeout(function() {
+                                    $('.select2-dropdown').css('width', $select.width());
+                                    $('.select2-search__field').focus();
+                                }, 0);
+                            });
+                    });
+                }
+
+                // Format dropdown options with group headers
+                function formatIngredientOption(ingredient) {
+                    if (!ingredient.id || !ingredient.element) {
+                        return ingredient.text;
+                    }
+
+                    if ($(ingredient.element).is('optgroup')) {
+                        return $('<div class="ingredient-group">' +
+                                '<strong><i class="fas fa-layer-group mr-1"></i>' + ingredient.text + '</strong>' +
+                                '</div>');
+                    }
+
+                    var $ingredient = $(
+                        '<div class="ingredient-option">' +
+                        '<span class="ingredient-name">' + ingredient.text + '</span>' +
+                        '<small class="text-muted ml-2">(' + 
+                        $(ingredient.element).data('unit') + ')</small>' +
+                        '</div>'
+                    );
+
+                    return $ingredient;
+                }
+
+                // Format selected option
+                function formatIngredientSelection(ingredient) {
+                    if (!ingredient.id || !ingredient.element) {
+                        return ingredient.text;
+                    }
+
+                    return ingredient.text + ' (' + $(ingredient.element).data('unit') + ')';
+                }
+
+                // Initialize Select2 when content is loaded
+                $(document).on('shown.bs.modal', '.modal', function() {
+                    initSelect2();
+                });
+
+                // Clean up Select2 when modal is hidden
+                $(document).on('hidden.bs.modal', '.modal', function() {
+                    $('.ingredient-select', this).select2('destroy');
+                });
+
                 // Simple function to load content
                 function loadContent(page) {
                     $.ajax({
