@@ -204,6 +204,32 @@ if (isset($_SESSION['loginok']) && $_SESSION['role'] == 1) {
 		</div>
 	</section>
 
+	<!-- Chatbot Button and Window -->
+	<div id="chatbotButton" style="position: fixed; bottom: 30px; right: 30px; z-index: 9999;">
+		<button class="btn btn-primary rounded-circle shadow" style="width:60px; height:60px; font-size:28px;" onclick="openChatbot()">
+			<i class="fas fa-comments"></i>
+		</button>
+	</div>
+	<div id="chatbotWindow" class="card shadow" style="display:none; position: fixed; bottom: 100px; right: 30px; width: 350px; max-width: 90vw; z-index: 10000;">
+		<div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+			<span><i class="fas fa-robot mr-2"></i>MARJ FAQ Chatbot</span>
+			<button type="button" class="close text-white" aria-label="Close" onclick="closeChatbot()">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+		<div class="card-body" style="max-height: 400px; overflow-y: auto; font-size: 15px; background: #f8f9fa;">
+			<div id="faqSection">
+				<div class="mb-2 text-center font-weight-bold">How can I help you?</div>
+				<div id="faqList">
+					<!-- Questions will be rendered here by JS -->
+				</div>
+			</div>
+			<div id="chatRoom" style="display:none;">
+				<div id="chatHistory"></div>
+				<button class="btn btn-link mt-2 p-0" onclick="backToFaqs()"><i class="fas fa-arrow-left"></i> Back to FAQs</button>
+			</div>
+		</div>
+	</div>
 </main>
 
 <!-- Footeeer yung nasa baba -->
@@ -213,8 +239,108 @@ if (isset($_SESSION['loginok']) && $_SESSION['role'] == 1) {
 
 <?php include('authenticate.php')?>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
 <script>
-	function showAlert(message, type = 'warning', showLoginButton = false) {
+const faqData = [
+    {
+        q: "What services does MARJ Food Services offer?",
+        a: "We specialize in catering services for all types of events—birthdays, weddings, corporate functions, and more. We offer custom packages to suit your event size and needs."
+    },
+    {
+        q: "How can I place an order?",
+        a: "You can place an order through our website’s Order Now page, by sending us a message via our Contact Us form, or by reaching out through our social media channels."
+    },
+    {
+        q: "Do you offer customized catering packages?",
+        a: "Yes! We can tailor menus and packages based on your event size, preferences, and budget. Just let us know your requirements, and we’ll work with you."
+    },
+    {
+        q: "How far in advance should I place my order?",
+        a: "We recommend placing orders at least 3–5 days in advance for small events, and 2 weeks ahead for larger or more complex events to ensure availability and quality preparation."
+    },
+    {
+        q: "Is there a minimum order requirement?",
+        a: "Yes, we usually require a minimum order depending on the type of service (e.g., party trays vs. full catering). Contact us for specific details."
+    },
+    {
+        q: "Do you accommodate dietary restrictions or allergies?",
+        a: "Absolutely. We offer vegetarian, vegan, halal, and allergen-aware options. Please inform us in advance of any dietary needs or allergies."
+    },
+    {
+        q: "Where are you located? Do you deliver?",
+        a: "We are based in 9799 Kamagong Street in San Antonio Village, Makati, Philippines. Yes, we deliver within a specified radius. Delivery fees may apply depending on the location."
+    },
+    {
+        q: "What payment methods do you accept?",
+        a: "We accept payments via GCash, bank transfer, and cash on delivery. Payment details will be shared upon order confirmation."
+    },
+    {
+        q: "Can I cancel or change my order after it’s confirmed?",
+        a: "Yes, but changes or cancellations must be made at least 48 hours before your scheduled delivery or event. Late cancellations may incur charges."
+    },
+    {
+        q: "Do you provide table setup, staff, or utensils?",
+        a: "We offer full-service catering packages that include table setup, servers, and utensils. Please ask us about this option when placing your order."
+    },
+    {
+        q: "How can I contact MARJ Food Services?",
+        a: `You can reach us via:<br><br>Facebook: <a href=\"https://www.facebook.com/MarjFoodServices\" target=\"_blank\">https://www.facebook.com/MarjFoodServices</a><br>Email: raquel_dayao1619@yahoo.com<br>Phone: +63 949 4257 628 / +63 917 8957 757<br>Or use our Contact Us form on the website.`
+    }
+];
+let chatHistory = [];
+function openChatbot() {
+    document.getElementById('chatbotWindow').style.display = 'block';
+    document.getElementById('chatbotButton').style.display = 'none';
+    showFaqSection();
+}
+function closeChatbot() {
+    document.getElementById('chatbotWindow').style.display = 'none';
+    document.getElementById('chatbotButton').style.display = 'block';
+}
+function showFaqSection() {
+    document.getElementById('faqSection').style.display = 'block';
+    document.getElementById('chatRoom').style.display = 'none';
+    renderFaqList();
+}
+function renderFaqList() {
+    const faqListDiv = document.getElementById('faqList');
+    faqListDiv.innerHTML = '';
+    faqData.forEach((item, idx) => {
+        faqListDiv.innerHTML += `<button class='btn btn-light btn-block text-left mb-2 faq-btn' data-idx='${idx}' style='white-space:normal;'>${item.q}</button>`;
+    });
+    // Attach click events
+    $(faqListDiv).find('.faq-btn').off('click').on('click', function() {
+        const idx = $(this).data('idx');
+        goToChatRoom(idx);
+    });
+}
+function goToChatRoom(idx) {
+    // Add to chat history
+    chatHistory.push({q: faqData[idx].q, a: faqData[idx].a});
+    renderChatRoom();
+    document.getElementById('faqSection').style.display = 'none';
+    document.getElementById('chatRoom').style.display = 'block';
+}
+function renderChatRoom() {
+    const chatDiv = document.getElementById('chatHistory');
+    chatDiv.innerHTML = '';
+    chatHistory.forEach(item => {
+        chatDiv.innerHTML += `<div class='mb-2'><span class='font-weight-bold text-primary'>You:</span> ${item.q}</div>`;
+        chatDiv.innerHTML += `<div class='mb-3'><span class='font-weight-bold text-success'>MARJ Bot:</span> <span>${item.a}</span></div>`;
+    });
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+function backToFaqs() {
+    document.getElementById('faqSection').style.display = 'block';
+    document.getElementById('chatRoom').style.display = 'none';
+}
+$(document).ready(function() {
+    // Update cart count when page loads
+    if (typeof updateCartCount === 'function') {
+        updateCartCount();
+    }
+});
+function showAlert(message, type = 'warning', showLoginButton = false) {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type} alert-dismissible fade show mx-3`;
     alertDiv.role = 'alert';
@@ -244,11 +370,4 @@ function checkLogin(event) {
         return false;
     <?php } ?>
 }
-
-$(document).ready(function() {
-    // Update cart count when page loads
-    if (typeof updateCartCount === 'function') {
-        updateCartCount();
-    }
-});
 </script>
