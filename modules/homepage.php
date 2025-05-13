@@ -54,7 +54,7 @@ if (isset($_SESSION['loginok']) && $_SESSION['role'] == 1) {
 				
 				<div class="col-md-6 mb-4">
 					<div class="service-card h-100">
-						<a href="#catering" class="text-decoration-none">
+						<a href="<?php echo BASE_URL; ?>/modules/catering/step1.php" class="text-decoration-none">
 							<div class="card border-0 shadow-sm h-100">
 								<div class="card-img-wrapper">
 									<img src="<?php echo BASE_URL; ?>/images/cater.jpg" 
