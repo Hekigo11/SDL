@@ -453,13 +453,47 @@ function getStatusDisplay($status) {
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                                 <?php if ($row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
-                                                <button class="btn btn-sm btn-primary update-status"
+                                                <?php if ($order_type === 'standard'): ?>
+                                                <button class="btn btn-sm btn-primary edit-standard-order"
                                                         data-id="<?php echo $orderId; ?>"
-                                                        data-type="<?php echo $order_type; ?>"
-                                                        data-current-status="<?php echo $row['status']; ?>"
-                                                        data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>">
-                                                    <i class="fas fa-edit"></i>
+                                                        data-status="<?php echo $row['status']; ?>"
+                                                        data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>"
+                                                        data-package="<?php echo htmlspecialchars($row['menu_package'] ?? ''); ?>"
+                                                        data-persons="<?php echo htmlspecialchars($row['num_persons'] ?? 0); ?>"
+                                                        data-event-date="<?php echo htmlspecialchars($row['event_date'] ?? ''); ?>"
+                                                        data-venue="<?php echo htmlspecialchars($row['venue'] ?? ''); ?>"
+                                                        data-notes="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
+                                                        data-services="<?php
+                                                            $services = [];
+                                                            if ($row['needs_setup'] ?? 0) $services[] = 'setup';
+                                                            if ($row['needs_tablesandchairs'] ?? 0) $services[] = 'tables';
+                                                            if ($row['needs_decoration'] ?? 0) $services[] = 'decoration';
+                                                            echo implode(',', $services);
+                                                        ?>">
+                                                    <i class="fas fa-edit"></i> Edit Order
                                                 </button>
+                                                <?php else: ?>
+                                                <button class="btn btn-sm btn-primary edit-custom-order"
+                                                        data-id="<?php echo $row['custom_order_id']; ?>"
+                                                        data-preferences="<?php echo htmlspecialchars($row['menu_preferences'] ?? ''); ?>"
+                                                        data-persons="<?php echo htmlspecialchars($row['num_persons'] ?? 0); ?>"
+                                                        data-amount="<?php echo htmlspecialchars($row['quote_amount'] ?? 0); ?>"
+                                                        data-status="<?php echo $row['status']; ?>"
+                                                        data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>"
+                                                        data-event-date="<?php echo htmlspecialchars($row['event_date']); ?>"
+                                                        data-venue="<?php echo htmlspecialchars($row['venue']); ?>"
+                                                        data-items="<?php echo htmlspecialchars($row['selected_items'] ?? ''); ?>"
+                                                        data-special-requests="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
+                                                        data-services="<?php 
+                                                            $services = [];
+                                                            if ($row['needs_setup']) $services[] = 'setup';
+                                                            if ($row['needs_tablesandchairs']) $services[] = 'tables';
+                                                            if ($row['needs_decoration']) $services[] = 'decoration';
+                                                            echo implode(',', $services); 
+                                                        ?>">
+                                                    <i class="fas fa-edit"></i> Edit Order
+                                                </button>
+                                                <?php endif; ?>
                                                 <?php endif; ?>
                                             </div>
                                         </td>
@@ -540,11 +574,18 @@ function getStatusDisplay($status) {
                                     </td>
                                     <td><?php echo $row['num_persons']; ?></td>
                                     <td>
-                                        <?php if (!empty($row['quote_amount'])): ?>
-                                            ₱<?php echo number_format($row['quote_amount'], 2); ?>
-                                        <?php else: ?>
-                                            <em>To be quoted</em>
-                                        <?php endif; ?>
+                                        <?php
+                                        if (!empty($row['quote_amount'])) {
+                                            $total = $row['quote_amount'];
+                                            // Add costs for additional services
+                                            if ($row['needs_setup'] == 1) $total += 2000;
+                                            if ($row['needs_tablesandchairs'] == 1) $total += 3500;
+                                            if ($row['needs_decoration'] == 1) $total += 5000;
+                                            echo '₱' . number_format($total, 2);
+                                        } else {
+                                            echo '<em>To be quoted</em>';
+                                        }
+                                        ?>
                                     </td>
                                     <td class="order-status">
                                         <div class="status-info">
@@ -580,26 +621,35 @@ function getStatusDisplay($status) {
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                             <?php if ($row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
+                                                <div class="btn-group">
                                                 <button class="btn btn-sm btn-primary edit-custom-order"
-                                                        data-id="<?php echo $row['custom_order_id']; ?>"
-                                                        data-status="<?php echo $row['status']; ?>"
-                                                        data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>"
-                                                        data-items="<?php echo htmlspecialchars($row['selected_items'] ?? ''); ?>"
-                                                        data-amount="<?php echo $row['quote_amount'] ?? ''; ?>"
-                                                        data-services="<?php 
-                                                            $services = [];
-                                                            if ($row['needs_setup']) $services[] = 'setup';
-                                                            if ($row['needs_tablesandchairs']) $services[] = 'tables';
-                                                            if ($row['needs_decoration']) $services[] = 'decoration';
-                                                            echo implode(',', $services);
-                                                        ?>"
-                                                        data-preferences="<?php echo htmlspecialchars($row['menu_preferences'] ?? ''); ?>"
-                                                        data-persons="<?php echo $row['num_persons']; ?>"
-                                                        data-special-requests="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
-                                                        data-event-date="<?php echo $row['event_date']; ?>"
-                                                        data-venue="<?php echo htmlspecialchars($row['venue']); ?>">
+                                                    data-id="<?php echo $row['custom_order_id']; ?>"
+                                                    data-preferences="<?php echo htmlspecialchars($row['menu_preferences'] ?? ''); ?>"
+                                                    data-persons="<?php echo htmlspecialchars($row['num_persons'] ?? 0); ?>"
+                                                    data-amount="<?php echo htmlspecialchars($row['quote_amount'] ?? 0); ?>"
+                                                    data-status="<?php echo $row['status']; ?>"
+                                                    data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>"
+                                                    data-event-date="<?php echo htmlspecialchars($row['event_date']); ?>"
+                                                    data-venue="<?php echo htmlspecialchars($row['venue']); ?>"
+                                                    data-items="<?php echo htmlspecialchars($row['selected_items'] ?? ''); ?>"
+                                                    data-special-requests="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
+                                                    data-services="<?php 
+                                                    $services = [];
+                                                    if ($row['needs_setup']) $services[] = 'setup';
+                                                    if ($row['needs_tablesandchairs']) $services[] = 'tables';
+                                                    if ($row['needs_decoration']) $services[] = 'decoration';
+                                                    echo implode(',', $services); 
+                                                    ?>">
                                                     <i class="fas fa-edit"></i> Edit Order
                                                 </button>
+                                                <button class="btn btn-sm btn-info update-status"
+                                                        data-id="<?php echo $row['custom_order_id']; ?>"
+                                                        data-type="custom"
+                                                            data-current-status="<?php echo $row['status']; ?>"
+                                                            data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>">
+                                                        <i class="fas fa-sync-alt"></i> Update Status
+                                                    </button>
+                                                </div>
                                             <?php endif; ?>
                                         </div>
                                     </td>
@@ -897,598 +947,883 @@ function getStatusDisplay($status) {
                 </div>
             </div>
         </div>
-    </div>    <script>
-    $(document).ready(function() {
-        // View Order Details
-        $(document).on('click', '.view-order', function() {
-            const orderType = $(this).data('type');
-            const orderId = $(this).data('id');
-            const items = $(this).data('items');
-            const notes = $(this).data('notes');
-            const eventDate = $(this).data('event-date');
-            const venue = $(this).data('venue');
-            const persons = $(this).data('persons');
-            const packageType = $(this).data('package');
-            const amount = $(this).data('amount');
-            const services = $(this).data('services');
-            
-            if (orderType === 'delivery') {
-                // Handle delivery order
-                const scheduledDelivery = $(this).data('scheduled-delivery');
-                const paymentMethod = $(this).data('payment-method');
-                const deliveryAddress = $(this).data('delivery-address');
-                
-                // Display order items
-                $('#orderItems').html(items.split(', ').map(item => `<div class="mb-2">${item}</div>`).join(''));
-                
-                // Load and display ingredients checklist
-                $.get('admin_get_checklist.php', { order_id: orderId })
-                    .done(function(response) {
-                        $('#ingredientsChecklist').html(response);
-                        $('#ingredientsChecklist input[type="checkbox"]').prop('disabled', true);
-                    })
-                    .fail(function() {
-                        $('#ingredientsChecklist').html('<div class="alert alert-danger">Failed to load checklist</div>');
-                    });
-                
-                $('#orderNotes').text(notes || 'No special notes');
-                $('#deliveryAddress').text(deliveryAddress || 'No delivery address provided');
-                $('#paymentMethod').text(paymentMethod || 'No payment method specified');
-                
-                if (scheduledDelivery) {
-                    const deliveryDate = new Date(scheduledDelivery);
-                    const formattedDate = deliveryDate.toLocaleString('en-US', { 
-                        month: 'long',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                    });
-                    $('#deliveryTime').html(`
-                        <div class="alert alert-info">
-                            <i class="fas fa-clock"></i> Scheduled for: ${formattedDate}
-                        </div>
-                    `);
-                } else {
-                    $('#deliveryTime').html('<p class="text-muted">No scheduled delivery time</p>');
-                }
-                
-                $('#deliveryOrderModal').modal('show');
-            } else {
-                // Handle catering order
-                const orderPrefix = orderType === 'standard' ? 'CTR-' : 'CSP-';
-                $('#catering-order-id').text(`${orderPrefix}${orderId}`);
-                $('#catering-event-date').text(new Date(eventDate).toLocaleString());
-                $('#catering-venue').text(venue);
-                $('#catering-persons').text(persons);
-                $('#catering-package').text(packageType);
-                $('#catering-amount').text(amount ? `₱${parseFloat(amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : 'To be quoted');
-                
-                // Display menu items
-                if (items) {
-                    const menuItems = items.split(',');
-                    $('#catering-menu-items').html(`
-                        <table class="table table-sm">
-                            <tbody>
-                                ${menuItems.map(item => `
-                                    <tr><td><i class="fas fa-utensils text-accent mr-2"></i>${item.trim()}</td></tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    `);
-                } else {
-                    $('#catering-menu-items').html('<p class="text-muted">No menu items selected yet</p>');
-                }
-
-                // Display services
-                const servicesList = [];
-                if (services) {
-                    if (services.includes('setup')) servicesList.push('Buffet Setup (₱2,000)');
-                    if (services.includes('tables')) servicesList.push('Tables and Chairs (₱3,500)');
-                    if (services.includes('decoration')) servicesList.push('Venue Decoration (₱5,000)');
-                }
-                
-                $('#catering-services').html(servicesList.length ? 
-                    servicesList.map(service => `<div><i class="fas fa-check text-success"></i> ${service}</div>`).join('') :
-                    '<p class="text-muted">No additional services selected</p>'
-                );
-
-                $('#catering-special-requests').text(notes || 'No special requests');
-                $('#cateringOrderModal').modal('show');
-            }
-        });
-
-        // Update Status
-        $(document).on('click', '.update-status', function() {
-            const orderId = $(this).data('id');
-            const orderType = $(this).data('type');
-            const currentStatus = $(this).data('current-status');
-            const currentNotes = $(this).data('current-notes');
-            
-            $('#updateOrderId').val(orderId);
-            $('#updateOrderType').val(orderType);
-            
-            const $statusSelect = $('#orderStatus').empty();
-            
-            if (orderType === 'delivery') {
-                const statuses = ['pending', 'processing', 'in_kitchen', 'ready_for_delivery', 'delivering', 'completed', 'cancelled'];
-                statuses.forEach(status => {
-                    const display = status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                    $statusSelect.append(`<option value="${status}"${currentStatus === status ? ' selected' : ''}>${display}</option>`);
-                });
-            } else {
-                const statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
-                statuses.forEach(status => {
-                    const display = status.charAt(0).toUpperCase() + status.slice(1);
-                    $statusSelect.append(`<option value="${status}"${currentStatus === status ? ' selected' : ''}>${display}</option>`);
-                });
-            }
-            
-            $('textarea[name="status_notes"]').val(currentNotes);
-            $('#updateStatusModal').modal('show');
-        });
-
-        // Save Status Update
-        $(document).on('click', '#saveStatus', function() {
-            const btn = $(this);
-            const form = $('#updateStatusForm');
-            const orderType = $('#updateOrderType').val();
-            
-            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
-            
-            const endpoint = orderType === 'delivery' ? 'admin_update_order.php' : 'admin_update_catering_order.php';
-            
-            $.post(endpoint, form.serialize())
-                .done(function(response) {
-                    if (response === 'success') {
-                        location.reload();
-                    } else if (response === 'No changes to update') {
-                        alert('No changes were made');
-                        $('#updateStatusModal').modal('hide');
-                    } else {
-                        alert('Error: ' + response);
-                    }
-                })
-                .fail(function() {
-                    alert('Update failed. Please try again.');
-                })
-                .always(function() {
-                    btn.prop('disabled', false).text('Update Status');
-                });
-        });
-
-        // Initialize menu item management
-        let selectedMenuItems = new Map(); // Map to store selected items
-
-        // Edit Custom Order
-        $(document).on('click', '.edit-custom-order', function() {
-            const orderId = $(this).data('id');
-            const preferences = $(this).data('preferences');
-            const persons = $(this).data('persons');
-            const amount = $(this).data('amount');
-            const services = $(this).data('services') ? $(this).data('services').split(',') : [];
-            const items = $(this).data('items') ? $(this).data('items').split(',') : [];
-            const specialRequests = $(this).data('special-requests');
-            const eventDate = $(this).data('event-date');
-            const venue = $(this).data('venue');
-            const status = $(this).data('status');
-            const staffNotes = $(this).data('current-notes');
-
-            // Reset selected items
-            selectedMenuItems.clear();
-            
-            // Process selected items
-            items.forEach(item => {
-                const parts = item.split(': ');
-                if (parts.length === 2) { // Only add if valid format (category: name)
-                    const category = parts[0].trim();
-                    const name = parts[1].trim();
-                    // Store temporarily with category information
-                    selectedMenuItems.set(name, {
-                        id: name, // Will be replaced with actual ID when items are loaded
-                        name: name,
-                        category: category
-                    });
-                }
-            });
-
-            $('#editOrderId').val(orderId);
-            $('#editMenuPreferences').val(preferences);
-            $('#editNumPersons').val(persons);
-            $('#editQuoteAmount').val(amount);
-            $('#editOrderStatus').val(status);
-            $('#editStaffNotes').val(staffNotes);
-
-            $('#setup').prop('checked', services.includes('setup'));
-            $('#tables').prop('checked', services.includes('tables'));
-            $('#decoration').prop('checked', services.includes('decoration'));
-
-            // Load menu items and handle tab show
-            loadMenuItems();
-            
-            // Ensure menu items are reloaded if tab is clicked after initial load
-            $('#menu-tab').off('show.bs.tab').on('show.bs.tab', function() {
-                loadMenuItems();
-            });
-
-            updateCostBreakdown();
-            $('#editCustomOrderModal').modal('show');
-        });
-
-        // Load menu items function
-        function loadMenuItems() {
-            // Show loading status
-            $('#categoryLoadingStatus').removeClass('alert-warning alert-danger').addClass('alert-info')
-                .show().text('Loading menu categories...');
-            
-            // Clear existing items and categories
-            $('#menuCategories').empty();
-            $('#menuItemContent').empty();
-            
-            // Create a copy of the selected items to preserve original selections
-            const tempSelectedItems = new Map(selectedMenuItems);
-            
-            // Load items from database via AJAX
-            $.ajax({
-                url: 'admin_get_menu_items.php',
-                method: 'GET',
-                dataType: 'json',
-                cache: false,
-                success: function(response) {
-                    if (response && response.success) {
-                        console.log('Menu items loaded:', response.items.length);
+    </div>
+    
+    <!-- Edit Standard Catering Order Modal -->
+    <div class="modal fade" id="editStandardOrderModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Standard Catering Order</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editStandardOrderForm">
+                        <input type="hidden" name="order_id" id="editStandardOrderId">
                         
-                        // Check if we have items
-                        if (response.items.length === 0) {
-                            $('#categoryLoadingStatus').removeClass('alert-info').addClass('alert-warning')
-                                .text('No menu items found. Please add products to your menu first.');
-                            return;
-                        }
-                        
-                        // Group items by category
-                        const items = response.items;
-                        const categories = [...new Set(items.map(item => item.category_name))];
-                        
-                        console.log('Categories found:', categories);
-                        
-                        // First pass: match product IDs to selected items by name
-                        items.forEach(item => {
-                            // If this item's name is in our selected list but has a temp ID, update it
-                            if (tempSelectedItems.has(item.prod_name)) {
-                                const selectedItem = tempSelectedItems.get(item.prod_name);
-                                // Replace temporary name ID with actual product ID
-                                if (typeof selectedItem.id === 'string') {
-                                    selectedItem.id = item.product_id;
-                                    tempSelectedItems.set(item.prod_name, selectedItem);
-                                }
-                            }
-                        });
-                        
-                        // Update the actual selectedMenuItems map
-                        selectedMenuItems.clear();
-                        tempSelectedItems.forEach((item, key) => {
-                            selectedMenuItems.set(key, item);
-                        });
-                        
-                        // Hide loading message if we have categories
-                        if (categories.length > 0) {
-                            $('#categoryLoadingStatus').hide();
-                        } else {
-                            $('#categoryLoadingStatus').removeClass('alert-info').addClass('alert-warning')
-                                .text('No categories found. Please configure product categories first.');
-                            return;
-                        }
-                        
-                        // Generate category navigation tabs
-                        categories.forEach((category, index) => {
-                            const categoryId = 'category-' + category.toLowerCase().replace(/\s+/g, '-');
-                            const isActive = index === 0 ? 'active' : '';
-                            
-                            $('#menuCategories').append(`
-                                <a class="nav-link ${isActive}" 
-                                   id="${categoryId}-tab" 
-                                   data-toggle="pill" 
-                                   href="#${categoryId}" 
-                                   role="tab">
-                                    ${category}
-                                </a>
-                            `);
-                            
-                            // Create tab pane for this category
-                            const showActive = index === 0 ? 'show active' : '';
-                            $('#menuItemContent').append(`
-                                <div class="tab-pane fade ${showActive}" 
-                                     id="${categoryId}" 
-                                     role="tabpanel">
-                                    <div class="menu-items-grid" data-category="${category}"></div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Package Type</label>
+                                    <select class="form-control" name="menu_package" id="editStandardPackage" required>
+                                        <?php
+                                        // Query packages from the database
+                                        $package_query = "SELECT name, base_price FROM packages WHERE is_active = 1 ORDER BY base_price ASC";
+                                        $package_result = mysqli_query($dbc, $package_query);
+                                        
+                                        if ($package_result) {
+                                            while ($package = mysqli_fetch_assoc($package_result)) {
+                                                echo '<option value="' . htmlspecialchars($package['name']) . '">' 
+                                                    . htmlspecialchars($package['name']) . ' (₱' . number_format($package['base_price'], 2) . ' per person)</option>';
+                                            }
+                                        } else {
+                                            // Fallback options if query fails
+                                            echo '<option value="Basic Filipino Package">Basic Filipino Package (₱250.00 per person)</option>';
+                                            echo '<option value="Premium Filipino Package">Premium Filipino Package (₱450.00 per person)</option>';
+                                            echo '<option value="Executive Package">Executive Package (₱650.00 per person)</option>';
+                                        }
+                                        ?>
+                                    </select>
                                 </div>
-                            `);
-                        });
-                        
-                        // Apply explicit styling to nav links to ensure visibility
-                        $('#menuCategories .nav-link').css({
-                            'color': '#333',
-                            'background-color': '#f0f0f0',
-                            'margin-right': '5px',
-                            'border-radius': '4px',
-                            'font-weight': '500',
-                            'padding': '8px 15px'
-                        });
-                        
-                        $('#menuCategories .nav-link.active').css({
-                            'color': '#fff',
-                            'background-color': 'var(--accent, #0275d8)'
-                        });
-                        
-                        // Add hover event handlers
-                        $('#menuCategories .nav-link').hover(
-                            function() {
-                                // Mouse enter
-                                if (!$(this).hasClass('active')) {
-                                    $(this).css({
-                                        'background-color': '#e0e0e0',
-                                        'color': '#222'
-                                    });
-                                }
-                            },
-                            function() {
-                                // Mouse leave
-                                if (!$(this).hasClass('active')) {
-                                    $(this).css({
-                                        'background-color': '#f0f0f0',
-                                        'color': '#333'
-                                    });
-                                }
-                            }
-                        );
-                        
-                        // Add click handler to properly style active tab
-                        $('#menuCategories .nav-link').on('click', function() {
-                            // Remove active styling from all tabs
-                            $('#menuCategories .nav-link').css({
-                                'color': '#333',
-                                'background-color': '#f0f0f0'
-                            });
+                                
+                                <div class="form-group">
+                                    <label>Number of Persons</label>
+                                    <input type="number" class="form-control" name="num_persons" id="editStandardPersons" min="20" required>
+                                    <small class="text-muted">Minimum 20 persons required for standard packages</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Event Date and Time</label>
+                                    <input type="datetime-local" class="form-control" name="event_date" id="editStandardEventDate" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Venue</label>
+                                    <input type="text" class="form-control" name="venue" id="editStandardVenue" required>
+                                </div>
+                            </div>
                             
-                            // Add active styling to clicked tab
-                            $(this).css({
-                                'color': '#fff',
-                                'background-color': 'var(--accent, #0275d8)'
-                            });
-                        });
-                        
-                        // Add menu items to their respective category grids
-                        items.forEach(item => {
-                            const categoryId = 'category-' + item.category_name.toLowerCase().replace(/\s+/g, '-');
-                            const grid = $(`#${categoryId} .menu-items-grid`);
-                            const isSelected = selectedMenuItems.has(item.prod_name);
-                            
-                            const itemHtml = `
-                                <div class="card menu-item mb-2 ${isSelected ? 'selected border-primary' : ''}" 
-                                     data-id="${item.product_id}" 
-                                     data-name="${item.prod_name}" 
-                                     data-category="${item.category_name}"
-                                     data-halal="${item.is_halal ? '1' : '0'}">
-                                    <div class="card-body p-3">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <h6 class="card-title mb-1">${item.prod_name}</h6>
-                                            <span class="badge ${item.is_halal ? 'badge-success' : 'badge-secondary'} ml-2">
-                                                ${item.is_halal ? 'Halal' : 'Non-Halal'}
-                                            </span>
-                                        </div>
-                                        <p class="card-text small mb-2">${item.prod_desc || 'No description available'}</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="text-muted">₱${parseFloat(item.prod_price).toFixed(2)}</span>
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input menu-item-select" 
-                                                       id="item_${item.product_id}" 
-                                                       ${isSelected ? 'checked' : ''}>
-                                                <label class="custom-control-label" for="item_${item.product_id}">Select</label>
-                                            </div>
-                                        </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <select class="form-control" name="status" id="editStandardStatus">
+                                        <option value="pending">Pending</option>
+                                        <option value="confirmed">Confirmed</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Staff Notes</label>
+                                    <textarea class="form-control" name="staff_notes" id="editStandardNotes" rows="4"></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Additional Services</label>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="standardSetup" name="needs_setup">
+                                        <label class="custom-control-label" for="standardSetup">Buffet Setup (₱2,000)</label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="standardTables" name="needs_tablesandchairs">
+                                        <label class="custom-control-label" for="standardTables">Tables and Chairs (₱3,500)</label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="standardDecoration" name="needs_decoration">
+                                        <label class="custom-control-label" for="standardDecoration">Venue Decoration (₱5,000)</label>
                                     </div>
                                 </div>
-                            `;
-                            grid.append(itemHtml);
-                        });
-
-                        // Update the selected items list
-                        updateSelectedItemsList();
+                            </div>
+                        </div>
                         
-                        // Setup search and filter functionality
-                        setupMenuFilters();
-                    } else {
-                        // Show error for invalid response
-                        console.error('Invalid response format:', response);
-                        $('#categoryLoadingStatus').removeClass('alert-info').addClass('alert-danger')
-                            .text('Error loading menu items: Invalid server response format');
-                    }
-                },
-                error: function(xhr, status, error) {
-                    // Handle AJAX error
-                    console.error('AJAX error:', xhr.status, status, error);
-                    console.log('Response text:', xhr.responseText);
-                    
-                    let errorMessage = 'Failed to load menu items. ';
-                    
-                    try {
-                        // Try to parse the error response as JSON
-                        const response = JSON.parse(xhr.responseText);
-                        if (response && response.message) {
-                            errorMessage += response.message;
-                        } else {
-                            errorMessage += 'Server error: ' + error;
-                        }
-                    } catch (e) {
-                        // If JSON parsing fails, show the raw response or error
-                        errorMessage += 'Server error: ' + (xhr.responseText || error);
-                    }
-                    
-                    $('#categoryLoadingStatus').removeClass('alert-info').addClass('alert-danger')
-                        .text(errorMessage);
-                }
+                        <div class="form-group mt-3">
+                            <label>Special Requests</label>
+                            <textarea class="form-control" name="special_requests" id="editStandardRequests" rows="2"></textarea>
+                        </div>
+                        
+                        <div class="total-cost mt-4 p-3 bg-light rounded">
+                            <h6>Price Calculation:</h6>
+                            <div id="standardCostBreakdown" class="mb-3"></div>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <strong>Total Amount:</strong>
+                                <strong id="standardTotalAmount">₱0.00</strong>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveStandardOrder">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    // View Order Details
+    $(document).on('click', '.view-order', function() {
+        const orderType = $(this).data('type');
+        const orderId = $(this).data('id');
+        const items = $(this).data('items');
+        const notes = $(this).data('notes');
+        const eventDate = $(this).data('event-date');
+        const venue = $(this).data('venue');
+        const persons = $(this).data('persons');
+        const packageType = $(this).data('package');
+        const amount = $(this).data('amount');
+        const services = $(this).data('services');
+        
+        if (orderType === 'delivery') {
+            // Handle delivery order
+            const scheduledDelivery = $(this).data('scheduled-delivery');
+            const paymentMethod = $(this).data('payment-method');
+            const deliveryAddress = $(this).data('delivery-address');
+            
+            // Display order items
+            $('#orderItems').html(items.split(', ').map(item => `<div class="mb-2">${item}</div>`).join(''));
+            
+            // Load and display ingredients checklist
+            $.get('admin_get_checklist.php', { order_id: orderId })
+                .done(function(response) {
+                    $('#ingredientsChecklist').html(response);
+                    $('#ingredientsChecklist input[type="checkbox"]').prop('disabled', true);
+                })
+                .fail(function() {
+                    $('#ingredientsChecklist').html('<div class="alert alert-danger">Failed to load checklist</div>');
+                });
+            
+            $('#orderNotes').text(notes || 'No special notes');
+            $('#deliveryAddress').text(deliveryAddress || 'No delivery address provided');
+            $('#paymentMethod').text(paymentMethod || 'No payment method specified');
+            
+            if (scheduledDelivery) {
+                const deliveryDate = new Date(scheduledDelivery);
+                const formattedDate = deliveryDate.toLocaleString('en-US', { 
+                    month: 'long',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                $('#deliveryTime').html(`
+                    <div class="alert alert-info">
+                        <i class="fas fa-clock"></i> Scheduled for: ${formattedDate}
+                    </div>
+                `);
+            } else {
+                $('#deliveryTime').html('<p class="text-muted">No scheduled delivery time</p>');
+            }
+            
+            $('#deliveryOrderModal').modal('show');
+        } else {
+            // Handle catering order
+            const orderPrefix = orderType === 'standard' ? 'CTR-' : 'CSP-';
+            $('#catering-order-id').text(`${orderPrefix}${orderId}`);
+            $('#catering-event-date').text(new Date(eventDate).toLocaleString());
+            $('#catering-venue').text(venue);
+            $('#catering-persons').text(persons);
+            $('#catering-package').text(packageType);
+            $('#catering-amount').text(amount ? `₱${parseFloat(amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : 'To be quoted');
+            
+            // Display menu items
+            if (items) {
+                const menuItems = items.split(',');
+                $('#catering-menu-items').html(`
+                    <table class="table table-sm">
+                        <tbody>
+                            ${menuItems.map(item => `
+                                <tr><td><i class="fas fa-utensils text-accent mr-2"></i>${item.trim()}</td></tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `);
+            } else {
+                $('#catering-menu-items').html('<p class="text-muted">No menu items selected yet</p>');
+            }
+
+            // Display services
+            const servicesList = [];
+            if (services) {
+                if (services.includes('setup')) servicesList.push('Buffet Setup (₱2,000)');
+                if (services.includes('tables')) servicesList.push('Tables and Chairs (₱3,500)');
+                if (services.includes('decoration')) servicesList.push('Venue Decoration (₱5,000)');
+            }
+            
+            $('#catering-services').html(servicesList.length ? 
+                servicesList.map(service => `<div><i class="fas fa-check text-success"></i> ${service}</div>`).join('') :
+                '<p class="text-muted">No additional services selected</p>'
+            );
+
+            $('#catering-special-requests').text(notes || 'No special requests');
+            $('#cateringOrderModal').modal('show');
+        }
+    });
+
+    // Update Status
+    $(document).on('click', '.update-status', function() {
+        const orderId = $(this).data('id');
+        const orderType = $(this).data('type');
+        const currentStatus = $(this).data('current-status');
+        const currentNotes = $(this).data('current-notes');
+        
+        $('#updateOrderId').val(orderId);
+        $('#updateOrderType').val(orderType);
+        
+        const $statusSelect = $('#orderStatus').empty();
+        
+        if (orderType === 'delivery') {
+            const statuses = ['pending', 'processing', 'in_kitchen', 'ready_for_delivery', 'delivering', 'completed', 'cancelled'];
+            statuses.forEach(status => {
+                const display = status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                $statusSelect.append(`<option value="${status}"${currentStatus === status ? ' selected' : ''}>${display}</option>`);
+            });
+        } else {
+            const statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
+            statuses.forEach(status => {
+                const display = status.charAt(0).toUpperCase() + status.slice(1);
+                $statusSelect.append(`<option value="${status}"${currentStatus === status ? ' selected' : ''}>${display}</option>`);
             });
         }
         
-        // Setup menu search and filter functionality
-        function setupMenuFilters() {
-            const filterMenuItems = function() {
-                const searchText = $('#menuSearchBox').val().toLowerCase();
-                const showHalalOnly = $('#menuHalalOnly').is(':checked');
-                
-                $('.menu-item').each(function() {
-                    const $item = $(this);
-                    const productName = $item.find('.card-title').text().toLowerCase();
-                    const isHalal = $item.data('halal') === 1;
-                    
-                    const matchesSearch = productName.includes(searchText);
-                    const matchesHalal = !showHalalOnly || isHalal;
-                    
-                    $item.toggle(matchesSearch && matchesHalal);
-                });
-            };
-            
-            // Attach event listeners
-            $('#menuSearchBox').off('keyup').on('keyup', filterMenuItems);
-            $('#menuHalalOnly').off('change').on('change', filterMenuItems);
-        }
+        $('textarea[name="status_notes"]').val(currentNotes);
+        $('#updateStatusModal').modal('show');
+    });
 
-        // Handle menu item selection
-        $(document).on('change', '.menu-item-select', function() {
-            const checkbox = $(this);
-            const card = checkbox.closest('.card');
-            const itemId = card.data('id');
-            const itemName = card.data('name');
-            const category = card.data('category');
-            
-            if (checkbox.is(':checked')) {
-                card.addClass('selected border-primary');
-                selectedMenuItems.set(itemName, {
-                    id: itemId,
-                    name: itemName,
+    // Save Status Update
+    $(document).on('click', '#saveStatus', function() {
+        const btn = $(this);
+        const form = $('#updateStatusForm');
+        const orderType = $('#updateOrderType').val();
+        
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+        
+        let endpoint;
+        switch(orderType) {
+            case 'delivery':
+                endpoint = 'admin_update_order.php';
+                break;
+            case 'standard':
+            case 'custom':
+                endpoint = 'admin_update_catering_order.php';
+                break;
+            default:
+                alert('Invalid order type');
+                btn.prop('disabled', false).text('Update Status');
+                return;
+        }
+        
+        $.post(endpoint, form.serialize())
+            .done(function(response) {
+                if (response === 'success') {
+                    location.reload();
+                } else if (response === 'No changes to update') {
+                    alert('No changes were made');
+                    $('#updateStatusModal').modal('hide');
+                } else {
+                    alert('Error: ' + response);
+                }
+            })
+            .fail(function() {
+                alert('Update failed. Please try again.');
+            })
+            .always(function() {
+                btn.prop('disabled', false).text('Update Status');
+            });
+    });
+
+    // Initialize menu item management
+    let selectedMenuItems = new Map(); // Map to store selected items
+
+    // Edit Custom Order
+    $(document).on('click', '.edit-custom-order', function() {
+        const orderId = $(this).data('id');
+        const preferences = $(this).data('preferences');
+        const persons = $(this).data('persons');
+        const amount = $(this).data('amount');
+        const services = $(this).data('services') ? $(this).data('services').split(',') : [];
+        const items = $(this).data('items') ? $(this).data('items').split(',') : [];
+        const specialRequests = $(this).data('special-requests');
+        const eventDate = $(this).data('event-date');
+        const venue = $(this).data('venue');
+        const status = $(this).data('status');
+        const staffNotes = $(this).data('current-notes');
+
+        // Reset selected items
+        selectedMenuItems.clear();
+        
+        // Process selected items
+        items.forEach(item => {
+            const parts = item.split(': ');
+            if (parts.length === 2) { // Only add if valid format (category: name)
+                const category = parts[0].trim();
+                const name = parts[1].trim();
+                // Store temporarily with category information
+                selectedMenuItems.set(name, {
+                    id: name, // Will be replaced with actual ID when items are loaded
+                    name: name,
                     category: category
                 });
-            } else {
-                card.removeClass('selected border-primary');
-                selectedMenuItems.delete(itemName);
-            }
-            
-            updateSelectedItemsList();
-        });
-
-        function updateSelectedItemsList() {
-            const list = $('#selectedItemsList');
-            list.empty();
-            
-            if (selectedMenuItems.size === 0) {
-                list.append('<div class="text-muted p-3 text-center">No items selected</div>');
-                return;
-            }
-            
-            const groupedItems = new Map();
-            
-            // Group items by category
-            selectedMenuItems.forEach((item, name) => {
-                if (!groupedItems.has(item.category)) {
-                    groupedItems.set(item.category, []);
-                }
-                groupedItems.get(item.category).push({name: name, id: item.id});
-            });
-            
-            // Create a section for each category
-            groupedItems.forEach((items, category) => {
-                list.append(`<div class="list-group-item list-group-item-secondary font-weight-bold">${category}</div>`);
-                
-                items.forEach(item => {
-                    list.append(`
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>${item.name}</span>
-                            <button type="button" class="btn btn-sm btn-danger remove-item" data-name="${item.name}">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    `);
-                });
-            });
-        }
-
-        // Handle menu item removal from selected items list
-        $(document).on('click', '.remove-item', function() {
-            const itemName = $(this).data('name');
-            const item = selectedMenuItems.get(itemName);
-            if (item) {
-                $(`#item_${item.id}`).prop('checked', false).change();
             }
         });
 
-        // Save Custom Order Changes
-        $(document).on('click', '#saveCustomOrder', function() {
-            const btn = $(this);
-            const form = $('#editCustomOrderForm');
-            
-            // Ensure quote_amount is a valid number
-            const quoteAmount = $('#editQuoteAmount').val();
-            if (quoteAmount !== '') {
-                $('#editQuoteAmount').val(parseFloat(quoteAmount));
-            }
-            
-            const selectedServices = [];
-            if ($('#setup').prop('checked')) selectedServices.push('setup');
-            if ($('#tables').prop('checked')) selectedServices.push('tables');
-            if ($('#decoration').prop('checked')) selectedServices.push('decoration');
-            
-            const formData = new FormData(form[0]);
-            formData.append('services', selectedServices.join(','));
-            
-            // Convert the selectedMenuItems Map to an array of IDs
-            const selectedItemIds = [];
-            selectedMenuItems.forEach(item => {
-                selectedItemIds.push(item.id);
-            });
-            formData.append('selectedItems', JSON.stringify(selectedItemIds));
-            
-            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
-            
-            $.ajax({
-                url: 'admin_update_custom_order.php',
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    if (response === 'success') {
-                        location.reload();
-                    } else {
-                        alert('Error: ' + response);
+        $('#editOrderId').val(orderId);
+        $('#editMenuPreferences').val(preferences);
+        $('#editNumPersons').val(persons);
+        $('#editQuoteAmount').val(amount);
+        $('#editOrderStatus').val(status);
+        $('#editStaffNotes').val(staffNotes);
+
+        $('#setup').prop('checked', services.includes('setup'));
+        $('#tables').prop('checked', services.includes('tables'));
+        $('#decoration').prop('checked', services.includes('decoration'));
+
+        // Load menu items and handle tab show
+        loadMenuItems();
+        
+        // Ensure menu items are reloaded if tab is clicked after initial load
+        $('#menu-tab').off('show.bs.tab').on('show.bs.tab', function() {
+            loadMenuItems();
+        });
+
+        updateCostBreakdown();
+        $('#editCustomOrderModal').modal('show');
+    });
+
+    // Load menu items function
+    function loadMenuItems() {
+        // Show loading status
+        $('#categoryLoadingStatus').removeClass('alert-warning alert-danger').addClass('alert-info')
+            .show().text('Loading menu categories...');
+        
+        // Clear existing items and categories
+        $('#menuCategories').empty();
+        $('#menuItemContent').empty();
+        
+        // Create a copy of the selected items to preserve original selections
+        const tempSelectedItems = new Map(selectedMenuItems);
+        
+        // Load items from database via AJAX
+        $.ajax({
+            url: 'admin_get_menu_items.php',
+            method: 'GET',
+            dataType: 'json',
+            cache: false,
+            success: function(response) {
+                if (response && response.success) {
+                    console.log('Menu items loaded:', response.items.length);
+                    
+                    // Check if we have items
+                    if (response.items.length === 0) {
+                        $('#categoryLoadingStatus').removeClass('alert-info').addClass('alert-warning')
+                            .text('No menu items found. Please add products to your menu first.');
+                        return;
                     }
-                },
-                error: function() {
-                    alert('Failed to save changes. Please try again.');
-                },
-                complete: function() {
-                    btn.prop('disabled', false).text('Save Changes');
+                    
+                    // Group items by category
+                    const items = response.items;
+                    const categories = [...new Set(items.map(item => item.category_name))];
+                    
+                    console.log('Categories found:', categories);
+                    
+                    // First pass: match product IDs to selected items by name
+                    items.forEach(item => {
+                        // If this item's name is in our selected list but has a temp ID, update it
+                        if (tempSelectedItems.has(item.prod_name)) {
+                            const selectedItem = tempSelectedItems.get(item.prod_name);
+                            // Replace temporary name ID with actual product ID
+                            if (typeof selectedItem.id === 'string') {
+                                selectedItem.id = item.product_id;
+                                tempSelectedItems.set(item.prod_name, selectedItem);
+                            }
+                        }
+                    });
+                    
+                    // Update the actual selectedMenuItems map
+                    selectedMenuItems.clear();
+                    tempSelectedItems.forEach((item, key) => {
+                        selectedMenuItems.set(key, item);
+                    });
+                    
+                    // Hide loading message if we have categories
+                    if (categories.length > 0) {
+                        $('#categoryLoadingStatus').hide();
+                    } else {
+                        $('#categoryLoadingStatus').removeClass('alert-info').addClass('alert-warning')
+                            .text('No categories found. Please configure product categories first.');
+                        return;
+                    }
+                    
+                    // Generate category navigation tabs
+                    categories.forEach((category, index) => {
+                        const categoryId = 'category-' + category.toLowerCase().replace(/\s+/g, '-');
+                        const isActive = index === 0 ? 'active' : '';
+                        
+                        $('#menuCategories').append(`
+                            <a class="nav-link ${isActive}" 
+                               id="${categoryId}-tab" 
+                               data-toggle="pill" 
+                               href="#${categoryId}" 
+                               role="tab">
+                                ${category}
+                            </a>
+                        `);
+                        
+                        // Create tab pane for this category
+                        const showActive = index === 0 ? 'show active' : '';
+                        $('#menuItemContent').append(`
+                            <div class="tab-pane fade ${showActive}" 
+                                 id="${categoryId}" 
+                                 role="tabpanel">
+                                <div class="menu-items-grid" data-category="${category}"></div>
+                            </div>
+                        `);
+                    });
+                    
+                    // Apply explicit styling to nav links to ensure visibility
+                    $('#menuCategories .nav-link').css({
+                        'color': '#333',
+                        'background-color': '#f0f0f0',
+                        'margin-right': '5px',
+                        'border-radius': '4px',
+                        'font-weight': '500',
+                        'padding': '8px 15px'
+                    });
+                    
+                    $('#menuCategories .nav-link.active').css({
+                        'color': '#fff',
+                        'background-color': 'var(--accent, #0275d8)'
+                    });
+                    
+                    // Add hover event handlers
+                    $('#menuCategories .nav-link').hover(
+                        function() {
+                            // Mouse enter
+                            if (!$(this).hasClass('active')) {
+                                $(this).css({
+                                    'background-color': '#e0e0e0',
+                                    'color': '#222'
+                                });
+                            }
+                        },
+                        function() {
+                            // Mouse leave
+                            if (!$(this).hasClass('active')) {
+                                $(this).css({
+                                    'background-color': '#f0f0f0',
+                                    'color': '#333'
+                                });
+                            }
+                        }
+                    );
+                    
+                    // Add click handler to properly style active tab
+                    $('#menuCategories .nav-link').on('click', function() {
+                        // Remove active styling from all tabs
+                        $('#menuCategories .nav-link').css({
+                            'color': '#333',
+                            'background-color': '#f0f0f0'
+                        });
+                        
+                        // Add active styling to clicked tab
+                        $(this).css({
+                            'color': '#fff',
+                            'background-color': 'var(--accent, #0275d8)'
+                        });
+                    });
+                    
+                    // Add menu items to their respective category grids
+                    items.forEach(item => {
+                        const categoryId = 'category-' + item.category_name.toLowerCase().replace(/\s+/g, '-');
+                        const grid = $(`#${categoryId} .menu-items-grid`);
+                        const isSelected = selectedMenuItems.has(item.prod_name);
+                        
+                        const itemHtml = `
+                            <div class="card menu-item mb-2 ${isSelected ? 'selected border-primary' : ''}" 
+                                 data-id="${item.product_id}" 
+                                 data-name="${item.prod_name}" 
+                                 data-category="${item.category_name}"
+                                 data-halal="${item.is_halal ? '1' : '0'}">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h6 class="card-title mb-1">${item.prod_name}</h6>
+                                        <span class="badge ${item.is_halal ? 'badge-success' : 'badge-secondary'} ml-2">
+                                            ${item.is_halal ? 'Halal' : 'Non-Halal'}
+                                        </span>
+                                    </div>
+                                    <p class="card-text small mb-2">${item.prod_desc || 'No description available'}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="text-muted">₱${parseFloat(item.prod_price).toFixed(2)}</span>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input menu-item-select" 
+                                                   id="item_${item.product_id}" 
+                                                   ${isSelected ? 'checked' : ''}>
+                                            <label class="custom-control-label" for="item_${item.product_id}">Select</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        grid.append(itemHtml);
+                    });
+
+                    // Update the selected items list
+                    updateSelectedItemsList();
+                    
+                    // Setup search and filter functionality
+                    setupMenuFilters();
+                } else {
+                    // Show error for invalid response
+                    console.error('Invalid response format:', response);
+                    $('#categoryLoadingStatus').removeClass('alert-info').addClass('alert-danger')
+                        .text('Error loading menu items: Invalid server response format');
                 }
+            },
+            error: function(xhr, status, error) {
+                // Handle AJAX error
+                console.error('AJAX error:', xhr.status, status, error);
+                console.log('Response text:', xhr.responseText);
+                
+                let errorMessage = 'Failed to load menu items. ';
+                
+                try {
+                    // Try to parse the error response as JSON
+                    const response = JSON.parse(xhr.responseText);
+                    if (response && response.message) {
+                        errorMessage += response.message;
+                    } else {
+                        errorMessage += 'Server error: ' + error;
+                    }
+                } catch (e) {
+                    // If JSON parsing fails, show the raw response or error
+                    errorMessage += 'Server error: ' + (xhr.responseText || error);
+                }
+                
+                $('#categoryLoadingStatus').removeClass('alert-info').addClass('alert-danger')
+                    .text(errorMessage);
+            }
+        });
+    }
+    
+    // Setup menu search and filter functionality
+    function setupMenuFilters() {
+        const filterMenuItems = function() {
+            const searchText = $('#menuSearchBox').val().toLowerCase();
+            const showHalalOnly = $('#menuHalalOnly').is(':checked');
+            
+            $('.menu-item').each(function() {
+                const $item = $(this);
+                const productName = $item.find('.card-title').text().toLowerCase();
+                const isHalal = $item.data('halal') === 1;
+                
+                const matchesSearch = productName.includes(searchText);
+                const matchesHalal = !showHalalOnly || isHalal;
+                
+                $item.toggle(matchesSearch && matchesHalal);
+            });
+        };
+        
+        // Attach event listeners
+        $('#menuSearchBox').off('keyup').on('keyup', filterMenuItems);
+        $('#menuHalalOnly').off('change').on('change', filterMenuItems);
+    }
+
+    // Handle menu item selection
+    $(document).on('change', '.menu-item-select', function() {
+        const checkbox = $(this);
+        const card = checkbox.closest('.card');
+        const itemId = card.data('id');
+        const itemName = card.data('name');
+        const category = card.data('category');
+        
+        if (checkbox.is(':checked')) {
+            card.addClass('selected border-primary');
+            selectedMenuItems.set(itemName, {
+                id: itemId,
+                name: itemName,
+                category: category
+            });
+        } else {
+            card.removeClass('selected border-primary');
+            selectedMenuItems.delete(itemName);
+        }
+        
+        updateSelectedItemsList();
+    });
+
+    function updateSelectedItemsList() {
+        const list = $('#selectedItemsList');
+        list.empty();
+        
+        if (selectedMenuItems.size === 0) {
+            list.append('<div class="text-muted p-3 text-center">No items selected</div>');
+            return;
+        }
+        
+        const groupedItems = new Map();
+        
+        // Group items by category
+        selectedMenuItems.forEach((item, name) => {
+            if (!groupedItems.has(item.category)) {
+                groupedItems.set(item.category, []);
+            }
+            groupedItems.get(item.category).push({name: name, id: item.id});
+        });
+        
+        // Create a section for each category
+        groupedItems.forEach((items, category) => {
+            list.append(`<div class="list-group-item list-group-item-secondary font-weight-bold">${category}</div>`);
+            
+            items.forEach(item => {
+                list.append(`
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>${item.name}</span>
+                        <button type="button" class="btn btn-sm btn-danger remove-item" data-name="${item.name}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `);
             });
         });
+    }
 
-        // Cost Breakdown Updates
-        $(document).on('change', '#editQuoteAmount, #setup, #tables, #decoration', updateCostBreakdown);
-
-        function updateCostBreakdown() {
-            const baseAmount = parseFloat($('#editQuoteAmount').val()) || 0;
-            const setupCost = $('#setup').is(':checked') ? 2000 : 0;
-            const tablesCost = $('#tables').is(':checked') ? 3500 : 0;
-            const decorationCost = $('#decoration').is(':checked') ? 5000 : 0;
-            const totalAmount = baseAmount + setupCost + tablesCost + decorationCost;
-
-            let breakdown = `<div class="mb-2">Base Amount: ₱${baseAmount.toFixed(2)}</div>`;
-            if (setupCost) breakdown += `<div class="mb-2">Buffet Setup: ₱${setupCost.toFixed(2)}</div>`;
-            if (tablesCost) breakdown += `<div class="mb-2">Tables and Chairs: ₱${tablesCost.toFixed(2)}</div>`;
-            if (decorationCost) breakdown += `<div class="mb-2">Venue Decoration: ₱${decorationCost.toFixed(2)}</div>`;
-
-            $('#costBreakdown').html(breakdown);
-            $('#totalAmount').text(`₱${totalAmount.toFixed(2)}`);
+    // Handle menu item removal from selected items list
+    $(document).on('click', '.remove-item', function() {
+        const itemName = $(this).data('name');
+        const item = selectedMenuItems.get(itemName);
+        if (item) {
+            $(`#item_${item.id}`).prop('checked', false).change();
         }
     });
-    </script>
-</div>
+
+    // Save Custom Order Changes
+    $(document).on('click', '#saveCustomOrder', function() {
+        const btn = $(this);
+        const form = $('#editCustomOrderForm');
+        
+        // Ensure quote_amount is a valid number
+        const quoteAmount = $('#editQuoteAmount').val();
+        if (quoteAmount !== '') {
+            $('#editQuoteAmount').val(parseFloat(quoteAmount));
+        }
+        
+        const selectedServices = [];
+        if ($('#setup').prop('checked')) selectedServices.push('setup');
+        if ($('#tables').prop('checked')) selectedServices.push('tables');
+        if ($('#decoration').prop('checked')) selectedServices.push('decoration');
+        
+        const formData = new FormData(form[0]);
+        formData.append('services', selectedServices.join(','));
+        
+        // Convert the selectedMenuItems Map to an array of IDs
+        const selectedItemIds = [];
+        selectedMenuItems.forEach(item => {
+            selectedItemIds.push(item.id);
+        });
+        formData.append('selectedItems', JSON.stringify(selectedItemIds));
+        
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+        
+        $.ajax({
+            url: 'admin_update_custom_order.php',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response === 'success') {
+                    location.reload();
+                } else {
+                    alert('Error: ' + response);
+                }
+            },
+            error: function() {
+                alert('Failed to save changes. Please try again.');
+            },
+            complete: function() {
+                btn.prop('disabled', false).text('Save Changes');
+            }
+        });
+    });
+
+    // Cost Breakdown Updates
+    $(document).on('change', '#editQuoteAmount, #setup, #tables, #decoration', updateCostBreakdown);
+
+    function updateCostBreakdown() {
+        const baseAmount = parseFloat($('#editQuoteAmount').val()) || 0;
+        const setupCost = $('#setup').is(':checked') ? 2000 : 0;
+        const tablesCost = $('#tables').is(':checked') ? 3500 : 0;
+        const decorationCost = $('#decoration').is(':checked') ? 5000 : 0;
+        const totalAmount = baseAmount + setupCost + tablesCost + decorationCost;
+
+        let breakdown = `<div class="mb-2">Base Amount: ₱${baseAmount.toFixed(2)}</div>`;
+        if (setupCost) breakdown += `<div class="mb-2">Buffet Setup: ₱${setupCost.toFixed(2)}</div>`;
+        if (tablesCost) breakdown += `<div class="mb-2">Tables and Chairs: ₱${tablesCost.toFixed(2)}</div>`;
+        if (decorationCost) breakdown += `<div class="mb-2">Venue Decoration: ₱${decorationCost.toFixed(2)}</div>`;
+
+        $('#costBreakdown').html(breakdown);
+        $('#totalAmount').text(`₱${totalAmount.toFixed(2)}`);
+    }
+
+    // Handle Standard Catering Order Edit
+    $(document).on('click', '.edit-standard-order', function() {
+        console.log('Edit standard order button clicked');
+        const orderId = $(this).data('id');
+        const status = $(this).data('status');
+        const staffNotes = $(this).data('current-notes') || '';
+        const packageType = $(this).data('package') || '';
+        const persons = $(this).data('persons') || '';
+        const eventDate = $(this).data('event-date') || '';
+        const venue = $(this).data('venue') || '';
+        const services = $(this).data('services') ? $(this).data('services').split(',') : [];
+        const specialRequests = $(this).data('notes') || '';
+
+        console.log('Order data:', {
+            orderId, status, packageType, persons, eventDate, venue, services, specialRequests, staffNotes
+        });
+
+        // Clear and reset the form
+        $('#editStandardOrderForm')[0].reset();
+        
+        // Set form values
+        $('#editStandardOrderId').val(orderId);
+        $('#editStandardStatus').val(status);
+        $('#editStandardNotes').val(staffNotes);
+        $('#editStandardPackage').val(packageType);
+        $('#editStandardPersons').val(persons);
+        $('#editStandardEventDate').val(eventDate);
+        $('#editStandardVenue').val(venue);
+        $('#editStandardRequests').val(specialRequests);
+        
+        // Set service checkboxes
+        $('#standardSetup').prop('checked', services.includes('setup'));
+        $('#standardTables').prop('checked', services.includes('tables'));
+        $('#standardDecoration').prop('checked', services.includes('decoration'));
+        
+        // Update cost breakdown
+        setTimeout(updateStandardCostBreakdown, 100);
+        
+        // Show the modal
+        $('#editStandardOrderModal').modal('show');
+    });
+
+    // Update cost breakdown when inputs change
+    $(document).on('change', '#editStandardPackage, #editStandardPersons, #standardSetup, #standardTables, #standardDecoration', updateStandardCostBreakdown);
+    $(document).on('input', '#editStandardPersons', updateStandardCostBreakdown);
+
+    // Calculate standard package costs (client-side estimate)
+    function updateStandardCostBreakdown() {
+        const packageType = $('#editStandardPackage').val();
+        const packageText = $('#editStandardPackage option:selected').text();
+        const numPersons = parseInt($('#editStandardPersons').val()) || 0;
+        const setupCost = $('#standardSetup').is(':checked') ? 2000 : 0;
+        const tablesCost = $('#standardTables').is(':checked') ? 3500 : 0;
+        const decorationCost = $('#standardDecoration').is(':checked') ? 5000 : 0;
+        
+        // Extract rate from the option text (Format: "Package Name (₱XXX.XX per person)")
+        let ratePerPerson = 0;
+        const priceMatch = packageText.match(/₱([\d,]+\.\d+)/);
+        if (priceMatch && priceMatch[1]) {
+            ratePerPerson = parseFloat(priceMatch[1].replace(/,/g, ''));
+        }
+        
+        console.log('Rate extracted from dropdown:', ratePerPerson);
+        
+        // Calculate totals
+        const packageTotal = ratePerPerson * numPersons;
+        const totalAmount = packageTotal + setupCost + tablesCost + decorationCost;
+        
+        console.log('Client-side calculation:', {packageType, ratePerPerson, numPersons, packageTotal, setupCost, tablesCost, decorationCost, totalAmount});
+        
+        // Build breakdown HTML
+        let breakdown = `
+            <div class="mb-2">${packageType}: ₱${ratePerPerson.toFixed(2)} × ${numPersons} persons = ₱${packageTotal.toFixed(2)}</div>
+        `;
+        
+        if (setupCost) breakdown += `<div class="mb-2">Buffet Setup: ₱${setupCost.toFixed(2)}</div>`;
+        if (tablesCost) breakdown += `<div class="mb-2">Tables and Chairs: ₱${tablesCost.toFixed(2)}</div>`;
+        if (decorationCost) breakdown += `<div class="mb-2">Venue Decoration: ₱${decorationCost.toFixed(2)}</div>`;
+        
+        $('#standardCostBreakdown').html(breakdown);
+        $('#standardTotalAmount').text(`₱${totalAmount.toFixed(2)}`);
+        
+        // Note: We don't set standardTotalAmountInput anymore since calculation is done server-side
+    }
+
+    // Save Standard Catering Order Changes
+    $(document).on('click', '#saveStandardOrder', function() {
+        console.log('Save standard order button clicked');
+        const btn = $(this);
+        const form = $('#editStandardOrderForm');
+        
+        // Validate required fields
+        if (!form[0].checkValidity()) {
+            console.log('Form validation failed');
+            form[0].reportValidity();
+            return;
+        }
+        
+        // Collect services
+        const selectedServices = [];
+        if ($('#standardSetup').prop('checked')) selectedServices.push('setup');
+        if ($('#standardTables').prop('checked')) selectedServices.push('tables');
+        if ($('#standardDecoration').prop('checked')) selectedServices.push('decoration');
+        
+        // Create FormData object and append data
+        const formData = new FormData(form[0]);
+        formData.append('services', selectedServices.join(','));
+        
+        // Log the form data before sending
+        console.log('Order ID:', $('#editStandardOrderId').val());
+        console.log('Package:', $('#editStandardPackage').val());
+        console.log('Persons:', $('#editStandardPersons').val());
+        console.log('Event Date:', $('#editStandardEventDate').val());
+        console.log('Venue:', $('#editStandardVenue').val());
+        console.log('Status:', $('#editStandardStatus').val());
+        console.log('Services:', selectedServices);
+        
+        // Set button to loading state
+        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+        
+        // Send AJAX request
+        $.ajax({
+            url: 'admin_update_standard_order.php',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                console.log('Server response:', response);
+                if (response === 'success') {
+                    location.reload();
+                } else {
+                    alert('Error: ' + response);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX error:', error);
+                console.error('Status:', status);
+                console.error('Response:', xhr.responseText);
+                alert('Failed to save changes. Please try again. Error: ' + (xhr.responseText || error));
+            },
+            complete: function() {
+                btn.prop('disabled', false).text('Save Changes');
+            }
+        });
+    });
+
+    // Trigger calculation updates when inputs change
+    $('#editStandardPackage, #editStandardPersons').on('change input', function() {
+        updateStandardCostBreakdown();
+    });
+    
+    $('#standardSetup, #standardTables, #standardDecoration').on('change', function() {
+        updateStandardCostBreakdown();
+    });
+});
+</script>
