@@ -12,7 +12,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $order_id = $_POST['custom_order_id'] ?? null;
     $menu_preferences = $_POST['menu_preferences'] ?? '';
     $num_persons = $_POST['num_persons'] ?? 0;
-    $quote_amount = $_POST['quote_amount'] ?? null;
+    $quote_amount = isset($_POST['quote_amount']) && $_POST['quote_amount'] !== '' ? floatval($_POST['quote_amount']) : 0;
+    $status = $_POST['status'] ?? 'pending';
+    $staff_notes = $_POST['staff_notes'] ?? '';
     
     // Decode selected menu items
     $selectedItems = isset($_POST['selectedItems']) ? json_decode($_POST['selectedItems'], true) : [];
@@ -23,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $needs_decoration = in_array('decoration', $services) ? 1 : 0;
 
     // Calculate total amount including additional services
-    $total_amount = $quote_amount;
+    $total_amount = floatval($quote_amount);
     if ($needs_setup) $total_amount += 2000;
     if ($needs_tablesandchairs) $total_amount += 3500;
     if ($needs_decoration) $total_amount += 5000;
@@ -37,17 +39,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                       quote_amount = ?,
                       needs_setup = ?,
                       needs_tablesandchairs = ?,
-                      needs_decoration = ?
+                      needs_decoration = ?,
+                      status = ?,
+                      staff_notes = ?
                   WHERE custom_order_id = ?";
 
         $stmt = mysqli_prepare($dbc, $query);
-        mysqli_stmt_bind_param($stmt, 'sidiiis', 
+        mysqli_stmt_bind_param($stmt, 'sidiiissi', 
             $menu_preferences,
             $num_persons,
             $quote_amount,
             $needs_setup,
             $needs_tablesandchairs,
             $needs_decoration,
+            $status,
+            $staff_notes,
             $order_id
         );
 

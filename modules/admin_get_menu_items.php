@@ -2,6 +2,9 @@
 require_once __DIR__ . '/../config.php';
 session_start();
 
+// Set proper content type for JSON response
+header('Content-Type: application/json');
+
 if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
@@ -11,6 +14,11 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
 include("dbconi.php");
 
 try {
+    // Ensure database connection is valid
+    if (!$dbc) {
+        throw new Exception("Database connection failed: " . mysqli_connect_error());
+    }
+
     // Get all menu items with their categories and halal status
     $query = "SELECT p.product_id, p.prod_name, p.prod_desc, p.prod_price, c.category_name,
               CASE WHEN EXISTS (
@@ -20,7 +28,6 @@ try {
               ) THEN 0 ELSE 1 END as is_halal
               FROM products p
               JOIN categories c ON p.prod_cat_id = c.category_id
-              WHERE c.category_name IN ('Main Dishes', 'Sides', 'Desserts', 'Beverages')
               ORDER BY c.category_id, p.prod_name";
 
     $result = mysqli_query($dbc, $query);
@@ -41,9 +48,18 @@ try {
         ];
     }
 
+    // Make sure we have a clean output buffer before sending JSON
+    if (ob_get_length()) ob_clean();
+    
     echo json_encode(['success' => true, 'items' => $items]);
 
 } catch (Exception $e) {
+    // Log the error for server-side debugging
+    error_log("Error in admin_get_menu_items.php: " . $e->getMessage());
+    
+    // Clear output buffer if there's anything
+    if (ob_get_length()) ob_clean();
+    
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

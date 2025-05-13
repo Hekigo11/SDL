@@ -206,6 +206,29 @@ function getStatusDisplay($status) {
     .remove-item i {
         font-size: 0.875rem;
     }
+    /* Menu Items Tab Styling */
+    #menuItemsContainer .nav-pills .nav-link {
+        color: #333;
+        background-color: #f0f0f0;
+        margin-right: 5px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    #menuItemsContainer .nav-pills .nav-link:hover,
+    #menuItemsContainer .nav-pills .nav-link.active {
+        color: #fff;
+        background-color: var(--accent, #0275d8);
+    }
+    #menuItemsContainer .menu-item {
+        transition: all 0.2s ease;
+    }
+    #menuItemsContainer .menu-item:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    #menuItemsContainer .menu-item.selected {
+        box-shadow: 0 2px 8px rgba(0,123,255,0.25);
+    }
 </style>
 
 <div class="container-fluid">
@@ -559,6 +582,8 @@ function getStatusDisplay($status) {
                                             <?php if ($row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
                                                 <button class="btn btn-sm btn-primary edit-custom-order"
                                                         data-id="<?php echo $row['custom_order_id']; ?>"
+                                                        data-status="<?php echo $row['status']; ?>"
+                                                        data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>"
                                                         data-items="<?php echo htmlspecialchars($row['selected_items'] ?? ''); ?>"
                                                         data-amount="<?php echo $row['quote_amount'] ?? ''; ?>"
                                                         data-services="<?php 
@@ -572,16 +597,8 @@ function getStatusDisplay($status) {
                                                         data-persons="<?php echo $row['num_persons']; ?>"
                                                         data-special-requests="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
                                                         data-event-date="<?php echo $row['event_date']; ?>"
-                                                        data-venue="<?php echo htmlspecialchars($row['venue']); ?>"
-                                                        data-status="<?php echo $row['status']; ?>">
-                                                    <i class="fas fa-edit"></i> Edit Details
-                                                </button>
-                                                <button class="btn btn-sm btn-primary update-status"
-                                                        data-id="<?php echo $row['custom_order_id']; ?>"
-                                                        data-type="custom"
-                                                        data-current-status="<?php echo $row['status']; ?>"
-                                                        data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>">
-                                                    <i class="fas fa-edit"></i>
+                                                        data-venue="<?php echo htmlspecialchars($row['venue']); ?>">
+                                                    <i class="fas fa-edit"></i> Edit Order
                                                 </button>
                                             <?php endif; ?>
                                         </div>
@@ -799,6 +816,21 @@ function getStatusDisplay($status) {
                                 </div>
 
                                 <div class="form-group">
+                                    <label>Status</label>
+                                    <select class="form-control" name="status" id="editOrderStatus">
+                                        <option value="pending">Pending</option>
+                                        <option value="confirmed">Confirmed</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Staff Notes</label>
+                                    <textarea class="form-control" name="staff_notes" id="editStaffNotes" rows="3"></textarea>
+                                </div>
+
+                                <div class="form-group">
                                     <label>Additional Services</label>
                                     <div class="custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input" id="setup" name="needs_setup">
@@ -829,44 +861,32 @@ function getStatusDisplay($status) {
                         <!-- Menu Items Tab -->
                         <div class="tab-pane fade" id="menuTab" role="tabpanel">
                             <div id="menuItemsContainer">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="menuHalalOnly">
+                                        <label class="custom-control-label" for="menuHalalOnly">Show Halal Items Only</label>
+                                    </div>
+                                    <div class="form-group mb-0">
+                                        <input type="text" class="form-control" id="menuSearchBox" placeholder="Search menu items...">
+                                    </div>
+                                </div>
+                                
+                                <div id="categoryLoadingStatus" class="alert alert-info mb-3">Loading menu categories...</div>
+                                
                                 <nav>
-                                    <div class="nav nav-pills" id="menuCategories" role="tablist">
-                                        <a class="nav-link active" id="main-dishes-tab" data-toggle="pill" href="#mainDishes" role="tab">Main Dishes</a>
-                                        <a class="nav-link" id="sides-tab" data-toggle="pill" href="#sides" role="tab">Sides</a>
-                                        <a class="nav-link" id="desserts-tab" data-toggle="pill" href="#desserts" role="tab">Desserts</a>
-                                        <a class="nav-link" id="beverages-tab" data-toggle="pill" href="#beverages" role="tab">Beverages</a>
+                                    <div class="nav nav-pills mb-3" id="menuCategories" role="tablist">
+                                        <!-- Categories will be loaded dynamically -->
                                     </div>
                                 </nav>
 
                                 <div class="tab-content mt-3" id="menuItemContent">
-                                    <div class="tab-pane fade show active" id="mainDishes" role="tabpanel">
-                                        <div class="menu-items-grid" data-category="Main Dishes">
-                                            <!-- Menu items will be loaded here -->
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane fade" id="sides" role="tabpanel">
-                                        <div class="menu-items-grid" data-category="Sides">
-                                            <!-- Menu items will be loaded here -->
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane fade" id="desserts" role="tabpanel">
-                                        <div class="menu-items-grid" data-category="Desserts">
-                                            <!-- Menu items will be loaded here -->
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane fade" id="beverages" role="tabpanel">
-                                        <div class="menu-items-grid" data-category="Beverages">
-                                            <!-- Menu items will be loaded here -->
-                                        </div>
-                                    </div>
+                                    <!-- Menu content will be loaded dynamically -->
                                 </div>
 
-                                <div class="selected-items-summary mt-3">
-                                    <h6>Selected Items:</h6>
-                                    <div id="selectedItemsList" class="list-group">
-                                        <!-- Selected items will be listed here -->
-                                    </div>
-                                </div>
+                                <hr class="my-4">
+
+                                <h5 class="mb-3">Selected Items:</h5>
+                                <div id="selectedItemsList" class="list-group mb-3"></div>
                             </div>
                         </div>
                     </div>
@@ -1040,55 +1060,297 @@ function getStatusDisplay($status) {
         // Initialize menu item management
         let selectedMenuItems = new Map(); // Map to store selected items
 
-        // Load menu items when menu tab is shown
-        $('#menu-tab').on('show.bs.tab', function() {
+        // Edit Custom Order
+        $(document).on('click', '.edit-custom-order', function() {
+            const orderId = $(this).data('id');
+            const preferences = $(this).data('preferences');
+            const persons = $(this).data('persons');
+            const amount = $(this).data('amount');
+            const services = $(this).data('services') ? $(this).data('services').split(',') : [];
+            const items = $(this).data('items') ? $(this).data('items').split(',') : [];
+            const specialRequests = $(this).data('special-requests');
+            const eventDate = $(this).data('event-date');
+            const venue = $(this).data('venue');
+            const status = $(this).data('status');
+            const staffNotes = $(this).data('current-notes');
+
+            // Reset selected items
+            selectedMenuItems.clear();
+            
+            // Process selected items
+            items.forEach(item => {
+                const parts = item.split(': ');
+                if (parts.length === 2) { // Only add if valid format (category: name)
+                    const category = parts[0].trim();
+                    const name = parts[1].trim();
+                    // Store temporarily with category information
+                    selectedMenuItems.set(name, {
+                        id: name, // Will be replaced with actual ID when items are loaded
+                        name: name,
+                        category: category
+                    });
+                }
+            });
+
+            $('#editOrderId').val(orderId);
+            $('#editMenuPreferences').val(preferences);
+            $('#editNumPersons').val(persons);
+            $('#editQuoteAmount').val(amount);
+            $('#editOrderStatus').val(status);
+            $('#editStaffNotes').val(staffNotes);
+
+            $('#setup').prop('checked', services.includes('setup'));
+            $('#tables').prop('checked', services.includes('tables'));
+            $('#decoration').prop('checked', services.includes('decoration'));
+
+            // Load menu items and handle tab show
             loadMenuItems();
+            
+            // Ensure menu items are reloaded if tab is clicked after initial load
+            $('#menu-tab').off('show.bs.tab').on('show.bs.tab', function() {
+                loadMenuItems();
+            });
+
+            updateCostBreakdown();
+            $('#editCustomOrderModal').modal('show');
         });
 
+        // Load menu items function
         function loadMenuItems() {
-            const container = $('#menuItemContent');
+            // Show loading status
+            $('#categoryLoadingStatus').removeClass('alert-warning alert-danger').addClass('alert-info')
+                .show().text('Loading menu categories...');
             
-            // Clear existing items
-            $('.menu-items-grid').empty();
+            // Clear existing items and categories
+            $('#menuCategories').empty();
+            $('#menuItemContent').empty();
+            
+            // Create a copy of the selected items to preserve original selections
+            const tempSelectedItems = new Map(selectedMenuItems);
             
             // Load items from database via AJAX
-            $.get('admin_get_menu_items.php', function(response) {
-                if (response.success) {
-                    // Group items by category
-                    const items = response.items;
-                    items.forEach(item => {
-                        const grid = $(`.menu-items-grid[data-category="${item.category_name}"]`);
-                        const isSelected = selectedMenuItems.has(item.product_id);
+            $.ajax({
+                url: 'admin_get_menu_items.php',
+                method: 'GET',
+                dataType: 'json',
+                cache: false,
+                success: function(response) {
+                    if (response && response.success) {
+                        console.log('Menu items loaded:', response.items.length);
                         
-                        const itemHtml = `
-                            <div class="card menu-item mb-3 ${isSelected ? 'selected' : ''}" data-id="${item.product_id}">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <h6 class="card-title mb-1">${item.prod_name}</h6>
-                                        <span class="badge ${item.is_halal ? 'badge-success' : 'badge-danger'} ml-2">
-                                            ${item.is_halal ? 'Halal' : 'Non-Halal'}
-                                        </span>
-                                    </div>
-                                    <p class="card-text small mb-2">${item.prod_desc}</p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="text-muted">₱${parseFloat(item.prod_price).toFixed(2)}</span>
-                                        <div class="custom-control custom-checkbox">
-                                            <input type="checkbox" class="custom-control-input menu-item-select" 
-                                                   id="item_${item.product_id}" 
-                                                   ${isSelected ? 'checked' : ''}>
-                                            <label class="custom-control-label" for="item_${item.product_id}">Select</label>
+                        // Check if we have items
+                        if (response.items.length === 0) {
+                            $('#categoryLoadingStatus').removeClass('alert-info').addClass('alert-warning')
+                                .text('No menu items found. Please add products to your menu first.');
+                            return;
+                        }
+                        
+                        // Group items by category
+                        const items = response.items;
+                        const categories = [...new Set(items.map(item => item.category_name))];
+                        
+                        console.log('Categories found:', categories);
+                        
+                        // First pass: match product IDs to selected items by name
+                        items.forEach(item => {
+                            // If this item's name is in our selected list but has a temp ID, update it
+                            if (tempSelectedItems.has(item.prod_name)) {
+                                const selectedItem = tempSelectedItems.get(item.prod_name);
+                                // Replace temporary name ID with actual product ID
+                                if (typeof selectedItem.id === 'string') {
+                                    selectedItem.id = item.product_id;
+                                    tempSelectedItems.set(item.prod_name, selectedItem);
+                                }
+                            }
+                        });
+                        
+                        // Update the actual selectedMenuItems map
+                        selectedMenuItems.clear();
+                        tempSelectedItems.forEach((item, key) => {
+                            selectedMenuItems.set(key, item);
+                        });
+                        
+                        // Hide loading message if we have categories
+                        if (categories.length > 0) {
+                            $('#categoryLoadingStatus').hide();
+                        } else {
+                            $('#categoryLoadingStatus').removeClass('alert-info').addClass('alert-warning')
+                                .text('No categories found. Please configure product categories first.');
+                            return;
+                        }
+                        
+                        // Generate category navigation tabs
+                        categories.forEach((category, index) => {
+                            const categoryId = 'category-' + category.toLowerCase().replace(/\s+/g, '-');
+                            const isActive = index === 0 ? 'active' : '';
+                            
+                            $('#menuCategories').append(`
+                                <a class="nav-link ${isActive}" 
+                                   id="${categoryId}-tab" 
+                                   data-toggle="pill" 
+                                   href="#${categoryId}" 
+                                   role="tab">
+                                    ${category}
+                                </a>
+                            `);
+                            
+                            // Create tab pane for this category
+                            const showActive = index === 0 ? 'show active' : '';
+                            $('#menuItemContent').append(`
+                                <div class="tab-pane fade ${showActive}" 
+                                     id="${categoryId}" 
+                                     role="tabpanel">
+                                    <div class="menu-items-grid" data-category="${category}"></div>
+                                </div>
+                            `);
+                        });
+                        
+                        // Apply explicit styling to nav links to ensure visibility
+                        $('#menuCategories .nav-link').css({
+                            'color': '#333',
+                            'background-color': '#f0f0f0',
+                            'margin-right': '5px',
+                            'border-radius': '4px',
+                            'font-weight': '500',
+                            'padding': '8px 15px'
+                        });
+                        
+                        $('#menuCategories .nav-link.active').css({
+                            'color': '#fff',
+                            'background-color': 'var(--accent, #0275d8)'
+                        });
+                        
+                        // Add hover event handlers
+                        $('#menuCategories .nav-link').hover(
+                            function() {
+                                // Mouse enter
+                                if (!$(this).hasClass('active')) {
+                                    $(this).css({
+                                        'background-color': '#e0e0e0',
+                                        'color': '#222'
+                                    });
+                                }
+                            },
+                            function() {
+                                // Mouse leave
+                                if (!$(this).hasClass('active')) {
+                                    $(this).css({
+                                        'background-color': '#f0f0f0',
+                                        'color': '#333'
+                                    });
+                                }
+                            }
+                        );
+                        
+                        // Add click handler to properly style active tab
+                        $('#menuCategories .nav-link').on('click', function() {
+                            // Remove active styling from all tabs
+                            $('#menuCategories .nav-link').css({
+                                'color': '#333',
+                                'background-color': '#f0f0f0'
+                            });
+                            
+                            // Add active styling to clicked tab
+                            $(this).css({
+                                'color': '#fff',
+                                'background-color': 'var(--accent, #0275d8)'
+                            });
+                        });
+                        
+                        // Add menu items to their respective category grids
+                        items.forEach(item => {
+                            const categoryId = 'category-' + item.category_name.toLowerCase().replace(/\s+/g, '-');
+                            const grid = $(`#${categoryId} .menu-items-grid`);
+                            const isSelected = selectedMenuItems.has(item.prod_name);
+                            
+                            const itemHtml = `
+                                <div class="card menu-item mb-2 ${isSelected ? 'selected border-primary' : ''}" 
+                                     data-id="${item.product_id}" 
+                                     data-name="${item.prod_name}" 
+                                     data-category="${item.category_name}"
+                                     data-halal="${item.is_halal ? '1' : '0'}">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <h6 class="card-title mb-1">${item.prod_name}</h6>
+                                            <span class="badge ${item.is_halal ? 'badge-success' : 'badge-secondary'} ml-2">
+                                                ${item.is_halal ? 'Halal' : 'Non-Halal'}
+                                            </span>
+                                        </div>
+                                        <p class="card-text small mb-2">${item.prod_desc || 'No description available'}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-muted">₱${parseFloat(item.prod_price).toFixed(2)}</span>
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input menu-item-select" 
+                                                       id="item_${item.product_id}" 
+                                                       ${isSelected ? 'checked' : ''}>
+                                                <label class="custom-control-label" for="item_${item.product_id}">Select</label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        `;
-                        grid.append(itemHtml);
-                    });
+                            `;
+                            grid.append(itemHtml);
+                        });
 
-                    // Restore selected items if any
-                    updateSelectedItemsList();
+                        // Update the selected items list
+                        updateSelectedItemsList();
+                        
+                        // Setup search and filter functionality
+                        setupMenuFilters();
+                    } else {
+                        // Show error for invalid response
+                        console.error('Invalid response format:', response);
+                        $('#categoryLoadingStatus').removeClass('alert-info').addClass('alert-danger')
+                            .text('Error loading menu items: Invalid server response format');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    // Handle AJAX error
+                    console.error('AJAX error:', xhr.status, status, error);
+                    console.log('Response text:', xhr.responseText);
+                    
+                    let errorMessage = 'Failed to load menu items. ';
+                    
+                    try {
+                        // Try to parse the error response as JSON
+                        const response = JSON.parse(xhr.responseText);
+                        if (response && response.message) {
+                            errorMessage += response.message;
+                        } else {
+                            errorMessage += 'Server error: ' + error;
+                        }
+                    } catch (e) {
+                        // If JSON parsing fails, show the raw response or error
+                        errorMessage += 'Server error: ' + (xhr.responseText || error);
+                    }
+                    
+                    $('#categoryLoadingStatus').removeClass('alert-info').addClass('alert-danger')
+                        .text(errorMessage);
                 }
             });
+        }
+        
+        // Setup menu search and filter functionality
+        function setupMenuFilters() {
+            const filterMenuItems = function() {
+                const searchText = $('#menuSearchBox').val().toLowerCase();
+                const showHalalOnly = $('#menuHalalOnly').is(':checked');
+                
+                $('.menu-item').each(function() {
+                    const $item = $(this);
+                    const productName = $item.find('.card-title').text().toLowerCase();
+                    const isHalal = $item.data('halal') === 1;
+                    
+                    const matchesSearch = productName.includes(searchText);
+                    const matchesHalal = !showHalalOnly || isHalal;
+                    
+                    $item.toggle(matchesSearch && matchesHalal);
+                });
+            };
+            
+            // Attach event listeners
+            $('#menuSearchBox').off('keyup').on('keyup', filterMenuItems);
+            $('#menuHalalOnly').off('change').on('change', filterMenuItems);
         }
 
         // Handle menu item selection
@@ -1096,14 +1358,19 @@ function getStatusDisplay($status) {
             const checkbox = $(this);
             const card = checkbox.closest('.card');
             const itemId = card.data('id');
-            const itemName = card.find('.card-title').text();
+            const itemName = card.data('name');
+            const category = card.data('category');
             
             if (checkbox.is(':checked')) {
-                card.addClass('selected');
-                selectedMenuItems.set(itemId, itemName);
+                card.addClass('selected border-primary');
+                selectedMenuItems.set(itemName, {
+                    id: itemId,
+                    name: itemName,
+                    category: category
+                });
             } else {
-                card.removeClass('selected');
-                selectedMenuItems.delete(itemId);
+                card.removeClass('selected border-primary');
+                selectedMenuItems.delete(itemName);
             }
             
             updateSelectedItemsList();
@@ -1114,65 +1381,56 @@ function getStatusDisplay($status) {
             list.empty();
             
             if (selectedMenuItems.size === 0) {
-                list.append('<div class="text-muted">No items selected</div>');
+                list.append('<div class="text-muted p-3 text-center">No items selected</div>');
                 return;
             }
             
-            selectedMenuItems.forEach((name, id) => {
-                list.append(`
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>${name}</span>
-                        <button type="button" class="btn btn-sm btn-danger remove-item" data-id="${id}">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                `);
+            const groupedItems = new Map();
+            
+            // Group items by category
+            selectedMenuItems.forEach((item, name) => {
+                if (!groupedItems.has(item.category)) {
+                    groupedItems.set(item.category, []);
+                }
+                groupedItems.get(item.category).push({name: name, id: item.id});
+            });
+            
+            // Create a section for each category
+            groupedItems.forEach((items, category) => {
+                list.append(`<div class="list-group-item list-group-item-secondary font-weight-bold">${category}</div>`);
+                
+                items.forEach(item => {
+                    list.append(`
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>${item.name}</span>
+                            <button type="button" class="btn btn-sm btn-danger remove-item" data-name="${item.name}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `);
+                });
             });
         }
 
         // Handle menu item removal from selected items list
         $(document).on('click', '.remove-item', function() {
-            const itemId = $(this).data('id');
-            $(`#item_${itemId}`).prop('checked', false).trigger('change');
-        });
-
-        // Edit Custom Order
-        $(document).on('click', '.edit-custom-order', function() {
-            const orderId = $(this).data('id');
-            const preferences = $(this).data('preferences');
-            const persons = $(this).data('persons');
-            const amount = $(this).data('amount');
-            const services = $(this).data('services') ? $(this).data('services').split(',') : [];
-            const items = $(this).data('items') ? $(this).data('items').split(',') : [];
-
-            // Reset selected items
-            selectedMenuItems.clear();
-            
-            // Process selected items
-            items.forEach(item => {
-                const [category, name] = item.split(': ');
-                if (name) { // Only add if name exists (valid format)
-                    selectedMenuItems.set(name.trim(), name.trim()); // Using name as ID temporarily
-                }
-            });
-
-            $('#editOrderId').val(orderId);
-            $('#editMenuPreferences').val(preferences);
-            $('#editNumPersons').val(persons);
-            $('#editQuoteAmount').val(amount);
-
-            $('#setup').prop('checked', services.includes('setup'));
-            $('#tables').prop('checked', services.includes('tables'));
-            $('#decoration').prop('checked', services.includes('decoration'));
-
-            updateCostBreakdown();
-            $('#editCustomOrderModal').modal('show');
+            const itemName = $(this).data('name');
+            const item = selectedMenuItems.get(itemName);
+            if (item) {
+                $(`#item_${item.id}`).prop('checked', false).change();
+            }
         });
 
         // Save Custom Order Changes
         $(document).on('click', '#saveCustomOrder', function() {
             const btn = $(this);
             const form = $('#editCustomOrderForm');
+            
+            // Ensure quote_amount is a valid number
+            const quoteAmount = $('#editQuoteAmount').val();
+            if (quoteAmount !== '') {
+                $('#editQuoteAmount').val(parseFloat(quoteAmount));
+            }
             
             const selectedServices = [];
             if ($('#setup').prop('checked')) selectedServices.push('setup');
@@ -1181,7 +1439,13 @@ function getStatusDisplay($status) {
             
             const formData = new FormData(form[0]);
             formData.append('services', selectedServices.join(','));
-            formData.append('selectedItems', JSON.stringify(Array.from(selectedMenuItems.keys())));
+            
+            // Convert the selectedMenuItems Map to an array of IDs
+            const selectedItemIds = [];
+            selectedMenuItems.forEach(item => {
+                selectedItemIds.push(item.id);
+            });
+            formData.append('selectedItems', JSON.stringify(selectedItemIds));
             
             btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
             
