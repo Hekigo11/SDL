@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: May 11, 2025 at 09:08 AM
+-- Generation Time: May 13, 2025 at 12:18 PM
 -- Server version: 9.1.0
 -- PHP Version: 8.3.14
 
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS `address` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`address_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4  ;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `address`
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `categories` (
   `category_id` int NOT NULL AUTO_INCREMENT,
   `category_name` varchar(255) NOT NULL,
   PRIMARY KEY (`category_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4  ;
+) ENGINE=MyISAM AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `categories`
@@ -128,44 +128,121 @@ CREATE TABLE IF NOT EXISTS `catering_orders` (
   `total_amount` decimal(10,2) NOT NULL,
   `payment_method` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'pending',
+  `staff_notes` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`catering_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4  ;
+) ENGINE=MyISAM AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `catering_orders`
 --
 
-INSERT INTO `catering_orders` (`catering_id`, `user_id`, `full_name`, `phone`, `email`, `event_date`, `num_persons`, `venue`, `occasion`, `needs_tablesandchairs`, `needs_setup`, `needs_decoration`, `menu_package`, `special_requests`, `total_amount`, `payment_method`, `status`, `created_at`) VALUES
-(1, 10, 'Jasper Sergio', '09288231320', '', '2025-05-17 02:30:00', 20, '112\r\n12he', 'asd', 0, '0', 1, '', '', 3500.00, 'pending', 'pending', '2025-05-05 03:05:18'),
-(2, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 14:30:00', 20, '112\r\n12he', 'bday', 1, '0', 0, '', '', 2000.00, 'pending', 'pending', '2025-05-05 03:14:08'),
-(3, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 13:30:00', 20, '112\r\n12he', 'bday', 0, NULL, 0, '0', 'something', 2000.00, 'pending', 'pending', '2025-05-05 03:19:50'),
-(4, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 14:00:00', 20, '112\r\n12he', 'bday', 1, NULL, 1, '0', '', 15500.00, 'pending', 'pending', '2025-05-05 03:25:34'),
-(5, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 11:31:00', 20, '112\r\n12he', 'asd', 0, NULL, 0, '0', '', 7000.00, 'pending', 'pending', '2025-05-05 03:31:57'),
-(6, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 13:45:00', 20, '112\r\n12he', 'asd', 0, '1', 0, '0', 'asd', 15000.00, 'pending', 'pending', '2025-05-05 03:41:33'),
-(7, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 14:50:00', 32, '12he', 'asd', 0, '1', 0, 'Basic Filipino Package', '', 10000.00, 'cash', 'pending', '2025-05-05 03:45:23'),
-(8, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-05 14:30:00', 10, '112\r\n12he', 'asd', 0, '1', 0, 'Basic Filipino Package', 'aaa', 4500.00, 'cash', 'pending', '2025-05-05 04:15:54'),
-(9, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-05 14:30:00', 10, '112\r\n12he', 'asd', 0, '1', 0, 'Basic Filipino Package', 'aaa', 4500.00, 'cash', 'pending', '2025-05-05 04:18:01'),
-(10, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-05 14:40:00', 10, '112\r\n12he', 'bday', 1, '1', 1, 'Premium Filipino Package', 'helo', 15000.00, 'gcash', 'pending', '2025-05-05 04:32:07'),
-(11, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-05 20:00:00', 10, '112\r\n12he', 'bday', 1, '1', 1, 'Basic Filipino Package', '', 13000.00, 'cash', 'pending', '2025-05-05 11:59:22'),
-(12, 10, 'Jasper Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-05 12:26:00', 50, 'das', 'asd', 1, '1', 1, 'Basic Filipino Package', '', 23000.00, 'cash', 'pending', '2025-05-05 14:26:15'),
-(13, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-08 22:47:00', 50, 'asd', 'asd', 0, '1', 0, 'Basic Filipino Package', 'asd', 14500.00, 'cash', 'pending', '2025-05-05 14:47:39'),
-(14, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-19 22:52:00', 100, 'das', 'das', 0, '0', 0, 'Premium Filipino Package', '', 45000.00, 'cash', 'pending', '2025-05-05 14:53:09'),
-(15, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-08 23:03:00', 50, 'asd', 'ads', 0, '1', 0, 'Basic Filipino Package', '', 14500.00, 'cash', 'pending', '2025-05-05 15:03:24'),
-(16, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-16 11:00:00', 50, 'wqe', 'qwe', 0, '0', 1, 'Custom Package', 'qwe', 5000.00, 'cash', 'custom_pending', '2025-05-10 12:20:05'),
-(17, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd', 'asd', 0, '0', 0, 'Premium Filipino Package', '', 22500.00, 'cash', 'pending', '2025-05-10 13:13:07'),
-(18, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'qs qs, qs, qs, qs qs (asd)', 'asd', 0, '0', 0, 'Basic Filipino Package', '', 12500.00, 'cash', 'pending', '2025-05-10 13:21:39'),
-(19, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'ads', 0, '0', 0, 'Basic Filipino Package', '', 12500.00, 'cash', 'pending', '2025-05-10 13:54:13'),
-(20, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'asd', 0, '1', 0, 'Executive Package', 'asd', 34500.00, 'cash', 'pending', '2025-05-10 13:59:31'),
-(21, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'asd', 0, '1', 0, 'Basic Filipino Package', '', 14500.00, 'cash', 'pending', '2025-05-10 14:06:03'),
-(22, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'asd', 0, '1', 0, 'Executive Package', '', 34500.00, 'cash', 'pending', '2025-05-10 14:09:37'),
-(23, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 11:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'asd', 1, '0', 0, 'Basic Filipino Package', 'asd', 16000.00, 'cash', 'pending', '2025-05-10 14:17:30'),
-(24, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'c', 1, '0', 0, 'Basic Filipino Package', 'asd', 16000.00, 'cash', 'pending', '2025-05-10 14:28:40'),
-(25, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd, asd, asd, asd, asd (asd)', 'asd', 0, '1', 0, '0', 'asd', 14500.00, 'cash', 'pending', '2025-05-10 15:52:20'),
-(26, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'WA, WA, WA, WA, AW (AW)', 'AW', 0, '1', 0, '0', 'ASD', 14500.00, 'cash', 'pending', '2025-05-10 15:55:44'),
-(27, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd, asd, asd, asd, asd (asd)', 'asd', 0, '1', 0, '0', 'asd', 14500.00, 'cash', 'pending', '2025-05-10 16:03:49'),
-(28, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 17:00:00', 50, 'df, gdfs, dw, dfg, asd (asd)', 'asd', 0, '1', 0, '0', 'sad', 14500.00, 'cash', 'pending', '2025-05-10 16:07:35');
+INSERT INTO `catering_orders` (`catering_id`, `user_id`, `full_name`, `phone`, `email`, `event_date`, `num_persons`, `venue`, `occasion`, `needs_tablesandchairs`, `needs_setup`, `needs_decoration`, `menu_package`, `special_requests`, `total_amount`, `payment_method`, `status`, `staff_notes`, `created_at`) VALUES
+(1, 10, 'Jasper Sergio', '09288231320', '', '2025-05-17 02:30:00', 20, '112\r\n12he', 'asd', 0, '0', 1, '', '', 3500.00, 'pending', 'pending', '', '2025-05-05 03:05:18'),
+(2, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 14:30:00', 20, '112\r\n12he', 'bday', 1, '0', 0, '', '', 2000.00, 'pending', 'pending', '', '2025-05-05 03:14:08'),
+(3, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 13:30:00', 20, '112\r\n12he', 'bday', 0, NULL, 0, '0', 'something', 2000.00, 'pending', 'pending', '', '2025-05-05 03:19:50'),
+(4, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 14:00:00', 20, '112\r\n12he', 'bday', 1, NULL, 1, '0', '', 15500.00, 'pending', 'pending', '', '2025-05-05 03:25:34'),
+(5, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 11:31:00', 20, '112\r\n12he', 'asd', 0, NULL, 0, '0', '', 7000.00, 'pending', 'pending', '', '2025-05-05 03:31:57'),
+(6, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 13:45:00', 20, '112\r\n12he', 'asd', 0, '1', 0, '0', 'asd', 15000.00, 'pending', 'pending', '', '2025-05-05 03:41:33'),
+(7, 10, 'Jasper Sergio', '09288231320', '', '2025-05-05 14:50:00', 32, '12he', 'asd', 0, '1', 0, 'Basic Filipino Package', '', 10000.00, 'cash', 'pending', '', '2025-05-05 03:45:23'),
+(8, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-05 14:30:00', 10, '112\r\n12he', 'asd', 0, '1', 0, 'Basic Filipino Package', 'aaa', 4500.00, 'cash', 'pending', '', '2025-05-05 04:15:54'),
+(9, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-05 14:30:00', 10, '112\r\n12he', 'asd', 0, '1', 0, 'Basic Filipino Package', 'aaa', 4500.00, 'cash', 'pending', '', '2025-05-05 04:18:01'),
+(10, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-05 14:40:00', 10, '112\r\n12he', 'bday', 1, '1', 1, 'Premium Filipino Package', 'helo', 15000.00, 'gcash', 'pending', '', '2025-05-05 04:32:07'),
+(11, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-05 20:00:00', 10, '112\r\n12he', 'bday', 1, '1', 1, 'Basic Filipino Package', '', 13000.00, 'cash', 'pending', '', '2025-05-05 11:59:22'),
+(12, 10, 'Jasper Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-05 12:26:00', 50, 'das', 'asd', 1, '1', 1, 'Basic Filipino Package', '', 23000.00, 'cash', 'pending', '', '2025-05-05 14:26:15'),
+(13, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-08 22:47:00', 50, 'asd', 'asd', 0, '1', 0, 'Basic Filipino Package', 'asd', 14500.00, 'cash', 'pending', '', '2025-05-05 14:47:39'),
+(14, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-19 22:52:00', 100, 'das', 'das', 0, '0', 0, 'Premium Filipino Package', '', 45000.00, 'cash', 'pending', '', '2025-05-05 14:53:09'),
+(15, 10, 'Jasper  Sergio', '09288231320', 'jasper.sergio@adamson.edu.ph', '2025-05-08 23:03:00', 50, 'asd', 'ads', 0, '1', 0, 'Basic Filipino Package', '', 14500.00, 'cash', 'pending', '', '2025-05-05 15:03:24'),
+(16, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-16 11:00:00', 50, 'wqe', 'qwe', 0, '0', 1, 'Custom Package', 'qwe', 5000.00, 'cash', 'custom_pending', '', '2025-05-10 12:20:05'),
+(17, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd', 'asd', 0, '0', 0, 'Premium Filipino Package', '', 22500.00, 'cash', 'pending', '', '2025-05-10 13:13:07'),
+(18, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'qs qs, qs, qs, qs qs (asd)', 'asd', 0, '0', 0, 'Basic Filipino Package', '', 12500.00, 'cash', 'pending', '', '2025-05-10 13:21:39'),
+(19, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'ads', 0, '0', 0, 'Basic Filipino Package', '', 12500.00, 'cash', 'pending', '', '2025-05-10 13:54:13'),
+(20, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'asd', 0, '1', 0, 'Executive Package', 'asd', 34500.00, 'cash', 'pending', '', '2025-05-10 13:59:31'),
+(21, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'asd', 0, '1', 0, 'Basic Filipino Package', '', 14500.00, 'cash', 'pending', '', '2025-05-10 14:06:03'),
+(22, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'asd', 0, '1', 0, 'Executive Package', '', 34500.00, 'cash', 'pending', '', '2025-05-10 14:09:37'),
+(23, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 11:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'asd', 1, '0', 0, 'Basic Filipino Package', 'asd', 16000.00, 'cash', 'pending', '', '2025-05-10 14:17:30'),
+(24, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'c', 1, '0', 0, 'Basic Filipino Package', 'asd', 16000.00, 'cash', 'pending', '', '2025-05-10 14:28:40'),
+(25, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd, asd, asd, asd, asd (asd)', 'asd', 0, '1', 0, '0', 'asd', 14500.00, 'cash', 'pending', '', '2025-05-10 15:52:20'),
+(26, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'WA, WA, WA, WA, AW (AW)', 'AW', 0, '1', 0, '0', 'ASD', 14500.00, 'cash', 'pending', '', '2025-05-10 15:55:44'),
+(27, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 13:00:00', 50, 'asd, asd, asd, asd, asd (asd)', 'asd', 0, '1', 0, '0', 'asd', 14500.00, 'cash', 'pending', '', '2025-05-10 16:03:49'),
+(28, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-14 17:00:00', 50, 'df, gdfs, dw, dfg, asd (asd)', 'asd', 0, '1', 0, '0', 'sad', 14500.00, 'cash', 'pending', '', '2025-05-10 16:07:35'),
+(29, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112 12he, asd, Taguig, Metro Manila 1245 (sad)', 'wdasd', 0, '1', 0, 'Basic Filipino Package', '', 14500.00, 'cash', 'pending', '', '2025-05-11 16:07:07'),
+(30, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112 12he, asd, Taguig, Metro Manila 1245 (asd)', 'dwad', 0, '1', 0, 'Executive Package', '', 34500.00, 'cash', 'pending', '', '2025-05-11 17:05:15'),
+(31, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-16 12:00:00', 50, '112 12he, asdw, Taguig, Metro Manila 1245 (sad)', 'wad', 0, '1', 0, 'Basic Filipino Package', '', 14500.00, 'cash', 'pending', '', '2025-05-11 17:12:30'),
+(32, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112dwada 12he, asdw, Taguig, Metro Manila 1245 (sad)', 'wad', 0, '1', 1, 'Basic Filipino Package', 'dwa', 19500.00, 'cash', 'pending', '', '2025-05-11 17:16:25'),
+(33, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112dwada 12he, asdwad, Taguig, Metro Manila 1245', 'asdwad', 0, '1', 0, 'Basic Filipino Package', 'sadwa', 14500.00, 'cash', 'pending', '', '2025-05-11 17:16:48'),
+(34, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '11221312 12he, asd, Taguig, Metro Manila 1245 (adda)', 'daw', 0, '1', 0, 'Basic Filipino Package', '', 14500.00, 'cash', 'pending', '', '2025-05-11 17:17:35'),
+(35, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112 12he, asd, Taguig, Metro Manila 1245 (asdwa)', 'sdawad', 0, '1', 0, 'Basic Filipino Package', '', 14500.00, 'cash', 'pending', '', '2025-05-12 02:35:48'),
+(36, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112 12he, dwa, Taguig, Metro Manila 1245 (wdasd)', 'dwa', 0, '1', 0, 'Basic Filipino Package', '', 14500.00, 'cash', 'pending', '', '2025-05-12 03:02:20'),
+(37, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112 12he, daw, Taguig, Metro Manila 1245 (daw)', 'daw', 0, '1', 0, 'Basic Filipino Package', '', 14500.00, 'cash', 'pending', '', '2025-05-12 03:18:54'),
+(38, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112 12he, dawd, Taguig, Metro Manila 1245 (sadwd)', 'sadwa', 0, '1', 0, 'Basic Filipino Package', 'sadwad', 14500.00, 'cash', 'pending', '', '2025-05-12 04:10:45'),
+(39, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112 12he, asdwad, Taguig, Metro Manila 1245 (sdawda)', 'bday', 0, '1', 0, 'Basic Filipino Package', '', 14500.00, 'cash', 'pending', '', '2025-05-12 05:25:51'),
+(40, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 14:00:00', 75, '356 Adarna St. Adarna, Bayan Luma 2, Imus, Cavite 4103 (Near Wansuy)', 'Reunion Part 10', 0, '0', 1, 'Basic Filipino Package', '', 23750.00, 'cash', 'confirmed', '[2025-05-12 18:49:49] q132\n[2025-05-12 18:50:39] GAGAWIN NA\n[2025-05-12 21:09:36] ok', '2025-05-12 09:29:56');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `catering_order_menu_items`
+--
+
+DROP TABLE IF EXISTS `catering_order_menu_items`;
+CREATE TABLE IF NOT EXISTS `catering_order_menu_items` (
+  `catering_order_id` int NOT NULL,
+  `product_id` int NOT NULL,
+  `category_id` int NOT NULL,
+  `quantity` int DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY `idx_catering_order` (`catering_order_id`),
+  KEY `idx_product` (`product_id`),
+  KEY `idx_category` (`category_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `catering_order_menu_items`
+--
+
+INSERT INTO `catering_order_menu_items` (`catering_order_id`, `product_id`, `category_id`, `quantity`, `created_at`) VALUES
+(35, 1, 1, 1, '2025-05-12 02:35:48'),
+(35, 2, 1, 1, '2025-05-12 02:35:48'),
+(35, 3, 2, 1, '2025-05-12 02:35:48'),
+(35, 8, 3, 1, '2025-05-12 02:35:48'),
+(35, 4, 4, 1, '2025-05-12 02:35:48'),
+(36, 1, 1, 1, '2025-05-12 03:02:20'),
+(36, 2, 1, 1, '2025-05-12 03:02:20'),
+(36, 3, 2, 1, '2025-05-12 03:02:20'),
+(36, 8, 3, 1, '2025-05-12 03:02:20'),
+(36, 4, 4, 1, '2025-05-12 03:02:20'),
+(37, 1, 1, 1, '2025-05-12 03:18:54'),
+(37, 2, 1, 1, '2025-05-12 03:18:54'),
+(37, 3, 2, 1, '2025-05-12 03:18:54'),
+(37, 8, 3, 1, '2025-05-12 03:18:54'),
+(37, 4, 4, 1, '2025-05-12 03:18:54'),
+(38, 1, 1, 1, '2025-05-12 04:10:45'),
+(38, 2, 1, 1, '2025-05-12 04:10:45'),
+(38, 3, 2, 1, '2025-05-12 04:10:45'),
+(38, 8, 3, 1, '2025-05-12 04:10:45'),
+(38, 4, 4, 1, '2025-05-12 04:10:45'),
+(13, 1, 1, 1, '2025-05-12 04:35:00'),
+(13, 2, 1, 1, '2025-05-12 04:35:00'),
+(13, 3, 2, 1, '2025-05-12 04:35:00'),
+(13, 8, 3, 1, '2025-05-12 04:35:00'),
+(13, 4, 4, 1, '2025-05-12 04:35:00'),
+(39, 1, 1, 1, '2025-05-12 05:25:51'),
+(39, 2, 1, 1, '2025-05-12 05:25:51'),
+(39, 3, 2, 1, '2025-05-12 05:25:51'),
+(39, 8, 3, 1, '2025-05-12 05:25:51'),
+(39, 4, 4, 1, '2025-05-12 05:25:51'),
+(14, 1, 1, 1, '2025-05-12 05:26:22'),
+(14, 2, 1, 1, '2025-05-12 05:26:22'),
+(14, 3, 2, 1, '2025-05-12 05:26:22'),
+(14, 8, 3, 1, '2025-05-12 05:26:22'),
+(14, 4, 4, 1, '2025-05-12 05:26:22'),
+(40, 1, 1, 1, '2025-05-12 09:29:56'),
+(40, 2, 1, 1, '2025-05-12 09:29:56'),
+(40, 3, 2, 1, '2025-05-12 09:29:56'),
+(40, 8, 3, 1, '2025-05-12 09:29:56'),
+(40, 4, 4, 1, '2025-05-12 09:29:56');
 
 -- --------------------------------------------------------
 
@@ -197,7 +274,7 @@ CREATE TABLE IF NOT EXISTS `custom_catering_orders` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`custom_order_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=19 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `custom_catering_orders`
@@ -207,7 +284,47 @@ INSERT INTO `custom_catering_orders` (`custom_order_id`, `user_id`, `full_name`,
 (1, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-29 11:00:00', 49, 'asd', 'asd', 1, 0, 0, '', 'Basic Filipino Package', 3500.00, 'cash', 'pending', NULL, NULL, '2025-05-10 12:48:58', '2025-05-10 12:48:58'),
 (2, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-22 12:00:00', 50, 'asd', 'asd', 0, 1, 0, 'asd', 'Custom Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-10 12:53:17', '2025-05-10 12:53:17'),
 (3, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-22 11:00:00', 49, 'asd', 'asd', 0, 1, 0, 'asd', 'Custom Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-10 12:53:50', '2025-05-10 12:53:50'),
-(4, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-13 12:00:00', 49, 'dsa ads, asd, sda, sda asd (asd)', 'dsa', 0, 1, 0, '', 'Executive Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-10 13:13:47', '2025-05-10 13:13:47');
+(4, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-13 12:00:00', 49, 'dsa ads, asd, sda, sda asd (asd)', 'dsa', 0, 1, 0, '', 'Executive Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-10 13:13:47', '2025-05-10 13:13:47'),
+(5, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, 'asd asd, asd, asd, asd asd (asd)', 'asd', 0, 1, 0, '', 'Custom Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-11 09:58:34', '2025-05-11 09:58:34'),
+(6, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-22 13:00:00', 50, 'test2 asd, asd, asd, asd asd (asd)', 'asd', 0, 1, 0, '', 'Custom Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-11 09:59:47', '2025-05-11 09:59:47'),
+(7, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-17 13:00:00', 50, '112 12he, sda, Taguig, Metro Manila 1245 (dsad)', 'bday', 0, 1, 0, 'sadwa', 'Custom Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-11 12:40:28', '2025-05-11 12:40:28'),
+(8, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112 12he, sadwad, Taguig, Metro Manila 1245 (sdawda)', 'sdawda', 0, 1, 0, '', 'Custom Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-12 04:05:40', '2025-05-12 04:05:40'),
+(9, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112awddawadwawd 12he, adwad, Taguig, Metro Manila 1245 (dasdaww)', 'asdawawdwdaawd', 0, 1, 0, '', 'Custom Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-12 04:11:18', '2025-05-12 04:11:18'),
+(10, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112 12he, daw, Taguig, Metro Manila 1245 (sadwad)', 'sadwad', 1, 0, 0, '', 'Custom Package', 3500.00, 'cash', 'pending', NULL, NULL, '2025-05-12 04:27:11', '2025-05-12 04:27:11'),
+(11, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112 12he, asdwa, Taguig, Metro Manila 1245 (sdadwa)', 'dawdwa', 1, 1, 1, '', 'Custom Package', 10500.00, 'cash', 'pending', NULL, NULL, '2025-05-12 04:30:27', '2025-05-12 04:30:27'),
+(12, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 49, '112 12he, asdwad, Taguig, Metro Manila 1245 (sadwda)', 'dasawd', 1, 0, 0, '', 'Custom Package', 3500.00, 'cash', 'pending', NULL, NULL, '2025-05-12 04:33:27', '2025-05-12 04:33:27'),
+(13, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 49, '112 12he, sadwda, Taguig, Metro Manila 1245 (sdadwa)', 'sdaaw', 1, 1, 0, '', 'Basic Filipino Package', 5500.00, 'cash', 'pending', NULL, NULL, '2025-05-12 04:35:00', '2025-05-12 04:35:00'),
+(14, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 49, '112 12he, asdawd, Taguig, Metro Manila 1245 (asdwad)', 'adwad', 0, 1, 0, 'asd', 'Basic Filipino Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-12 05:26:22', '2025-05-12 05:26:22'),
+(15, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112 12he, asd, Taguig, Metro Manila 1245 (sad)', 'sad', 0, 1, 0, '', 'Custom Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-12 05:27:50', '2025-05-12 05:27:50'),
+(16, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-15 13:00:00', 50, '112 12he, wda, Taguig, Metro Manila 1245 (wdaawdawd)', 'asd', 0, 1, 0, 'daw', 'Custom Package', 2000.00, 'cash', 'pending', NULL, NULL, '2025-05-12 05:46:35', '2025-05-12 05:46:35'),
+(17, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-31 09:00:00', 80, '356 Adarna St. Adarna, Bayan Luma 2, Imus, Cavite 4103 (Near OLPMC)', 'Anniv', 0, 1, 0, '', 'Custom Package', 2000.00, 'cash', 'pending', NULL, 200.00, '2025-05-12 09:34:01', '2025-05-12 14:35:05'),
+(18, 2, 'Justin  Cruz', '2', 'justin.cruz876@adamson.edu.ph', '2025-05-20 08:00:00', 75, '356 Adarna St. Adarna, Bayan Luma 2, Imus, Cavite 4103 (jj)', 'Annivdaw', 1, 1, 1, '', 'Custom Package', 10500.00, 'cash', 'confirmed', '', 5000.00, '2025-05-13 08:20:00', '2025-05-13 08:29:38');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cust_catering_order_items`
+--
+
+DROP TABLE IF EXISTS `cust_catering_order_items`;
+CREATE TABLE IF NOT EXISTS `cust_catering_order_items` (
+  `custom_order_id` int NOT NULL,
+  `product_id` int NOT NULL,
+  `category_id` int NOT NULL,
+  `quantity` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `cust_catering_order_items`
+--
+
+INSERT INTO `cust_catering_order_items` (`custom_order_id`, `product_id`, `category_id`, `quantity`, `created_at`) VALUES
+(18, 8, 3, 0, '2025-05-13 08:29:38'),
+(18, 4, 4, 0, '2025-05-13 08:29:38'),
+(18, 3, 2, 0, '2025-05-13 08:29:38'),
+(18, 2, 1, 0, '2025-05-13 08:29:38'),
+(18, 1, 1, 0, '2025-05-13 08:29:38');
 
 -- --------------------------------------------------------
 
@@ -223,7 +340,7 @@ CREATE TABLE IF NOT EXISTS `ingredients` (
   `type_id` int DEFAULT NULL,
   PRIMARY KEY (`ingredient_id`),
   KEY `type_id` (`type_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `ingredients`
@@ -296,7 +413,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `delivered_at` datetime DEFAULT NULL,
   `status_notes` text,
   PRIMARY KEY (`order_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=39 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=41 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `orders`
@@ -340,7 +457,9 @@ INSERT INTO `orders` (`order_id`, `user_id`, `full_name`, `phone`, `address`, `n
 (35, 2, 'Justin  Cruz', '2', 'Kabila: 132 Dito, Sa, Imus, Cavite 4103', 'None', 'gcash', 570.00, 50.00, '2025-05-15 19:00:00', 'cancelled', '2025-05-08 15:20:31', '0000-00-00 00:00:00', 'pending', 'Changed my mind', '2025-05-08 23:21:30', NULL, NULL, NULL),
 (36, 2, 'Justin  Cruz', '2', 'Home: 356 Adarna, Bayan Luma 2, Imus, Cavite 4103', 'WALANG PERA', 'cash', 690.00, 50.00, '2025-05-15 14:00:00', 'processing', '2025-05-08 15:22:08', '0000-00-00 00:00:00', 'in_kitchen', NULL, NULL, NULL, NULL, NULL),
 (37, 2, 'Justin  Cruz', '2', 'Home: 356 Adarna, Bayan Luma 2, Imus, Cavite 4103', '', 'cash', 490.00, 50.00, '2025-05-12 18:30:00', 'pending', '2025-05-10 10:58:23', '0000-00-00 00:00:00', '', NULL, NULL, NULL, NULL, NULL),
-(38, 2, 'Justin  Cruz', '2', 'Home: 356 Adarna, Bayan Luma 2, Imus, Cavite 4103', '', 'cash', 410.00, 50.00, '2025-05-11 09:00:00', 'processing', '2025-05-10 11:07:38', '0000-00-00 00:00:00', 'in_kitchen', NULL, NULL, NULL, NULL, NULL);
+(38, 2, 'Justin  Cruz', '2', 'Home: 356 Adarna, Bayan Luma 2, Imus, Cavite 4103', '', 'cash', 410.00, 50.00, '2025-05-11 09:00:00', 'ready_for_delivery', '2025-05-10 11:07:38', '0000-00-00 00:00:00', 'in_kitchen', NULL, NULL, NULL, NULL, ''),
+(39, 2, 'Justin  Cruz', '2', 'Home: 356 Adarna, Bayan Luma 2, Imus, Cavite 4103', '', 'cash', 880.00, 50.00, '2025-05-13 19:00:00', 'completed', '2025-05-13 09:21:38', '0000-00-00 00:00:00', 'pending', NULL, NULL, NULL, NULL, ''),
+(40, 2, 'Justin  Cruz', '2', 'Home: 356 Adarna, Bayan Luma 2, Imus, Cavite 4103', '', 'gcash', 300.00, 50.00, '2025-05-14 09:00:00', 'completed', '2025-05-13 10:39:42', '0000-00-00 00:00:00', 'pending', NULL, NULL, NULL, NULL, '');
 
 -- --------------------------------------------------------
 
@@ -417,7 +536,12 @@ INSERT INTO `order_checklist` (`order_id`, `ingredient_id`, `quantity_needed`, `
 (37, 1, 2.00, 1, 13, '2025-05-10 03:07:01', NULL),
 (38, 1, 2.00, 1, 13, '2025-05-10 03:12:52', NULL),
 (38, 2, 4.00, 1, 13, '2025-05-10 03:12:53', NULL),
-(38, 3, 4.00, 1, 13, '2025-05-10 03:12:54', NULL);
+(38, 3, 4.00, 1, 13, '2025-05-10 03:12:54', NULL),
+(39, 1, 2.00, 0, NULL, NULL, NULL),
+(39, 2, 4.00, 0, NULL, NULL, NULL),
+(39, 3, 4.00, 0, NULL, NULL, NULL),
+(39, 1, 1.00, 0, NULL, NULL, NULL),
+(39, 1, 0.25, 0, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -433,7 +557,7 @@ CREATE TABLE IF NOT EXISTS `order_items` (
   `quantity` int NOT NULL,
   `price` decimal(10,2) NOT NULL,
   PRIMARY KEY (`item_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=48 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=54 DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `order_items`
@@ -486,7 +610,13 @@ INSERT INTO `order_items` (`item_id`, `order_id`, `product_id`, `quantity`, `pri
 (44, 36, 2, 1, 220.00),
 (45, 36, 1, 1, 180.00),
 (46, 37, 2, 2, 220.00),
-(47, 38, 1, 2, 180.00);
+(47, 38, 1, 2, 180.00),
+(48, 39, 1, 2, 180.00),
+(49, 39, 2, 1, 220.00),
+(50, 39, 3, 1, 120.00),
+(51, 39, 4, 1, 80.00),
+(52, 39, 8, 1, 50.00),
+(53, 40, 8, 5, 50.00);
 
 -- --------------------------------------------------------
 
@@ -502,7 +632,7 @@ CREATE TABLE IF NOT EXISTS `packages` (
   `base_price` decimal(10,2) NOT NULL,
   `is_active` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`package_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4  ;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `packages`
@@ -565,11 +695,11 @@ CREATE TABLE IF NOT EXISTS `products` (
 --
 
 INSERT INTO `products` (`product_id`, `prod_name`, `prod_price`, `prod_desc`, `prod_img`, `prod_cat_id`, `qty_sold`) VALUES
-(1, 'Adobo', 180, 'Classic Filipino dish with chicken or pork marinated in vinegar, soy sauce, and spices.', 'adobs.jpg', 1, 24),
-(2, 'Sinigang', 220, 'Sour soup with pork, shrimp, or fish and various vegetables.', 'sinigang.jpg', 1, 28),
-(3, 'Lumpia', 120, 'Filipino spring rolls filled with ground meat and vegetables.', 'lumpia.jpg', 2, 11),
-(4, 'Calamansi Juice', 80, 'Refreshing Filipino citrus juice similar to lemonade.', 'CJ.jpg', 4, 6),
-(8, 'Coffee Jelly', 50, 'test dessert', '681f76152c6fc.jpg', 3, 0);
+(1, 'Adobo', 180, 'Classic Filipino dish with chicken or pork marinated in vinegar, soy sauce, and spices.', 'adobs.jpg', 1, 26),
+(2, 'Sinigang', 220, 'Sour soup with pork, shrimp, or fish and various vegetables.', 'sinigang.jpg', 1, 29),
+(3, 'Lumpia', 120, 'Filipino spring rolls filled with ground meat and vegetables.', 'lumpia.jpg', 2, 12),
+(4, 'Calamansi Juice', 80, 'Refreshing Filipino citrus juice similar to lemonade.', '6823386978298.jpg', 4, 7),
+(8, 'Coffee Jelly', 50, 'test dessert', '681f76152c6fc.jpg', 3, 6);
 
 -- --------------------------------------------------------
 
@@ -649,7 +779,7 @@ CREATE TABLE IF NOT EXISTS `user_cart` (
   `added_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   KEY `user_id` (`user_id`),
   KEY `product_id` (`product_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4  ;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Dumping data for table `user_cart`
@@ -657,22 +787,10 @@ CREATE TABLE IF NOT EXISTS `user_cart` (
 
 INSERT INTO `user_cart` (`user_id`, `product_id`, `quantity`, `added_at`) VALUES
 (11, 2, 20, '2025-04-18 15:51:52'),
-(12, 3, 100, '2025-04-19 07:13:51');
+(12, 3, 100, '2025-04-19 07:13:51'),
+(2, 3, 1, '2025-05-13 12:04:25');
 COMMIT;
-CREATE TABLE `catering_order_menu_items` (
-    `id` INT PRIMARY KEY AUTO_INCREMENT,
-    `catering_order_id` INT NOT NULL,
-    `product_id` INT NOT NULL,
-    `category_id` INT NOT NULL,
-    `quantity` INT DEFAULT 1,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (`catering_order_id`) REFERENCES `catering_orders`(`id`) ON DELETE CASCADE,
-    FOREIGN KEY (`product_id`) REFERENCES `products`(`id`),
-    FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`),
-    INDEX `idx_catering_order` (`catering_order_id`),
-    INDEX `idx_product` (`product_id`),
-    INDEX `idx_category` (`category_id`)
-);
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
