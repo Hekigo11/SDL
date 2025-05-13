@@ -291,26 +291,39 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
                 // Clean up Select2 when modal is hidden
                 $(document).on('hidden.bs.modal', '.modal', function() {
                     $('.ingredient-select', this).select2('destroy');
-                });
-
-                // Simple function to load content
+                });                // Simple function to load content
                 function loadContent(page) {
+                    // Default to dashboard if no page specified
+                    page = page || 'dashboard';
+                    
+                    // Extract the base page name and query string if any
+                    let pageData = {};
+                    if (page.includes('?')) {
+                        const [pageName, queryString] = page.split('?');
+                        pageData.page = pageName;
+                        const urlParams = new URLSearchParams(queryString);
+                        urlParams.forEach((value, key) => {
+                            pageData[key] = value;
+                        });
+                    } else {
+                        pageData.page = page;
+                    }
+
                     $.ajax({
                         url: 'admin_content_loader.php',
                         type: 'GET',
-                        data: { page: page || 'dashboard' },
+                        data: pageData,
                         success: function(data) {
                             $('#main-content').html(data);
                             // Save current page to localStorage
                             localStorage.setItem('currentAdminPage', page);
                             // Restore sidebar state after content load
-                            applySidebarState();
-                            // Update active state
+                            applySidebarState();                            // Update active state in sidebar
                             $('.nav-link').removeClass('active');
-                            $('.nav-link[data-page="' + page + '"]').addClass('active');
+                            $('.nav-link[data-page="' + basePage + '"]').addClass('active');
                             
                             // Initialize DataTables and other components after content load
-                            if (page === 'checklist' && $.fn.DataTable) {
+                            if (basePage === 'checklist' && $.fn.DataTable) {
                                 if ($.fn.DataTable.isDataTable('#checklistTable')) {
                                     $('#checklistTable').DataTable().destroy();
                                 }
@@ -338,18 +351,23 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
                 }
 
                 // Initialize on page load
-                applySidebarState();
-
-                // Load last active page or dashboard by default
+                applySidebarState();                // Load last active page or dashboard by default
                 const lastPage = localStorage.getItem('currentAdminPage') || 'dashboard';
-                loadContent(lastPage);
+                loadContent(lastPage);                
 
-                // Handle menu clicks
-                $('.nav-link').click(function(e) {
+                // Handle menu clicks with proper event delegation
+                $(document).on('click', '.nav-link', function(e) {
+                    // Don't handle modal toggles
                     if ($(this).data('toggle') === 'modal') return;
+                    
                     e.preventDefault();
                     const page = $(this).data('page');
-                    loadContent(page);
+                    if (page) {
+                        loadContent(page);
+                        // Update active state in sidebar
+                        $('.nav-link').removeClass('active');
+                        $(this).addClass('active');
+                    }
                 });
 
                 // Sidebar toggle with state persistence
