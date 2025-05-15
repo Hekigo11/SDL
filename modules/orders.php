@@ -205,7 +205,16 @@ if (!isset($_SESSION['loginok'])) {
                                                         <div class="status-time text-info">
                                                             <i class="fas fa-truck"></i> Out for delivery since <?php echo date('g:i A', strtotime($row['delivery_started_at'])); ?>
                                                         </div>
-                                                    <?php elseif ($row['status'] === 'completed' && !empty($row['delivered_at'])): ?>
+                                                    <?php endif; ?>
+                                                    <?php if ($row['status'] === 'delivering' && !empty($row['delivery_tracking_link'])): ?>
+                                                        <div class="status-time text-info">
+                                                            <i class="fas fa-link"></i>
+                                                            <a href="<?php echo htmlspecialchars($row['delivery_tracking_link']); ?>" target="_blank" rel="noopener noreferrer">
+                                                                Track Delivery (Lalamove)
+                                                            </a>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <?php if ($row['status'] === 'completed' && !empty($row['delivered_at'])): ?>
                                                         <div class="status-time text-success">
                                                             <i class="fas fa-check-circle"></i> Delivered on <?php echo date('M j, g:i A', strtotime($row['delivered_at'])); ?>
                                                         </div>
@@ -326,7 +335,47 @@ if (!isset($_SESSION['loginok'])) {
                                                     <em>To be quoted</em>
                                                 <?php endif; ?>
                                             </td>
-                                            <td><span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span></td>
+                                            <td class="order-status">
+                                                <div class="status-info">
+                                                    <div class="status-badge">
+                                                        <span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span>
+                                                    </div>
+                                                    <!-- Staff Notes Section -->
+                                                    <?php if (!empty($row['staff_notes'])) {
+                                                        echo '<div class="mt-2"><strong><i class="fas fa-user-edit"></i> Staff Notes</strong>';
+                                                        $notes = explode("\n", $row['staff_notes']);
+                                                        foreach ($notes as $note) {
+                                                            if (preg_match('/\[(.*?)\]/', $note, $matches)) {
+                                                                $dateStr = $matches[1];
+                                                                $dateObj = date_create($dateStr);
+                                                                if ($dateObj) {
+                                                                    $formatted = date_format($dateObj, 'F j, Y g:i A');
+                                                                    $note = str_replace("[$dateStr]", "[$formatted]", $note);
+                                                                }
+                                                            }
+                                                            echo '<div class="text-muted small"><i class="fas fa-sticky-note"></i> ' . htmlspecialchars($note) . '</div>';
+                                                        }
+                                                        echo '</div>';
+                                                    } ?>
+                                                    <!-- Status Updates Section -->
+                                                    <?php if (!empty($row['status_updates'])) {
+                                                        echo '<div class="mt-2"><strong><i class="fas fa-history"></i> Status Updates</strong>';
+                                                        $updates = explode("\n", $row['status_updates']);
+                                                        foreach ($updates as $update) {
+                                                            if (preg_match('/\[(.*?)\]/', $update, $matches)) {
+                                                                $dateStr = $matches[1];
+                                                                $dateObj = date_create($dateStr);
+                                                                if ($dateObj) {
+                                                                    $formatted = date_format($dateObj, 'F j, Y g:i A');
+                                                                    $update = str_replace("[$dateStr]", "[$formatted]", $update);
+                                                                }
+                                                            }
+                                                            echo '<div class="text-muted small"><i class="fas fa-comment-dots"></i> ' . htmlspecialchars($update) . '</div>';
+                                                        }
+                                                        echo '</div>';
+                                                    } ?>
+                                                </div>
+                                            </td>
                                             <td>
                                                 <button class="btn btn-sm btn-info" onclick="showCateringDetails('standard', <?php echo $row['catering_id']; ?>, <?php echo htmlspecialchars(json_encode($row), ENT_QUOTES); ?>)">
                                                     <i class="fas fa-eye"></i> Details
@@ -429,11 +478,40 @@ if (!isset($_SESSION['loginok'])) {
                                                     <div class="status-badge">
                                                         <span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span>
                                                     </div>
-                                                    <?php if (!empty($row['staff_notes'])): ?>
-                                                        <div class="text-muted small">
-                                                            <i class="fas fa-comment"></i> <?php echo htmlspecialchars($row['staff_notes']); ?>
-                                                        </div>
-                                                    <?php endif; ?>
+                                                    <!-- Staff Notes Section -->
+                                                    <?php if (!empty($row['staff_notes'])) {
+                                                        echo '<div class="mt-2"><strong><i class="fas fa-user-edit"></i> Staff Notes</strong>';
+                                                        $notes = explode("\n", $row['staff_notes']);
+                                                        foreach ($notes as $note) {
+                                                            if (preg_match('/\[(.*?)\]/', $note, $matches)) {
+                                                                $dateStr = $matches[1];
+                                                                $dateObj = date_create($dateStr);
+                                                                if ($dateObj) {
+                                                                    $formatted = date_format($dateObj, 'F j, Y g:i A');
+                                                                    $note = str_replace("[$dateStr]", "[$formatted]", $note);
+                                                                }
+                                                            }
+                                                            echo '<div class="text-muted small"><i class="fas fa-sticky-note"></i> ' . htmlspecialchars($note) . '</div>';
+                                                        }
+                                                        echo '</div>';
+                                                    } ?>
+                                                    <!-- Status Updates Section -->
+                                                    <?php if (!empty($row['status_updates'])) {
+                                                        echo '<div class="mt-2"><strong><i class="fas fa-history"></i> Status Updates</strong>';
+                                                        $updates = explode("\n", $row['status_updates']);
+                                                        foreach ($updates as $update) {
+                                                            if (preg_match('/\[(.*?)\]/', $update, $matches)) {
+                                                                $dateStr = $matches[1];
+                                                                $dateObj = date_create($dateStr);
+                                                                if ($dateObj) {
+                                                                    $formatted = date_format($dateObj, 'F j, Y g:i A');
+                                                                    $update = str_replace("[$dateStr]", "[$formatted]", $update);
+                                                                }
+                                                            }
+                                                            echo '<div class="text-muted small"><i class="fas fa-comment-dots"></i> ' . htmlspecialchars($update) . '</div>';
+                                                        }
+                                                        echo '</div>';
+                                                    } ?>
                                                 </div>
                                             </td>
                                             <td>
