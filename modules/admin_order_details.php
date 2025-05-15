@@ -26,6 +26,171 @@ function getStatusClass($status) {
 function getStatusDisplay($status) {
     return ucwords(str_replace('_', ' ', $status));
 }
+
+// Function to render catering order row
+function renderCateringRow($row, $order_type) {
+    $statusClass = getStatusClass($row['status']);
+    $orderId = $order_type === 'standard' ? $row['catering_id'] : $row['custom_order_id'];
+    $orderPrefix = $order_type === 'standard' ? 'CTR-' : 'CSP-';
+    ?>
+    <tr>
+        <td><?php echo $orderPrefix . $orderId; ?></td>
+        <td><?php echo date('M j, Y g:i A', strtotime($row['event_date'])); ?></td>
+        <td>
+            <?php echo htmlspecialchars($row['fname'] . ' ' . $row['lname']); ?><br>
+            <small class="text-muted"><?php echo $row['phone']; ?></small>
+        </td>
+        <td>
+            <?php echo htmlspecialchars($order_type === 'standard' ? $row['menu_package'] : ($row['menu_preferences'] ?: 'Not specified')); ?>
+            <?php if ($order_type === 'custom') {
+                $isCustomPackage = ($row['menu_preferences'] == 'Custom Package');
+                $isSmallGroup = ($row['num_persons'] < 50);
+                if ($isCustomPackage && $isSmallGroup) {
+                    $requestTypeLabel = 'Custom Menu (Small Group)';
+                } elseif ($isCustomPackage) {
+                    $requestTypeLabel = 'Custom Menu';
+                } elseif ($isSmallGroup) {
+                    $requestTypeLabel = 'Small Group';
+                } else {
+                    $requestTypeLabel = 'Special Request';
+                }
+                echo '<span class="badge badge-info">' . $requestTypeLabel . '</span>';
+            } ?>
+        </td>
+        <td><?php echo $row['num_persons']; ?></td>
+        <td>
+            <?php if (!empty($row['quote_amount'])): ?>
+                ₱<?php 
+                $total = $row['quote_amount'];
+                if ($order_type === 'custom') {
+                    if ($row['needs_setup'] == 1) $total += 2000;
+                    if ($row['needs_tablesandchairs'] == 1) $total += 3500;
+                    if ($row['needs_decoration'] == 1) $total += 5000;
+                }
+                echo number_format($total, 2);
+                ?>
+            <?php elseif (!empty($row['total_amount'])): ?>
+                ₱<?php echo number_format($row['total_amount'], 2); ?>
+            <?php else: ?>
+                <em>To be quoted</em>
+            <?php endif; ?>
+        </td>
+        <td class="order-status">
+            <div class="status-info">
+                <div class="status-badge">
+                    <span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span>
+                </div>
+                <!-- Staff Notes Section -->
+                <?php
+                if (!empty($row['staff_notes'])) {
+                    echo '<div class="mt-2"><strong><i class="fas fa-user-edit"></i> Staff Notes</strong>';
+                    // Split staff notes by line (assuming each note is appended with a timestamp)
+                    $notes = explode("\n", $row['staff_notes']);
+                    foreach ($notes as $note) {
+                        // Try to extract timestamp in [ ]
+                        if (preg_match('/\[(.*?)\]/', $note, $matches)) {
+                            $dateStr = $matches[1];
+                            $dateObj = date_create($dateStr);
+                            if ($dateObj) {
+                                $formatted = date_format($dateObj, 'F j, Y g:i A');
+                                $note = str_replace("[$dateStr]", "[$formatted]", $note);
+                            }
+                        }
+                        echo '<div class="text-muted small"><i class="fas fa-sticky-note"></i> ' . htmlspecialchars($note) . '</div>';
+                    }
+                    echo '</div>';
+                }
+                ?>
+                <!-- Status Updates Section -->
+                <?php
+                if (!empty($row['status_updates'])) {
+                    echo '<div class="mt-2"><strong><i class="fas fa-history"></i> Status Updates</strong>';
+                    $updates = explode("\n", $row['status_updates']);
+                    foreach ($updates as $update) {
+                        if (preg_match('/\[(.*?)\]/', $update, $matches)) {
+                            $dateStr = $matches[1];
+                            $dateObj = date_create($dateStr);
+                            if ($dateObj) {
+                                $formatted = date_format($dateObj, 'F j, Y g:i A');
+                                $update = str_replace("[$dateStr]", "[$formatted]", $update);
+                            }
+                        }
+                        echo '<div class="text-muted small"><i class="fas fa-comment-dots"></i> ' . htmlspecialchars($update) . '</div>';
+                    }
+                    echo '</div>';
+                }
+                ?>
+            </div>
+        </td>
+        <td class="order-actions">
+            <div class="btn-group">
+                <button class="btn btn-sm btn-info view-order" 
+                        data-id="<?php echo $orderId; ?>"
+                        data-type="<?php echo $order_type; ?>"
+                        data-items="<?php echo htmlspecialchars($row['selected_items'] ?? ''); ?>"
+                        data-notes="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
+                        data-event-date="<?php echo $row['event_date']; ?>"
+                        data-venue="<?php echo htmlspecialchars($row['venue']); ?>"
+                        data-persons="<?php echo $row['num_persons']; ?>"
+                        data-package="<?php echo htmlspecialchars($order_type === 'standard' ? $row['menu_package'] : ($row['menu_preferences'] ?? '')); ?>"
+                        data-amount="<?php echo !empty($row['quote_amount']) ? $row['quote_amount'] : ($row['total_amount'] ?? ''); ?>"
+                        data-services="<?php 
+                            $services = [];
+                            if ($row['needs_setup']) $services[] = 'setup';
+                            if ($row['needs_tablesandchairs']) $services[] = 'tables';
+                            if ($row['needs_decoration']) $services[] = 'decoration';
+                            echo implode(',', $services); 
+                        ?>">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <?php if ($row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
+                <?php if ($order_type === 'standard'): ?>
+                <button class="btn btn-sm btn-primary edit-standard-order"
+                        data-id="<?php echo $orderId; ?>"
+                        data-status="<?php echo $row['status']; ?>"
+                        data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>"
+                        data-package="<?php echo htmlspecialchars($row['menu_package'] ?? ''); ?>"
+                        data-persons="<?php echo htmlspecialchars($row['num_persons'] ?? 0); ?>"
+                        data-event-date="<?php echo htmlspecialchars($row['event_date'] ?? ''); ?>"
+                        data-venue="<?php echo htmlspecialchars($row['venue'] ?? ''); ?>"
+                        data-notes="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
+                        data-services="<?php
+                            $services = [];
+                            if ($row['needs_setup'] ?? 0) $services[] = 'setup';
+                            if ($row['needs_tablesandchairs'] ?? 0) $services[] = 'tables';
+                            if ($row['needs_decoration'] ?? 0) $services[] = 'decoration';
+                            echo implode(',', $services);
+                        ?>">
+                    <i class="fas fa-edit"></i> Edit Order
+                </button>
+                <?php else: ?>
+                <button class="btn btn-sm btn-primary edit-custom-order"
+                        data-id="<?php echo $row['custom_order_id']; ?>"
+                        data-preferences="<?php echo htmlspecialchars($row['menu_preferences'] ?? ''); ?>"
+                        data-persons="<?php echo htmlspecialchars($row['num_persons'] ?? 0); ?>"
+                        data-amount="<?php echo htmlspecialchars($row['quote_amount'] ?? 0); ?>"
+                        data-status="<?php echo $row['status']; ?>"
+                        data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>"
+                        data-event-date="<?php echo htmlspecialchars($row['event_date']); ?>"
+                        data-venue="<?php echo htmlspecialchars($row['venue']); ?>"
+                        data-items="<?php echo htmlspecialchars($row['selected_items'] ?? ''); ?>"
+                        data-special-requests="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
+                        data-services="<?php 
+                            $services = [];
+                            if ($row['needs_setup']) $services[] = 'setup';
+                            if ($row['needs_tablesandchairs']) $services[] = 'tables';
+                            if ($row['needs_decoration']) $services[] = 'decoration';
+                            echo implode(',', $services); 
+                        ?>">
+                    <i class="fas fa-edit"></i> Edit Order
+                </button>
+                <?php endif; ?>
+                <?php endif; ?>
+            </div>
+        </td>
+    </tr>
+    <?php
+}
 ?>
 
 <style>
@@ -302,15 +467,17 @@ function getStatusDisplay($status) {
                                             <div class="status-badge">
                                                 <span class="badge badge-<?php echo $statusClass; ?>"><?php echo $statusDisplay; ?></span>
                                             </div>
-                                            <?php if ($row['status'] === 'delivering' && !empty($row['delivery_started_at'])): ?>
+                                            <?php if (!empty($row['delivery_started_at']) && $row['status'] === 'delivering'): ?>
                                                 <div class="status-time text-info">
-                                                    <i class="fas fa-truck"></i> Out for delivery since <?php echo date('g:i A', strtotime($row['delivery_started_at'])); ?>
+                                                    <i class="fas fa-truck"></i> Out for delivery since <?php echo date('M j, g:i A', strtotime($row['delivery_started_at'])); ?>
                                                 </div>
-                                            <?php elseif ($row['status'] === 'completed' && !empty($row['delivered_at'])): ?>
+                                            <?php endif; ?>
+                                            <?php if (!empty($row['delivered_at']) && $row['status'] === 'completed'): ?>
                                                 <div class="status-time text-success">
                                                     <i class="fas fa-check-circle"></i> Delivered on <?php echo date('M j, g:i A', strtotime($row['delivered_at'])); ?>
                                                 </div>
-                                            <?php elseif ($row['status'] === 'cancelled' && !empty($row['cancelled_at'])): ?>
+                                            <?php endif; ?>
+                                            <?php if (!empty($row['cancelled_at']) && $row['status'] === 'cancelled'): ?>
                                                 <div class="status-time text-danger">
                                                     <i class="fas fa-times-circle"></i> Cancelled on <?php echo date('M j, g:i A', strtotime($row['cancelled_at'])); ?>
                                                     <?php if (!empty($row['cancellation_reason'])): ?>
@@ -336,7 +503,8 @@ function getStatusDisplay($status) {
                                                     data-notes="<?php echo htmlspecialchars($row['notes'] ?? ''); ?>"
                                                     data-scheduled-delivery="<?php echo $row['scheduled_delivery'] ?? ''; ?>"
                                                     data-payment-method="<?php echo htmlspecialchars($row['payment_method'] ?? ''); ?>"
-                                                    data-delivery-address="<?php echo htmlspecialchars($row['address'] ?? ''); ?>">
+                                                    data-delivery-address="<?php echo htmlspecialchars($row['address'] ?? ''); ?>"
+                                                    data-delivery-tracking-link="<?php echo htmlspecialchars($row['delivery_tracking_link'] ?? ''); ?>">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                             <?php if ($row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
@@ -393,114 +561,6 @@ function getStatusDisplay($status) {
 
                                 $standard_result = mysqli_query($dbc, $standard_query);
 
-                                // Function to render catering order row
-                                function renderCateringRow($row, $order_type) {
-                                    $statusClass = getStatusClass($row['status']);
-                                    $orderId = $order_type === 'standard' ? $row['catering_id'] : $row['custom_order_id'];
-                                    $orderPrefix = $order_type === 'standard' ? 'CTR-' : 'CSP-';
-                                    ?>
-                                    <tr>
-                                        <td><?php echo $orderPrefix . $orderId; ?></td>
-                                        <td><?php echo date('M j, Y g:i A', strtotime($row['event_date'])); ?></td>
-                                        <td>
-                                            <?php echo htmlspecialchars($row['fname'] . ' ' . $row['lname']); ?><br>
-                                            <small class="text-muted"><?php echo $row['phone']; ?></small>
-                                        </td>
-                                        <td>
-                                            <?php echo htmlspecialchars($row['menu_package']); ?>
-                                        </td>
-                                        <td><?php echo $row['num_persons']; ?></td>
-                                        <td>
-                                            <?php if (!empty($row['quote_amount'])): ?>
-                                                ₱<?php echo number_format($row['quote_amount'], 2); ?>
-                                            <?php elseif (!empty($row['total_amount'])): ?>
-                                                ₱<?php echo number_format($row['total_amount'], 2); ?>
-                                            <?php else: ?>
-                                                <em>To be quoted</em>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="order-status">
-                                            <div class="status-info">
-                                                <div class="status-badge">
-                                                    <span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span>
-                                                </div>
-                                                <?php if (!empty($row['staff_notes'])): ?>
-                                                    <div class="text-muted small mt-1">
-                                                        <i class="fas fa-comment"></i> <?php echo htmlspecialchars($row['staff_notes']); ?>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                        <td class="order-actions">
-                                            <div class="btn-group">
-                                                <button class="btn btn-sm btn-info view-order" 
-                                                        data-id="<?php echo $orderId; ?>"
-                                                        data-type="<?php echo $order_type; ?>"
-                                                        data-items="<?php echo htmlspecialchars($row['selected_items'] ?? ''); ?>"
-                                                        data-notes="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
-                                                        data-event-date="<?php echo $row['event_date']; ?>"
-                                                        data-venue="<?php echo htmlspecialchars($row['venue']); ?>"
-                                                        data-persons="<?php echo $row['num_persons']; ?>"
-                                                        data-package="<?php echo htmlspecialchars($row['menu_package']); ?>"
-                                                        data-amount="<?php echo !empty($row['quote_amount']) ? $row['quote_amount'] : ($row['total_amount'] ?? ''); ?>"
-                                                        data-services="<?php 
-                                                            $services = [];
-                                                            if ($row['needs_setup']) $services[] = 'setup';
-                                                            if ($row['needs_tablesandchairs']) $services[] = 'tables';
-                                                            if ($row['needs_decoration']) $services[] = 'decoration';
-                                                            echo implode(',', $services); 
-                                                        ?>">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <?php if ($row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
-                                                <?php if ($order_type === 'standard'): ?>
-                                                <button class="btn btn-sm btn-primary edit-standard-order"
-                                                        data-id="<?php echo $orderId; ?>"
-                                                        data-status="<?php echo $row['status']; ?>"
-                                                        data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>"
-                                                        data-package="<?php echo htmlspecialchars($row['menu_package'] ?? ''); ?>"
-                                                        data-persons="<?php echo htmlspecialchars($row['num_persons'] ?? 0); ?>"
-                                                        data-event-date="<?php echo htmlspecialchars($row['event_date'] ?? ''); ?>"
-                                                        data-venue="<?php echo htmlspecialchars($row['venue'] ?? ''); ?>"
-                                                        data-notes="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
-                                                        data-services="<?php
-                                                            $services = [];
-                                                            if ($row['needs_setup'] ?? 0) $services[] = 'setup';
-                                                            if ($row['needs_tablesandchairs'] ?? 0) $services[] = 'tables';
-                                                            if ($row['needs_decoration'] ?? 0) $services[] = 'decoration';
-                                                            echo implode(',', $services);
-                                                        ?>">
-                                                    <i class="fas fa-edit"></i> Edit Order
-                                                </button>
-                                                <?php else: ?>
-                                                <button class="btn btn-sm btn-primary edit-custom-order"
-                                                        data-id="<?php echo $row['custom_order_id']; ?>"
-                                                        data-preferences="<?php echo htmlspecialchars($row['menu_preferences'] ?? ''); ?>"
-                                                        data-persons="<?php echo htmlspecialchars($row['num_persons'] ?? 0); ?>"
-                                                        data-amount="<?php echo htmlspecialchars($row['quote_amount'] ?? 0); ?>"
-                                                        data-status="<?php echo $row['status']; ?>"
-                                                        data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>"
-                                                        data-event-date="<?php echo htmlspecialchars($row['event_date']); ?>"
-                                                        data-venue="<?php echo htmlspecialchars($row['venue']); ?>"
-                                                        data-items="<?php echo htmlspecialchars($row['selected_items'] ?? ''); ?>"
-                                                        data-special-requests="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
-                                                        data-services="<?php 
-                                                            $services = [];
-                                                            if ($row['needs_setup']) $services[] = 'setup';
-                                                            if ($row['needs_tablesandchairs']) $services[] = 'tables';
-                                                            if ($row['needs_decoration']) $services[] = 'decoration';
-                                                            echo implode(',', $services); 
-                                                        ?>">
-                                                    <i class="fas fa-edit"></i> Edit Order
-                                                </button>
-                                                <?php endif; ?>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <?php
-                                }
-
                                 // Display standard catering orders only
                                 while ($row = mysqli_fetch_assoc($standard_result)) {
                                     renderCateringRow($row, 'standard');
@@ -546,115 +606,9 @@ function getStatusDisplay($status) {
 
                                 $custom_result = mysqli_query($dbc, $custom_query);
                                 while ($row = mysqli_fetch_assoc($custom_result)) {
-                                    $statusClass = getStatusClass($row['status']);
-                                    $isCustomPackage = ($row['menu_preferences'] == 'Custom Package');
-                                    $isSmallGroup = ($row['num_persons'] < 50);
-                                    
-                                    // Determine request type label
-                                    if ($isCustomPackage && $isSmallGroup) {
-                                        $requestTypeLabel = 'Custom Menu (Small Group)';
-                                    } elseif ($isCustomPackage) {
-                                        $requestTypeLabel = 'Custom Menu';
-                                    } elseif ($isSmallGroup) {
-                                        $requestTypeLabel = 'Small Group';
-                                    } else {
-                                        $requestTypeLabel = 'Special Request';
-                                    }
+                                    renderCateringRow($row, 'custom');
+                                }
                                 ?>
-                                <tr>
-                                    <td>CSP-<?php echo $row['custom_order_id']; ?></td>
-                                    <td><?php echo date('M j, Y g:i A', strtotime($row['event_date'])); ?></td>
-                                    <td>
-                                        <?php echo htmlspecialchars($row['fname'] . ' ' . $row['lname']); ?><br>
-                                        <small class="text-muted"><?php echo $row['phone']; ?></small>
-                                    </td>
-                                    <td>
-                                        <?php echo htmlspecialchars($row['menu_preferences'] ?: 'Not specified'); ?>
-                                        <span class="badge badge-info"><?php echo $requestTypeLabel; ?></span>
-                                    </td>
-                                    <td><?php echo $row['num_persons']; ?></td>
-                                    <td>
-                                        <?php
-                                        if (!empty($row['quote_amount'])) {
-                                            $total = $row['quote_amount'];
-                                            // Add costs for additional services
-                                            if ($row['needs_setup'] == 1) $total += 2000;
-                                            if ($row['needs_tablesandchairs'] == 1) $total += 3500;
-                                            if ($row['needs_decoration'] == 1) $total += 5000;
-                                            echo '₱' . number_format($total, 2);
-                                        } else {
-                                            echo '<em>To be quoted</em>';
-                                        }
-                                        ?>
-                                    </td>
-                                    <td class="order-status">
-                                        <div class="status-info">
-                                            <div class="status-badge">
-                                                <span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span>
-                                            </div>
-                                            <?php if (!empty($row['staff_notes'])): ?>
-                                                <div class="text-muted small mt-1">
-                                                    <i class="fas fa-comment"></i> <?php echo htmlspecialchars($row['staff_notes']); ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                    <td class="order-actions">
-                                        <div class="btn-group">
-                                            <button class="btn btn-sm btn-info view-order" 
-                                                    data-id="<?php echo $row['custom_order_id']; ?>"
-                                                    data-type="custom"
-                                                    data-items="<?php echo htmlspecialchars($row['selected_items'] ?? ''); ?>"
-                                                    data-notes="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
-                                                    data-event-date="<?php echo $row['event_date']; ?>"
-                                                    data-venue="<?php echo htmlspecialchars($row['venue']); ?>"
-                                                    data-persons="<?php echo $row['num_persons']; ?>"
-                                                    data-package="<?php echo htmlspecialchars($row['menu_preferences'] ?: 'Custom Package'); ?>"
-                                                    data-amount="<?php echo $row['quote_amount'] ?? ''; ?>"
-                                                    data-services="<?php 
-                                                        $services = [];
-                                                        if ($row['needs_setup']) $services[] = 'setup';
-                                                        if ($row['needs_tablesandchairs']) $services[] = 'tables';
-                                                        if ($row['needs_decoration']) $services[] = 'decoration';
-                                                        echo implode(',', $services); 
-                                                    ?>">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <?php if ($row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
-                                                <div class="btn-group">
-                                                <button class="btn btn-sm btn-primary edit-custom-order"
-                                                    data-id="<?php echo $row['custom_order_id']; ?>"
-                                                    data-preferences="<?php echo htmlspecialchars($row['menu_preferences'] ?? ''); ?>"
-                                                    data-persons="<?php echo htmlspecialchars($row['num_persons'] ?? 0); ?>"
-                                                    data-amount="<?php echo htmlspecialchars($row['quote_amount'] ?? 0); ?>"
-                                                    data-status="<?php echo $row['status']; ?>"
-                                                    data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>"
-                                                    data-event-date="<?php echo htmlspecialchars($row['event_date']); ?>"
-                                                    data-venue="<?php echo htmlspecialchars($row['venue']); ?>"
-                                                    data-items="<?php echo htmlspecialchars($row['selected_items'] ?? ''); ?>"
-                                                    data-special-requests="<?php echo htmlspecialchars($row['special_requests'] ?? ''); ?>"
-                                                    data-services="<?php 
-                                                    $services = [];
-                                                    if ($row['needs_setup']) $services[] = 'setup';
-                                                    if ($row['needs_tablesandchairs']) $services[] = 'tables';
-                                                    if ($row['needs_decoration']) $services[] = 'decoration';
-                                                    echo implode(',', $services); 
-                                                    ?>">
-                                                    <i class="fas fa-edit"></i> Edit Order
-                                                </button>
-                                                <button class="btn btn-sm btn-info update-status"
-                                                        data-id="<?php echo $row['custom_order_id']; ?>"
-                                                        data-type="custom"
-                                                            data-current-status="<?php echo $row['status']; ?>"
-                                                            data-current-notes="<?php echo htmlspecialchars($row['staff_notes'] ?? ''); ?>">
-                                                        <i class="fas fa-sync-alt"></i> Update Status
-                                                    </button>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <?php } ?>
                             </tbody>
                         </table>
                     </div>
@@ -691,6 +645,9 @@ function getStatusDisplay($status) {
                             
                             <h6>Special Notes</h6>
                             <p id="orderNotes" class="text-muted"></p>
+
+                            <h6>Status Updates</h6>
+                            <div id="deliveryStatusUpdates" class="mt-3"></div>
                         </div>
                         
                         <!-- Right side: Ingredients checklist -->
@@ -812,6 +769,11 @@ function getStatusDisplay($status) {
                             <label>Notes</label>
                             <textarea class="form-control" name="status_notes" rows="3"></textarea>
                         </div>
+                        <div class="form-group">
+                            <label for="deliveryTrackingLink">Lalamove Tracking Link (optional)</label>
+                            <input type="url" class="form-control" name="delivery_tracking_link" id="deliveryTrackingLink" placeholder="Paste Lalamove shareable tracking link here">
+                            <small class="form-text text-muted">Paste the Lalamove shareable tracking link for this delivery order. This is visible to admins only.</small>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -877,7 +839,9 @@ function getStatusDisplay($status) {
 
                                 <div class="form-group">
                                     <label>Staff Notes</label>
-                                    <textarea class="form-control" name="staff_notes" id="editStaffNotes" rows="3"></textarea>
+                                    <div id="customPreviousNotes" class="mb-2 p-2 bg-light border rounded" style="max-height:120px; overflow-y:auto;"></div>
+                                    <textarea class="form-control" name="staff_notes" id="editStaffNotes" rows="3" placeholder="Add a new note..."></textarea>
+                                    <small class="form-text text-muted">New note will be appended with timestamp. Previous notes are shown above.</small>
                                 </div>
 
                                 <div class="form-group">
@@ -912,7 +876,7 @@ function getStatusDisplay($status) {
                         <div class="tab-pane fade" id="menuTab" role="tabpanel">
                             <div id="menuItemsContainer">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <div class="custom-control custom-checkbox">
+                                    <div class="custom-control custom-checkbox"></div>
                                         <input type="checkbox" class="custom-control-input" id="menuHalalOnly">
                                         <label class="custom-control-label" for="menuHalalOnly">Show Halal Items Only</label>
                                     </div>
@@ -939,12 +903,13 @@ function getStatusDisplay($status) {
                                 <div id="selectedItemsList" class="list-group mb-3"></div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
+                         <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" id="saveCustomOrder">Save Changes</button>
                 </div>
+                    </div>
+                </div>
+               
             </div>
         </div>
     </div>
@@ -1018,7 +983,9 @@ function getStatusDisplay($status) {
                                 
                                 <div class="form-group">
                                     <label>Staff Notes</label>
-                                    <textarea class="form-control" name="staff_notes" id="editStandardNotes" rows="4"></textarea>
+                                    <div id="standardPreviousNotes" class="mb-2 p-2 bg-light border rounded" style="max-height:120px; overflow-y:auto;"></div>
+                                    <textarea class="form-control" name="staff_notes" id="editStandardNotes" rows="3" placeholder="Add a new note..."></textarea>
+                                    <small class="form-text text-muted">New note will be appended with timestamp. Previous notes are shown above.</small>
                                 </div>
                                 
                                 <div class="form-group">
@@ -1084,6 +1051,7 @@ $(document).ready(function() {
             const scheduledDelivery = $(this).data('scheduled-delivery');
             const paymentMethod = $(this).data('payment-method');
             const deliveryAddress = $(this).data('delivery-address');
+            const deliveryTrackingLink = $(this).data('delivery-tracking-link');
             
             // Display order items
             $('#orderItems').html(items.split(', ').map(item => `<div class="mb-2">${item}</div>`).join(''));
@@ -1107,6 +1075,7 @@ $(document).ready(function() {
                 const formattedDate = deliveryDate.toLocaleString('en-US', { 
                     month: 'long',
                     day: 'numeric',
+                    year: 'numeric',
                     hour: 'numeric',
                     minute: '2-digit',
                     hour12: true
@@ -1119,13 +1088,39 @@ $(document).ready(function() {
             } else {
                 $('#deliveryTime').html('<p class="text-muted">No scheduled delivery time</p>');
             }
-            
+
+            // Fetch and display status update history
+            $.get('get_order_status_updates.php', { order_id: orderId })
+                .done(function(response) {
+                    $('#deliveryStatusUpdates').html(response);
+                })
+                .fail(function() {
+                    $('#deliveryStatusUpdates').html('<div class="alert alert-danger">Failed to load status history</div>');
+                });
+
+            // If editing a delivery order, populate the tracking link field
+            if (typeof deliveryTrackingLink !== 'undefined') {
+                $('#deliveryTrackingLink').val(deliveryTrackingLink);
+            } else {
+                $('#deliveryTrackingLink').val('');
+            }
+
             $('#deliveryOrderModal').modal('show');
         } else {
             // Handle catering order
             const orderPrefix = orderType === 'standard' ? 'CTR-' : 'CSP-';
             $('#catering-order-id').text(`${orderPrefix}${orderId}`);
-            $('#catering-event-date').text(new Date(eventDate).toLocaleString());
+            // Format event date as 'Month Day, Year Hour:Minute AM/PM'
+            const eventDateObj = new Date(eventDate);
+            const formattedEventDate = eventDateObj.toLocaleString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+            $('#catering-event-date').text(formattedEventDate);
             $('#catering-venue').text(venue);
             $('#catering-persons').text(persons);
             $('#catering-package').text(packageType);
@@ -1218,7 +1213,17 @@ $(document).ready(function() {
                 return;
         }
         
-        $.post(endpoint, form.serialize())
+        const formData = form.serializeArray().reduce((obj, item) => {
+            obj[item.name] = item.value;
+            return obj;
+        }, {});
+
+        // When saving status for delivery, include the tracking link in the POST
+        if (orderType === 'delivery') {
+            formData.delivery_tracking_link = $('#deliveryTrackingLink').val();
+        }
+
+        $.post(endpoint, formData)
             .done(function(response) {
                 if (response === 'success') {
                     location.reload();
@@ -1254,18 +1259,18 @@ $(document).ready(function() {
         const status = $(this).data('status');
         const staffNotes = $(this).data('current-notes');
 
-        // Reset selected items
+        // Reset form and selected items
+        $('#editCustomOrderForm')[0].reset();
         selectedMenuItems.clear();
-        
+
         // Process selected items
         items.forEach(item => {
             const parts = item.split(': ');
-            if (parts.length === 2) { // Only add if valid format (category: name)
+            if (parts.length === 2) {
                 const category = parts[0].trim();
                 const name = parts[1].trim();
-                // Store temporarily with category information
                 selectedMenuItems.set(name, {
-                    id: name, // Will be replaced with actual ID when items are loaded
+                    id: name,
                     name: name,
                     category: category
                 });
@@ -1277,16 +1282,36 @@ $(document).ready(function() {
         $('#editNumPersons').val(persons);
         $('#editQuoteAmount').val(amount);
         $('#editOrderStatus').val(status);
-        $('#editStaffNotes').val(staffNotes);
+        $('#editStaffNotes').val(''); // Always blank for new note
 
         $('#setup').prop('checked', services.includes('setup'));
         $('#tables').prop('checked', services.includes('tables'));
         $('#decoration').prop('checked', services.includes('decoration'));
 
+        // Dynamically populate previous notes section
+        let notesHtml = '';
+        if (staffNotes && staffNotes.trim() !== '') {
+            notesHtml = '<strong>Previous Notes:</strong>';
+            const notesArr = staffNotes.split('\n');
+            notesArr.forEach(note => {
+                const match = note.match(/\[(.*?)\]/);
+                if (match) {
+                    const dateObj = new Date(match[1]);
+                    if (!isNaN(dateObj)) {
+                        const formatted = dateObj.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+                        note = note.replace(`[${match[1]}]`, `[${formatted}]`);
+                    }
+                }
+                notesHtml += `<div class=\"text-muted small\"><i class=\"fas fa-sticky-note\"></i> ${$('<div>').text(note).html()}</div>`;
+            });
+        } else {
+            notesHtml = '<div class="text-muted small"><i class="fas fa-sticky-note"></i> No previous notes yet.</div>';
+        }
+        // Assumes a div with id="customPreviousNotes" exists above the textarea in the modal
+        $('#customPreviousNotes').html(notesHtml);
+
         // Load menu items and handle tab show
         loadMenuItems();
-        
-        // Ensure menu items are reloaded if tab is clicked after initial load
         $('#menu-tab').off('show.bs.tab').on('show.bs.tab', function() {
             loadMenuItems();
         });
@@ -1693,7 +1718,7 @@ $(document).ready(function() {
         // Set form values
         $('#editStandardOrderId').val(orderId);
         $('#editStandardStatus').val(status);
-        $('#editStandardNotes').val(staffNotes);
+        $('#editStandardNotes').val(''); // Always blank for new note
         $('#editStandardPackage').val(packageType);
         $('#editStandardPersons').val(persons);
         $('#editStandardEventDate').val(eventDate);
@@ -1705,6 +1730,27 @@ $(document).ready(function() {
         $('#standardTables').prop('checked', services.includes('tables'));
         $('#standardDecoration').prop('checked', services.includes('decoration'));
         
+        // Populate previous notes section
+        let notesHtml = '';
+        if (staffNotes && staffNotes.trim() !== '') {
+            notesHtml = '<strong>Previous Notes:</strong>';
+            const notesArr = staffNotes.split('\n');
+            notesArr.forEach(note => {
+                const match = note.match(/\[(.*?)\]/);
+                if (match) {
+                    const dateObj = new Date(match[1]);
+                    if (!isNaN(dateObj)) {
+                        const formatted = dateObj.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+                        note = note.replace(`[${match[1]}]`, `[${formatted}]`);
+                    }
+                }
+                notesHtml += `<div class="text-muted small"><i class="fas fa-sticky-note"></i> ${$('<div>').text(note).html()}</div>`;
+            });
+        } else {
+            notesHtml = '<div class="text-muted small"><i class="fas fa-sticky-note"></i> No previous notes yet.</div>';
+        }
+        $('#standardPreviousNotes').html(notesHtml);
+
         // Update cost breakdown
         setTimeout(updateStandardCostBreakdown, 100);
         

@@ -29,6 +29,8 @@ try {
     $order_id = intval($_POST['order_id']);
     $new_status = mysqli_real_escape_string($dbc, $_POST['status']);
     $status_notes = isset($_POST['status_notes']) ? mysqli_real_escape_string($dbc, $_POST['status_notes']) : '';
+    // Add support for delivery_tracking_link (Lalamove link)
+    $delivery_tracking_link = isset($_POST['delivery_tracking_link']) ? mysqli_real_escape_string($dbc, $_POST['delivery_tracking_link']) : '';
 
     // Get current order status and customer email
     $query = "SELECT o.status, o.user_id, u.email_add 
@@ -63,11 +65,13 @@ try {
                         WHEN ? != 'cancelled' THEN NULL
                         ELSE cancelled_at
                     END,
-                    status_notes = ?
+                    status_notes = ?,
+                    status_updates = CONCAT(COALESCE(status_updates, ''), IF(LENGTH(COALESCE(status_updates, '')) > 0, '\n', ''), '[', DATE_FORMAT(NOW(), '%M %e, %Y %l:%i %p'), '] ', ?, ' (', ? ,')'),
+                    delivery_tracking_link = ?
                     WHERE order_id = ?";
     
     $update_stmt = mysqli_prepare($dbc, $update_query);
-    mysqli_stmt_bind_param($update_stmt, "ssssssssi", 
+    mysqli_stmt_bind_param($update_stmt, "sssssssssssi", 
         $new_status,
         $new_status,
         $new_status,
@@ -76,6 +80,9 @@ try {
         $new_status,
         $new_status,
         $status_notes,
+        $status_notes,
+        $new_status,
+        $delivery_tracking_link,
         $order_id
     );
 

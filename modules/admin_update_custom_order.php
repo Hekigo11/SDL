@@ -33,19 +33,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     mysqli_begin_transaction($dbc);
 
     try {
-        $query = "UPDATE custom_catering_orders 
-                  SET menu_preferences = ?, 
+        // Append timestamp to staff_notes when provided, preserving history
+        $query = "UPDATE custom_catering_orders
+                  SET menu_preferences = ?,
                       num_persons = ?,
                       quote_amount = ?,
                       needs_setup = ?,
                       needs_tablesandchairs = ?,
                       needs_decoration = ?,
                       status = ?,
-                      staff_notes = ?
+                      staff_notes = CASE
+                                      WHEN ? != '' THEN CONCAT(
+                                          COALESCE(staff_notes, ''),
+                                          IF(LENGTH(COALESCE(staff_notes, '')) > 0, '\n', ''),
+                                          '[', NOW(), '] ', ?
+                                      )
+                                      ELSE staff_notes
+                                    END
                   WHERE custom_order_id = ?";
 
         $stmt = mysqli_prepare($dbc, $query);
-        mysqli_stmt_bind_param($stmt, 'sidiiissi', 
+        mysqli_stmt_bind_param($stmt, 'sidiiisssi', 
             $menu_preferences,
             $num_persons,
             $quote_amount,
@@ -53,7 +61,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $needs_tablesandchairs,
             $needs_decoration,
             $status,
-            $staff_notes,
+            $staff_notes, // for CASE WHEN check
+            $staff_notes, // for appending note
             $order_id
         );
 

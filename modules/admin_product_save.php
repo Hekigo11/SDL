@@ -15,6 +15,18 @@ try {
         throw new Exception("All fields are required");
     }
 
+    // Check for duplicate product name
+    $dup_query = "SELECT COUNT(*) FROM products WHERE prod_name = ?";
+    $dup_stmt = mysqli_prepare($dbc, $dup_query);
+    mysqli_stmt_bind_param($dup_stmt, "s", $_POST['prod_name']);
+    mysqli_stmt_execute($dup_stmt);
+    mysqli_stmt_bind_result($dup_stmt, $dup_count);
+    mysqli_stmt_fetch($dup_stmt);
+    mysqli_stmt_close($dup_stmt);
+    if ($dup_count > 0) {
+        throw new Exception("A product with this name already exists.");
+    }
+
     // Handle file upload
     if (isset($_FILES['prod_img']) && $_FILES['prod_img']['error'] == 0) {
         $allowed = ['jpg', 'jpeg', 'png', 'gif'];
