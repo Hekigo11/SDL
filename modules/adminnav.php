@@ -23,6 +23,10 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
             <i class="fas fa-box"></i>
             <span>Products</span>
         </a>
+        <a href="#" class="nav-link" data-page="packages">
+            <i class="fas fa-utensils"></i>
+            <span>Catering Packages</span>
+        </a>
         <a href="#" class="nav-link" data-page="ingredients">
             <i class="fas fa-mortar-pestle"></i>
             <span>Ingredients</span>
@@ -39,10 +43,10 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
         <i class="fas fa-tasks"></i>
             <span>Order Checklist</span>
         </a>
-        <a href="#" class="nav-link" data-page="customers">
+        <!-- <a href="#" class="nav-link" data-page="customers">
             <i class="fas fa-users"></i>
             <span>Customers</span>
-        </a>
+        </a> -->
         <a href="#" class="nav-link" data-toggle="modal" data-target="#logoutModal">
             <i class="fas fa-sign-out-alt"></i>
             <span>Logout</span>

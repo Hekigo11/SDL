@@ -16,6 +16,9 @@ switch($page) {
     case 'products':
         include('admin_products.php');
         break;
+    case 'packages':
+        include('admin_packages.php');
+        break;
     case 'orders':
         include('admin_order_details.php');
         break;
