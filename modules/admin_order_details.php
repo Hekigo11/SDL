@@ -122,6 +122,7 @@ function renderCateringRow($row, $order_type) {
                 ?>
             </div>
         </td>
+        <td><?php echo date('M j, Y g:i A', strtotime($row['created_at'])); ?></td>
         <td class="order-actions">
             <div class="btn-group">
                 <button class="btn btn-sm btn-info view-order" 
@@ -429,6 +430,7 @@ function renderCateringRow($row, $order_type) {
                                     <th>Items</th>
                                     <th>Total Amount</th>
                                     <th style="min-width: 200px;">Status</th>
+                                    <th>Created At</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -494,6 +496,7 @@ function renderCateringRow($row, $order_type) {
                                             <?php endif; ?>
                                         </div>
                                     </td>
+                                    <td><?php echo date('M j, Y g:i A', strtotime($row['created_at'])); ?></td>
                                     <td class="order-actions">
                                         <div class="btn-group">
                                             <button class="btn btn-sm btn-info view-order" 
@@ -542,6 +545,7 @@ function renderCateringRow($row, $order_type) {
                                     <th>Persons</th>
                                     <th>Amount</th>
                                     <th style="min-width: 200px;">Status</th>
+                                    <th>Created At</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -587,6 +591,7 @@ function renderCateringRow($row, $order_type) {
                                     <th>Persons</th>
                                     <th>Amount</th>
                                     <th style="min-width: 200px;">Status</th>
+                                    <th>Created At</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -814,7 +819,26 @@ function renderCateringRow($row, $order_type) {
                                 
                                 <div class="form-group">
                                     <label>Menu Preferences</label>
-                                    <input type="text" class="form-control" name="menu_preferences" id="editMenuPreferences">
+                                    <select class="form-control" name="menu_preferences" id="editMenuPreferences" required>
+                                        <?php
+                                        // Query packages from the database
+                                        $custom_package_query = "SELECT name, base_price FROM packages WHERE is_active = 1 ORDER BY base_price ASC";
+                                        $custom_package_result = mysqli_query($dbc, $custom_package_query);
+                                        
+                                        if ($custom_package_result) {
+                                            while ($package = mysqli_fetch_assoc($custom_package_result)) {
+                                                echo '<option value="' . htmlspecialchars($package['name']) . '">' 
+                                                    . htmlspecialchars($package['name']) . ' (₱' . number_format($package['base_price'], 2) . ' per person)</option>';
+                                            }
+                                        } else {
+                                            // Fallback options if query fails
+                                            echo '<option value="Basic Filipino Package">Basic Filipino Package (₱250.00 per person)</option>';
+                                            echo '<option value="Premium Filipino Package">Premium Filipino Package (₱450.00 per person)</option>';
+                                            echo '<option value="Executive Package">Executive Package (₱650.00 per person)</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                    <small class="form-text text-muted">Package selection affects base pricing per person</small>
                                 </div>
 
                                 <div class="form-group">
@@ -1263,6 +1287,25 @@ $(document).ready(function() {
         $('#editCustomOrderForm')[0].reset();
         selectedMenuItems.clear();
 
+        // Set value for select element instead of input field
+        if (preferences) {
+            $('#editMenuPreferences option').each(function() {
+                if ($(this).val().includes(preferences)) {
+                    $(this).prop('selected', true);
+                    return false; // Break the loop once found
+                }
+            });
+            // If no matching option found, try to select based on starting text
+            if (!$('#editMenuPreferences option:selected').val()) {
+                $('#editMenuPreferences option').each(function() {
+                    if ($(this).text().startsWith(preferences)) {
+                        $(this).prop('selected', true);
+                        return false;
+                    }
+                });
+            }
+        }
+
         // Process selected items
         items.forEach(item => {
             const parts = item.split(': ');
@@ -1278,7 +1321,6 @@ $(document).ready(function() {
         });
 
         $('#editOrderId').val(orderId);
-        $('#editMenuPreferences').val(preferences);
         $('#editNumPersons').val(persons);
         $('#editQuoteAmount').val(amount);
         $('#editOrderStatus').val(status);
@@ -1744,7 +1786,7 @@ $(document).ready(function() {
                         note = note.replace(`[${match[1]}]`, `[${formatted}]`);
                     }
                 }
-                notesHtml += `<div class="text-muted small"><i class="fas fa-sticky-note"></i> ${$('<div>').text(note).html()}</div>`;
+                notesHtml += `<div class=\"text-muted small\"><i class=\"fas fa-sticky-note\"></i> ${$('<div>').text(note).html()}</div>`;
             });
         } else {
             notesHtml = '<div class="text-muted small"><i class="fas fa-sticky-note"></i> No previous notes yet.</div>';
