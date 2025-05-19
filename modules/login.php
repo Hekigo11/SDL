@@ -4,10 +4,11 @@ require_once __DIR__ . '/../config.php';
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-12">
-            <form id="frmlogin" class="p-4" novalidate>
+            <!-- Keep the original ID in the main login form -->
+            <form id="loginForm" class="p-4" novalidate>
                 <div class="form-group">
-                    <label for="txtemail">Email or Mobile Number</label>
-                    <input type="text" class="form-control mb-2" id="txtemail" name="txtemail" placeholder="Enter Email or Mobile Number" required>
+                    <label for="txtemail">Email</label>
+                    <input type="email" class="form-control mb-2" id="txtemail" name="txtemail" placeholder="Enter Email" required>
                     <div class="invalid-feedback"></div>
                 </div>
                 <div class="form-group">
@@ -34,7 +35,7 @@ function showAlertlogin(message, type) {
     const alertContainer = $("#alert-container");
     const alertHtml = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
                             ${message}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            
                        </div>`;
     alertContainer.html(alertHtml);
 }
@@ -58,12 +59,12 @@ function validateField(field) {
 
 $(document).ready(function(){
     // Validate on input
-    $('#frmlogin input').on('input', function() {
+    $('#loginForm input').on('input', function() {
         validateField(this);
     });
     
     // GUMAGANA NA ENTER KEY
-    $("#frmlogin").on('keypress', function(e) {
+    $("#loginForm").on('keypress', function(e) {
         if(e.which === 13) {
             e.preventDefault();
             $("#btnlogin").click();
@@ -74,7 +75,7 @@ $(document).ready(function(){
         let isValid = true;
         
         // Validate each field
-        $('#frmlogin input').each(function() {
+        $('#loginForm input').each(function() {
             if (!validateField(this)) {
                 isValid = false;
             }
@@ -87,7 +88,7 @@ $(document).ready(function(){
         // Pang clear ng alert
         $("#alert-container").empty();
         
-        $.post("<?php echo BASE_URL; ?>/modules/login_req.php", $("#frmlogin").serialize(), function(d){
+        $.post("<?php echo BASE_URL; ?>/modules/login_req.php", $("#loginForm").serialize(), function(d){
             if(d == 'admin'){
                 showAlertlogin("Login successful! Redirecting to admin dashboard...", "success");
                 $("input[name='txtemail']").val('');

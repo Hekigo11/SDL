@@ -31,10 +31,21 @@ if (isset($_SESSION['loginok']) && isset($_SESSION['user_id'])) {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 		<link rel="stylesheet" href="<?php echo BASE_URL; ?>/vendor/style1.css">
 		<title>Shopping Cart - MARJ Food Delivery</title>
+        <style>
+        .modal-backdrop {
+            z-index: 1040;
+        }
+        .modal {
+            z-index: 1050;
+        }
+        .alert {
+            z-index: 1060;
+        }
+        </style>
 	</head>
 
 	<body>
-		<?php include("cart_nav.php");?>
+		<?php include("navigation.php");?>
 		
 		<main class="container py-5">
             <div class="row">
@@ -252,7 +263,7 @@ if (isset($_SESSION['loginok']) && isset($_SESSION['user_id'])) {
                                         <label for="payment">Payment Method</label>
                                         <select class="form-control" id="payment" required>
                                             <option value="cash">Cash on Delivery</option>
-                                            <option value="gcash">GCash</option>
+                                            <option value="gcash">Cashless/E-wallet</option>
                                         </select>
                                     </div>
                                 </div>
@@ -287,7 +298,6 @@ if (isset($_SESSION['loginok']) && isset($_SESSION['user_id'])) {
         </div>
 
         <!-- Login Modal -->
-        <?php if (!isset($_SESSION['loginok'])) { ?>
         <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -298,12 +308,21 @@ if (isset($_SESSION['loginok']) && isset($_SESSION['user_id'])) {
                         </button>
                     </div>
                     <div class="modal-body">
-                        <?php include("login.php"); ?>
+                        <form id="cartLoginForm" class="p-4" novalidate>
+                            <div class="form-group">
+                                <label for="txtemail_cart">Email</label>
+                                <input type="email" class="form-control mb-2" id="txtemail_cart" name="txtemail" placeholder="Enter Email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="txtpassword_cart">Password</label>
+                                <input type="password" class="form-control mb-2" id="txtpassword_cart" name="txtpassword" placeholder="Enter Password" required>
+                            </div>
+                            <button type="submit" class="btn rounded-pill btn-primary btn-block" id="btnlogin_cart">Login</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-        <?php } ?>
 
 		<script>
         $(document).ready(function() {
@@ -466,7 +485,7 @@ if (isset($_SESSION['loginok']) && isset($_SESSION['user_id'])) {
                 const formData = {
                     fullname: $('#fullname').val(),
                     phone: $('#phone').val(),
-                    address: $('#address').val(),
+                    address: $('#address').val(), // This should be the selected/entered address string
                     delivery_type: $('input[name="delivery_type"]:checked').val(),
                     same_day_time: $('#same_day_time').val(),
                     scheduled_date: $('#scheduled_date').val(),
@@ -476,57 +495,233 @@ if (isset($_SESSION['loginok']) && isset($_SESSION['user_id'])) {
                     total: parseFloat($('#checkout-total').text().replace('₱', ''))
                 };
 
-                if (!formData.fullname || !formData.phone || !formData.address || !formData.payment || 
-                    (formData.delivery_type === 'same_day' && !formData.same_day_time) || 
-                    (formData.delivery_type === 'scheduled' && (!formData.scheduled_date || !formData.scheduled_time))) {
-                    showAlert('Please fill in all required fields', 'danger');
+                // Validate the address field from the textarea
+                if (!formData.address && $('#address_select').val() !== 'new') {
+                    const selectedAddress = $('#address_select').val();
+                    if (selectedAddress) {
+                        formData.address = selectedAddress;
+                    }
+                }
+                
+                // More robust validation
+                let validationError = false;
+                let alertMessage = 'Please fill in all required delivery and payment fields.';
+
+                if (!formData.fullname || !formData.phone || !formData.address || !formData.payment) {
+                    validationError = true;
+                } else if (formData.delivery_type === 'same_day') {
+                    if (!formData.same_day_time) { // This covers the "No more deliveries" case (empty value)
+                        validationError = true;
+                        alertMessage = 'No delivery times are available for same-day delivery. Please schedule for later or try again tomorrow.';
+                    }
+                } else if (formData.delivery_type === 'scheduled') {
+                    if (!formData.scheduled_date || !formData.scheduled_time) {
+                        validationError = true;
+                        alertMessage = 'Please select a date and time for scheduled delivery.';
+                    }
+                }
+                
+                if (validationError) {
+                    showAlert(alertMessage, 'danger');
                     $btn.prop('disabled', false).text('Place Order');
                     return;
                 }
 
-                $.ajax({
-                    url: 'place_order.php',
-                    method: 'POST',
-                    data: formData,
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            showAlert(response.message || 'Order placed successfully!', 'success');
-                            // Clear cart from database
-                            $.post('remove_from_cart.php', { clear_all: true }, function() {
-                                updateCart();
-                            });
-                            $('#checkoutModal').modal('hide');
-                            setTimeout(() => {
-                                window.location.href = '<?php echo BASE_URL; ?>/index.php';
-                            }, 2000);
-                        } else {
-                            showAlert('Failed to place order: ' + (response.message || 'Unknown error'), 'danger');
+                // Clear existing alerts
+                $('.alert').remove();
+
+                if (formData.payment === 'gcash') {
+                    // Step 1: Call place_order.php to create the order and get payment_reference
+                    $.ajax({
+                        url: 'place_order.php',
+                        method: 'POST',
+                        data: formData, // Send all collected form data
+                        dataType: 'json',
+                        success: function(orderResponse) {
+                            if (orderResponse.success && orderResponse.payment_reference) {
+                                // Step 2: Call create_payment_link.php with the reference
+                                const paymentRequestData = {
+                                    amount: formData.total,
+                                    description: 'Payment for Order (Ref: ' + orderResponse.payment_reference + ')',
+                                    reference: orderResponse.payment_reference, // Use reference from place_order.php
+                                    type: 'delivery' 
+                                };
+
+                                fetch('create_payment_link.php', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json'
+                                    },
+                                    body: JSON.stringify(paymentRequestData)
+                                })
+                                .then(response => response.json())
+                                .then(linkData => {
+                                    if (linkData.success && linkData.checkout_url) {
+                                        // Open PayMongo checkout in new tab
+                                        window.open(linkData.checkout_url, '_blank');
+                                        
+                                        // Start polling for payment status
+                                        checkPaymentStatus(linkData.reference); // Use the same reference for polling
+                                        
+                                        showAlert('Payment window opened. Please complete your payment. Your order is pending confirmation.', 'info', true);
+                                        // $btn.prop('disabled', false).text('Place Order'); // Keep disabled until payment status known or polling stops
+                                    } else {
+                                        throw new Error(linkData.error || 'Failed to create payment link.');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Create Payment Link Error:', error);
+                                    showAlert(error.message || 'Payment link creation failed. Your order was created but payment was not initiated.', 'danger', true);
+                                    $btn.prop('disabled', false).text('Place Order');
+                                });
+
+                            } else {
+                                // Error from place_order.php
+                                showAlert('Failed to create order: ' + (orderResponse.message || 'Unknown error during order creation.'), 'danger', true);
+                                $btn.prop('disabled', false).text('Place Order');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            // AJAX error for place_order.php
+                            console.error('Place Order AJAX Error:', status, error, xhr.responseText);
+                            showAlert('Error creating order. Please try again. ' + (xhr.responseJSON ? xhr.responseJSON.message : ''), 'danger', true);
                             $btn.prop('disabled', false).text('Place Order');
                         }
-                    },
-                    error: function() {
-                        showAlert('Error placing order. Please try again.', 'danger');
-                        $btn.prop('disabled', false).text('Place Order');
-                    }
-                });
+                    });
+                } else { // For 'cash' or other non-GCash payments
+                    $.ajax({
+                        url: 'place_order.php',
+                        method: 'POST',
+                        data: formData,
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                showAlert(response.message || 'Order placed successfully!', 'success');
+                                // Clear cart from database
+                                $.post('remove_from_cart.php', { clear_all: true }, function() {
+                                    updateCart();
+                                    // Update cart count in navbar
+                                    if (typeof updateCartCount === 'function') {
+                                        updateCartCount();
+                                    }
+                                });
+                                $('#checkoutModal').modal('hide');
+                                setTimeout(() => {
+                                    window.location.href = '<?php echo BASE_URL; ?>/index.php'; // Or to an order success page
+                                }, 2000);
+                            } else {
+                                showAlert('Failed to place order: ' + (response.message || 'Unknown error'), 'danger');
+                                $btn.prop('disabled', false).text('Place Order');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Place Order (Cash) AJAX Error:', status, error, xhr.responseText);
+                            showAlert('Error placing order. Please try again. ' + (xhr.responseJSON ? xhr.responseJSON.message : ''), 'danger');
+                            $btn.prop('disabled', false).text('Place Order');
+                        }
+                    });
+                }
             });
 
+            // Replace your existing checkPaymentStatus function with this:
+            function checkPaymentStatus(reference) {
+                console.log('Checking payment status for:', reference); // Debug log
+                
+                function updateStatus() {
+                    if (!$('#checkoutModal').is(':visible')) {
+                        console.log('Checkout modal closed, stopping payment status check for:', reference);
+                        return; // Stop polling if modal is closed
+                    }
+
+                    $.ajax({
+                        url: 'check_paymongo_status.php',
+                        method: 'GET',
+                        data: { reference: reference },
+                        dataType: 'json', // Expect JSON response
+                        success: function(response) {
+                            console.log('Payment status response:', response); // Debug log
+                            
+                            if (response.success) {
+                                if (response.status === 'paid') {
+                                    console.log("UI update triggered for paid status in cart.php polling:", response); // Added for debugging
+                                    // Clear alerts and modal
+                                    $('.alert').remove();
+                                    $('#checkoutModal').modal('hide');
+                                    
+                                    showAlert('Payment successful! Your order is being processed. Redirecting...', 'success', true);
+                                    
+                                    // Optionally, clear cart from client-side if not already handled by server or page reload
+                                    // updateCart(); 
+                                    if (typeof updateCartCount === 'function') {
+                                        updateCartCount(0); // Or fetch new count
+                                    }
+
+                                    // Redirect to orders page
+                                    setTimeout(() => {
+                                        window.location.href = '<?php echo BASE_URL; ?>/modules/orders.php?order_ref=' + reference;
+                                    }, 2500);
+                                    
+                                    return; // Stop checking
+                                } else if (response.status === 'expired' || response.status === 'failed') {
+                                    $('.alert').remove();
+                                    showAlert('Payment link has expired or payment failed. Please try placing the order again.', 'danger', true);
+                                    $('#place-order-btn').prop('disabled', false).text('Place Order'); // Re-enable button
+                                    return; // Stop checking
+                                }
+                                
+                                // Continue checking every 5 seconds if pending
+                                setTimeout(updateStatus, 5000);
+                            } else {
+                                // success: false from check_paymongo_status.php
+                                console.error('Payment check failed (API error):', response.error);
+                                showAlert('Error checking payment status: ' + response.error + '. Will retry.', 'warning');
+                                setTimeout(updateStatus, 7000); // Retry after a slightly longer delay
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Payment check AJAX error:', status, error, xhr.responseText);
+                            // Only continue polling if modal is still visible, otherwise could be an error after success
+                            if ($('#checkoutModal').is(':visible')) {
+                                showAlert('Could not retrieve payment status. Checking again shortly.', 'warning');
+                                setTimeout(updateStatus, 7000); // Retry after a slightly longer delay
+                            }
+                        }
+                    });
+                }
+
+                // Start checking only if modal is visible
+                if ($('#checkoutModal').is(':visible')) {
+                    updateStatus();
+                } else {
+                    console.log('Checkout modal not visible, not starting payment status check for:', reference);
+                }
+            }
+
             // Show alert
-            function showAlert(message, type, autoHide = false) {
+            function showAlert(message, type, persistent = false) {
+                // Remove any existing alerts
+                $('.alert').remove();
+                
                 const alertHtml = `
-                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                        ${message}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                    <div class="alert alert-${type} alert-dismissible fade show" 
+                         style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 99999; min-width: 300px;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>${message}</span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
                     </div>
                 `;
-                $('main.container').prepend(alertHtml);
-                if (autoHide) {
+                
+                $('body').append(alertHtml);
+                
+                // Auto dismiss after 5 seconds if not persistent
+                if (!persistent) {
                     setTimeout(() => {
                         $('.alert').alert('close');
-                    }, 3000);
+                    }, 5000);
                 }
             }
 
@@ -635,6 +830,39 @@ if (isset($_SESSION['loginok']) && isset($_SESSION['user_id'])) {
             // Load addresses when checkout modal is shown
             $('#checkoutModal').on('show.bs.modal', function() {
                 loadAddresses();
+            });
+
+            // Add this near the top of your script section
+            window.addEventListener('message', function(event) {
+                const data = event.data;
+                if (typeof data === 'object') {
+                    // Remove any existing alerts first
+                    $('.alert').remove();
+                    
+                    switch(data.type) {
+                        case 'payment_success':
+                            // Hide checkout modal
+                            $('#checkoutModal').modal('hide');
+                            // Clear any existing alerts
+                            $('.alert').remove();
+                            // Show success message
+                            showAlert('Payment successful! Redirecting to orders...', 'success', true);
+                            // Clear cart and redirect
+                            $.post('remove_from_cart.php', { clear_all: true }, function() {
+                                setTimeout(() => {
+                                    window.location.href = '<?php echo BASE_URL; ?>/modules/orders.php';
+                                }, 2000);
+                            });
+                            break;
+                            
+                        case 'payment_error':
+                            // Hide checkout modal
+                            $('#checkoutModal').modal('hide');
+                            // Show error message
+                            showAlert('Payment failed: ' + data.message, 'danger', true);
+                            break;
+                    }
+                }
             });
 
             // Initialize cart

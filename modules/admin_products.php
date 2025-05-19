@@ -164,8 +164,7 @@ function renderIngredientOptions($dbc) {
                                         <div class="col-12 mb-2">
                                             <div class="ingredient-search-container position-relative">
                                                 <input type="text" class="form-control" id="ingredientSearch" placeholder="Search for ingredients...">
-                                                <div id="ingredientSearchResults" class="dropdown-menu w-100" style="max-height: 250px; overflow-y: auto;">
-                                                </div>
+                                                <div id="ingredientSearchResults" class="dropdown-menu w-100"></div>
                                             </div>
                                         </div>
                                         <div class="col-7">
@@ -399,6 +398,10 @@ $(document).ready(function() {
             z-index: 1050;
             background: white;
         }
+        #ingredientSearchResults.dropdown-menu {
+            max-height: unset !important;
+            overflow-y: unset !important;
+        }
         #ingredientSearchResults.show {
             display: block;
         }
@@ -411,42 +414,46 @@ $(document).ready(function() {
     `).appendTo('head');
     
     // Simple ingredient search functionality
-    $('#ingredientSearch').on('input', function() {
-        let term = $(this).val().trim();
+    function fetchIngredientResults(term = '') {
         let $results = $('#ingredientSearchResults');
-        
-        if (!term) {
-            $results.empty().removeClass('show');
-            return;
-        }
-        
         // Load the results panel with a loading message
         $results.html('<div class="p-3 text-center"><i class="fas fa-spinner fa-spin mr-2"></i>Loading...</div>').addClass('show');
-        
-        // Fetch ingredients that match the search term
+        // Fetch ingredients that match the search term (or all if empty)
         $.get('admin_get_ingredients.php', { term: term }, function(data) {
             $results.html(data).addClass('show');
-            
             // Add click handler for ingredient selection
             $results.find('.ingredient-item').on('click', function() {
                 const id = $(this).data('id');
                 const name = $(this).data('name');
                 const unit = $(this).data('unit');
-                
                 // Update the input fields
                 $('#ingredientSearch').val(name);
                 $('#addProductIngredientUnit').text(unit);
                 $('#ingredientSearch').data('selected-id', id);
-                
                 // Hide the results
                 $results.removeClass('show');
-                
                 // Focus quantity field
                 $('#addProductIngredientQuantity').focus();
             });
         }).fail(function() {
             $results.html('<div class="p-3 text-center text-danger"><i class="fas fa-exclamation-circle mr-2"></i>Error loading ingredients</div>').addClass('show');
         });
+    }
+
+    $('#ingredientSearch').on('input', function() {
+        let term = $(this).val().trim();
+        if (!term) {
+            // Show all ingredients if input is empty
+            fetchIngredientResults('');
+        } else {
+            fetchIngredientResults(term);
+        }
+    });
+
+    // Show dropdown on focus, even if input is empty
+    $('#ingredientSearch').on('focus', function() {
+        let term = $(this).val().trim();
+        fetchIngredientResults(term);
     });
     
     // Close results dropdown when clicking outside

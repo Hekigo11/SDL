@@ -20,6 +20,8 @@ require_once 'config.php';
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 		<link rel="stylesheet" href="vendor/style1.css">
 		<title>MARJ Food Services</title>
+		
+		<link rel="/images/MARJ.png">
 
         <style>
             .service-card {
