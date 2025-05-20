@@ -3,7 +3,7 @@ require_once __DIR__ . '/../config.php';
 session_start();
 
 // Check if user is admin
-if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
+if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {    
     echo "Unauthorized access";
     exit;
 }

@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config.php';
-if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
+if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {    
     echo "Unauthorized";
     exit;
 }

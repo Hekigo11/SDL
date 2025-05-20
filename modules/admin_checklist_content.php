@@ -2,8 +2,8 @@
 // Only run these for direct page load, not AJAX calls
 if (!isset($_GET['ajax'])) {
     require_once '../config.php';
-    if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
-        header('Location: ' . BASE_URL . '/index.php');
+if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {          
+    header('Location: ' . BASE_URL . '/index.php');
         exit;
     }
     include("dbconi.php");

@@ -4,7 +4,7 @@ session_start();
 include("dbconi.php");
 
 // Check if user is admin
-if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
+if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {        
     header('Content-Type: application/json');
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
     exit;

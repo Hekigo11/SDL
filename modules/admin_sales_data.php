@@ -3,7 +3,7 @@ require_once '../config.php';
 header('Content-Type: text/html; charset=utf-8');
 
 // Check admin authentication
-if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
+if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {    
     echo "Unauthorized";
     exit;
 }

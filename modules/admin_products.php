@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../config.php';
 
 // Check if user is admin
-if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
+if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {    
     header('Location: ' . BASE_URL . '/index.php');
     exit;
 }
@@ -674,11 +674,10 @@ $(document).ready(function() {
     });
 
     // Delete ingredient from product
-    $(document).on('click', '.delete-ingredient', function() {
+    $('#editProductModal').on('click', '#productIngredientsTable .delete-ingredient', function() {
         if (confirm('Are you sure you want to remove this ingredient?')) {
             var ingredientId = $(this).data('id');
             var productId = $('#editProductForm input[name="product_id"]').val();
-
             $.post('admin_delete_product_ingredient.php', {
                 product_id: productId,
                 ingredient_id: ingredientId

@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../config.php';
-if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
+if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {    
     header('Location: ' . BASE_URL . '/index.php');
     exit;
 }

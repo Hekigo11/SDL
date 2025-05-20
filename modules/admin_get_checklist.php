@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../config.php';
 session_start();
 
-if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
+if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {        
     echo '<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> Unauthorized access</div>';
     exit;
 }

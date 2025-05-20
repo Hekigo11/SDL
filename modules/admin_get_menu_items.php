@@ -5,7 +5,7 @@ session_start();
 // Set proper content type for JSON response
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
+if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {        
     http_response_code(403);
     echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
     exit;

@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../config.php';
-if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
+if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {    
     header('Location: ' . BASE_URL . '/index.php');
     exit;
 }
@@ -19,7 +19,8 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
         <a href="#" class="nav-link" data-page="dashboard">
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
-        </a>        <a href="#" class="nav-link" data-page="products">
+        </a>
+        <a href="#" class="nav-link" data-page="products">
             <i class="fas fa-box"></i>
             <span>Products</span>
         </a>
@@ -35,18 +36,20 @@ if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
             <i class="fas fa-shopping-cart"></i>
             <span>Orders</span>
         </a>
+        <a href="#" class="nav-link" data-page="checklist">
+            <i class="fas fa-tasks"></i>
+            <span>Kitchen Checklist</span>
+        </a>
         <a href="#" class="nav-link" data-page="sales">
             <i class="fas fa-chart-line"></i>
             <span>Sales Report</span>
         </a>
-        <a href="#" class="nav-link" data-page="checklist">
-        <i class="fas fa-tasks"></i>
-            <span>Order Checklist</span>
+        <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 1) : ?>
+        <a href="#" class="nav-link" data-page="users">
+            <i class="fas fa-users-cog"></i>
+            <span>Manage Users</span>
         </a>
-        <!-- <a href="#" class="nav-link" data-page="customers">
-            <i class="fas fa-users"></i>
-            <span>Customers</span>
-        </a> -->
+        <?php endif; ?>
         <a href="#" class="nav-link" data-toggle="modal" data-target="#logoutModal">
             <i class="fas fa-sign-out-alt"></i>
             <span>Logout</span>

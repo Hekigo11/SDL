@@ -67,7 +67,7 @@ if($isallok) {
             $_SESSION['role'] = $row['role_id'];
 
             //role checker if admin or customer
-            if($row['role_id'] == 1) {
+            if($row['role_id'] == 1 || $row['role_id'] == 3) {
                 $msg = "admin"; // Admin role
             } else {
                 $msg = "success"; // Customer role

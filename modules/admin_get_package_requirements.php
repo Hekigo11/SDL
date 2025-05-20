@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once '../config.php';
-if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
+if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {        
     echo json_encode(['success' => false, 'error' => 'Unauthorized']);
     exit;
 }

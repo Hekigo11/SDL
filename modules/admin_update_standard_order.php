@@ -12,7 +12,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Check authentication
-if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
+if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {    
     http_response_code(403);
     echo 'Unauthorized access';
     exit;

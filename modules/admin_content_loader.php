@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
+if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {        
     exit('Unauthorized');
 }
 
@@ -42,6 +42,13 @@ switch($page) {
             }
         }
         include('admin_sales_data.php');
+        break;
+    case 'users':
+        if (isset($_SESSION['role']) && $_SESSION['role'] == 1) {
+            include('admin_users_content.php');
+        } else {
+            echo '<div class="alert alert-danger">Unauthorized access.</div>';
+        }
         break;
     default:
         include('admin_dashboard_content.php');

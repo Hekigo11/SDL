@@ -1,5 +1,5 @@
 <?php
-if (!isset($_SESSION['loginok']) || $_SESSION['role'] != 1) {
+if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {    
     exit('Unauthorized');
 }
 ?>
