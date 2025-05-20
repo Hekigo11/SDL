@@ -10,12 +10,10 @@ if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {
         <i class="fas fa-utensils"></i>
         <span>MARJ Foods</span>
     </div>
-    
     <button class="toggle-btn">
         <i class="fas fa-chevron-left"></i>
     </button>
-
-    <nav>
+    <nav class="sidebar-nav">
         <a href="#" class="nav-link" data-page="dashboard">
             <i class="fas fa-home"></i>
             <span>Dashboard</span>
@@ -50,11 +48,13 @@ if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {
             <span>Manage Users</span>
         </a>
         <?php endif; ?>
+    </nav>
+    <div class="sidebar-logout">
         <a href="#" class="nav-link" data-toggle="modal" data-target="#logoutModal">
             <i class="fas fa-sign-out-alt"></i>
             <span>Logout</span>
         </a>
-    </nav>
+    </div>
 </div>
 
 <!-- Logout Modal -->
@@ -78,3 +78,77 @@ if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {
         </div>
     </div>
 </div>
+
+<style>
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #223046;
+ 
+  transition: width 0.3s;
+}
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.sidebar .nav-link {
+  width: 100%;
+  text-align: center;
+  margin: 0.5rem 0;
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  color: #fff;
+  font-size: 1.1rem;
+  transition: background 0.2s;
+}
+.sidebar .nav-link i {
+  font-size: 1.4rem;
+  min-width: 32px;
+  text-align: center;
+}
+.sidebar-logout {
+  width: 100%;
+  padding-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+}
+.sidebar .logo {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  color: #fff;
+  font-size: 1.3rem;
+  padding-left: 18px;
+}
+@media (max-width: 768px) {
+  .sidebar {
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+  }
+  .sidebar .nav-link span,
+  .sidebar .logo span {
+    display: none !important;
+  }
+  .sidebar .logo {
+    justify-content: center;
+    padding-left: 0;
+  }
+  .sidebar .nav-link {
+    justify-content: center;
+    gap: 0;
+  }
+  .sidebar-logout {
+    justify-content: center;
+  }
+}
+</style>
+

@@ -74,10 +74,10 @@ if($isallok) {
             }
            
         } else {
-            $msg = "Invalid password";
+            $msg = "Invalid Credentials!";
         }
     } else {
-        $msg = "Account not found";
+        $msg = "Invalid Credentials!";
     }
     mysqli_close($dbc);
 }

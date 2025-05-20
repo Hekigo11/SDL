@@ -33,7 +33,7 @@ try {
     $delivery_tracking_link = isset($_POST['delivery_tracking_link']) ? mysqli_real_escape_string($dbc, $_POST['delivery_tracking_link']) : '';
 
     // Get current order status and customer email
-    $query = "SELECT o.status, o.user_id, u.email_add 
+    $query = "SELECT o.status, o.user_id, u.email_add, o.payment_status, o.payment_method 
               FROM orders o
               JOIN users u ON o.user_id = u.user_id
               WHERE o.order_id = ?";
@@ -47,9 +47,21 @@ try {
         throw new Exception("Order not found");
     }
 
+    // Prevent going back to pending if order is already processing or beyond
+    if ($new_status === 'pending' && $order['status'] !== 'pending') {
+        throw new Exception("Cannot revert order back to pending status once processing has started");
+    }
+
+    // If marking as completed and it's a cash order that is unpaid, set payment_status to paid
+    $update_payment_status = false;
+    if ($new_status === 'completed' && $order['payment_method'] === 'cash' && $order['payment_status'] !== 'paid') {
+        $update_payment_status = true;
+    }
+
     // Update order status and timestamps
     $update_query = "UPDATE orders SET 
                     status = ?,
+                    payment_status = IF($update_payment_status, 'paid', payment_status),
                     delivery_started_at = CASE 
                         WHEN ? = 'delivering' AND status != 'delivering' THEN NOW()
                         WHEN ? != 'delivering' THEN NULL

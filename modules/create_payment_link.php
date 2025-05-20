@@ -71,7 +71,11 @@ try {
     error_log('[create_payment_link] PayMongo API Payload for ref ' . $internal_order_reference . ': ' . $encoded_payload);
 
     $curl = curl_init('https://api.paymongo.com/v1/links');
-    curl_setopt_array($curl, [
+    
+    // Check if we're in local development environment
+    $is_local = in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1']);
+    
+    $curl_options = [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_POSTFIELDS => $encoded_payload,
         CURLOPT_HTTPHEADER => [
@@ -79,7 +83,16 @@ try {
             'Content-Type: application/json',
             'Authorization: Basic ' . base64_encode(PAYMONGO_SECRET_KEY . ':')
         ]
-    ]);
+    ];
+    
+    // Only disable SSL verification in local environment
+    if ($is_local) {
+        $curl_options[CURLOPT_SSL_VERIFYPEER] = false;
+        $curl_options[CURLOPT_SSL_VERIFYHOST] = 0;
+        error_log('[create_payment_link] Running in local environment, SSL verification disabled');
+    }
+    
+    curl_setopt_array($curl, $curl_options);
 
     $response_paymongo_api = curl_exec($curl);
     $curl_error = curl_error($curl);

@@ -75,15 +75,27 @@ try {
     // Query PayMongo API for the payment link status
     error_log("[check_paymongo_status] Querying PayMongo with Link ID: " . $paymongo_link_id_from_db . " for internal ref: " . $internal_reference);
     $curl = curl_init();
-    curl_setopt_array($curl, [
+    
+    // Check if we're in local development environment
+    $is_local = in_array($_SERVER['HTTP_HOST'], ['localhost', '127.0.0.1']);
+    
+    $curl_options = [
         CURLOPT_URL => "https://api.paymongo.com/v1/links/" . urlencode($paymongo_link_id_from_db),
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => true, // Should be true in production
         CURLOPT_HTTPHEADER => [
-            "Accept: application/json",
-            "Authorization: Basic " . base64_encode(PAYMONGO_SECRET_KEY . ":")
+            'Accept: application/json',
+            'Authorization: Basic ' . base64_encode(PAYMONGO_SECRET_KEY . ':')
         ]
-    ]);
+    ];
+    
+    // Only disable SSL verification in local environment
+    if ($is_local) {
+        $curl_options[CURLOPT_SSL_VERIFYPEER] = false;
+        $curl_options[CURLOPT_SSL_VERIFYHOST] = 0;
+        error_log('[check_paymongo_status] Running in local environment, SSL verification disabled');
+    }
+    
+    curl_setopt_array($curl, $curl_options);
     $response_paymongo_api = curl_exec($curl);
     $curl_error = curl_error($curl);
     $http_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -187,7 +199,7 @@ try {
                 user_id, full_name, phone, address, notes, payment_method, total_amount, delivery_fee, 
                 scheduled_delivery, status, payment_reference, payment_status, delivery_date, 
                 paymongo_link_id, checkout_url, updated_at, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'processing', ?, 'paid', ?, ?, ?, NOW(), ?)";
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, 'paid', ?, ?, ?, NOW(), ?)";
             
             $stmt_insert_order = mysqli_prepare($dbc, $insert_order_sql);
             if (!$stmt_insert_order) throw new Exception("DB Prepare Error (insert_order): " . mysqli_error($dbc));

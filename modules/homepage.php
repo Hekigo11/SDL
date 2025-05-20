@@ -10,6 +10,48 @@ if (isset($_SESSION['loginok']) && ($_SESSION['role'] == 1 || $_SESSION['role'] 
         exit;
     }
 }
+
+// Contact form handler for 'Send Us a Message'
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['email'], $_POST['message'])) {
+    require_once __DIR__ . '/../PHPMailer-master/src/Exception.php';
+    require_once __DIR__ . '/../PHPMailer-master/src/PHPMailer.php';
+    require_once __DIR__ . '/../PHPMailer-master/src/SMTP.php';
+    
+    $name = htmlspecialchars(trim($_POST['name']));
+    $email = filter_var(trim($_POST['email']), FILTER_VALIDATE_EMAIL);
+    $message = htmlspecialchars(trim($_POST['message']));
+    $success = false;
+    $error = '';
+    if ($name && $email && $message) {
+        $mail = new PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host = 'smtp-relay.brevo.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = '89af28001@smtp-brevo.com';
+            $mail->Password = '2SgtjUQrEsRHwA0M';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+            $mail->CharSet = 'UTF-8';
+            $mail->setFrom('no-reply@marjfood.com', 'Marj Food Website');
+            $mail->addAddress('marjfood@gmail.com', 'Marj Food');
+            $mail->addReplyTo($email, $name);
+            $mail->isHTML(true);
+            $mail->Subject = 'Website Contact Form Message';
+            $mail->Body = '<b>Name:</b> ' . $name . '<br><b>Email:</b> ' . $email . '<br><b>Message:</b><br>' . nl2br($message);
+            $mail->AltBody = "Name: $name\nEmail: $email\nMessage:\n$message";
+            $mail->send();
+            $success = true;
+        } catch (Exception $e) {
+            $error = 'Message could not be sent. Please try again later.';
+        }
+    } else {
+        $error = 'Please fill in all fields correctly.';
+    }
+}
 ?>
 <main>
 	<!-- BANNER TO GUYS -->
@@ -143,7 +185,7 @@ if (isset($_SESSION['loginok']) && ($_SESSION['role'] == 1 || $_SESSION['role'] 
 					Marj Food Services is conveniently located at 9799 Kamagong Street in San Antonio Village, Makati, Philippines 1204. This central Makati location places us within easy reach of both residential and business clients throughout the metropolitan area.
 					</p>
 				</div>
-				<div class="col-md-6">
+				<div class="col-md-6 responsive-iframe">
 					<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3861.5695831065186!2d121.00357437492329!3d14.566588985915761!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397c99e15d5ce81%3A0x568d57cf890d8c29!2s9799%20Kamagong%2C%20Makati%2C%201203%20Kalakhang%20Maynila!5e0!3m2!1sen!2sph!4v1745330629574!5m2!1sen!2sph" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
 				</div>
 			</div>
@@ -157,7 +199,7 @@ if (isset($_SESSION['loginok']) && ($_SESSION['role'] == 1 || $_SESSION['role'] 
 			<p class="text-center">
 				MARJ Food Services is a self-made business born out of necessity and passion. Founded by Raquel R. Dayao and Webster G. Dayao, the business was established in response to the challenges of low wages. With a deep love for cooking and management, Raquel leveraged her experience in the food industry to build something of her own.
 				What started as a small venture—serving friends and clients during her employment years—grew through sheer hard work, commitment, and dedication. However, the journey was not without challenges. In the early days, transportation was a major hurdle, making food delivery impossible. To meet customer demands, Raquel created the illusion of a delivery service, knowing that her reputation for excellence would carry her through. Her customers, well aware of her capabilities, remained loyal and supportive.
-				Through perseverance, MARJ Food Services expanded. Today, it operates with a full kitchen and a dedicated delivery service, a testament to Raquel’s resilience and determination. The business continues to thrive, adapting to modern food service trends while maintaining its core values. Though it has long since passed its peak, Raquel remains committed, ensuring that her passion keeps the business alive.
+				Through perseverance, MARJ Food Services expanded. Today, it operates with a full kitchen and a dedicated delivery service, a testament to Raquel's resilience and determination. The business continues to thrive, adapting to modern food service trends while maintaining its core values. Though it has long since passed its peak, Raquel remains committed, ensuring that her passion keeps the business alive.
 				Looking ahead, MARJ Food Services aims for longevity, with the hope that it will be passed down to someone who shares the same fire and dedication.
 				The success of MARJ Food Services is also credited to its loyal team, who have stood by the business for over a decade. The company's key members include:
 				 Lorena Pereira, Nelia Romero, Ricardo Romero, Danny Dulay, and Belinda Regacho, all of whom have dedicated 10–18 years of service.
@@ -248,11 +290,11 @@ const faqData = [
     },
     {
         q: "How can I place an order?",
-        a: "You can place an order through our website’s Order Now page, by sending us a message via our Contact Us form, or by reaching out through our social media channels."
+        a: "You can place an order through our website's Order Now page, by sending us a message via our Contact Us form, or by reaching out through our social media channels."
     },
     {
         q: "Do you offer customized catering packages?",
-        a: "Yes! We can tailor menus and packages based on your event size, preferences, and budget. Just let us know your requirements, and we’ll work with you."
+        a: "Yes! We can tailor menus and packages based on your event size, preferences, and budget. Just let us know your requirements, and we'll work with you."
     },
     {
         q: "How far in advance should I place my order?",
@@ -275,7 +317,7 @@ const faqData = [
         a: "We accept payments via GCash, bank transfer, and cash on delivery. Payment details will be shared upon order confirmation."
     },
     {
-        q: "Can I cancel or change my order after it’s confirmed?",
+        q: "Can I cancel or change my order after it's confirmed?",
         a: "Yes, but changes or cancellations must be made at least 48 hours before your scheduled delivery or event. Late cancellations may incur charges."
     },
     {
@@ -371,3 +413,9 @@ function checkLogin(event) {
     <?php } ?>
 }
 </script>
+
+<?php if (isset($success) && $success): ?>
+    <div class="alert alert-success">Thank you for your message! We will get back to you soon.</div>
+<?php elseif (isset($error) && $error): ?>
+    <div class="alert alert-danger"><?php echo $error; ?></div>
+<?php endif; ?>

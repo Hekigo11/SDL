@@ -75,6 +75,25 @@ function renderCateringRow($row, $order_type) {
                 <em>To be quoted</em>
             <?php endif; ?>
         </td>
+        <td>
+            <?php 
+            $payment_status = $row['payment_status'] ?? 'unpaid';
+            $payment_method = $row['payment_method'] ?? 'cash';
+            $payment_badge = '';
+            
+            if ($payment_status === 'paid') {
+                $payment_badge = '<span class="badge badge-success">Paid</span>';
+                if (in_array($payment_method, ['cashless', 'gcash'])) {
+                    $payment_badge .= ' <span class="badge badge-info">Cashless</span>';
+                } else {
+                    $payment_badge .= ' <span class="badge badge-secondary">Cash</span>';
+                }
+            } else {
+                $payment_badge = '<span class="badge badge-warning">Unpaid</span>';
+            }
+            echo $payment_badge;
+            ?>
+        </td>
         <td class="order-status">
             <div class="status-info">
                 <div class="status-badge">
@@ -429,6 +448,7 @@ function renderCateringRow($row, $order_type) {
                                     <th>Customer</th>
                                     <th>Items</th>
                                     <th>Total Amount</th>
+                                    <th>Payment</th>
                                     <th style="min-width: 200px;">Status</th>
                                     <th>Created At</th>
                                     <th>Actions</th>
@@ -464,6 +484,25 @@ function renderCateringRow($row, $order_type) {
                                     </td>
                                     <td><?php echo $row['items']; ?></td>
                                     <td>₱<?php echo number_format($row['total_amount'], 2); ?></td>
+                                    <td>
+                                        <?php 
+                                        $payment_status = $row['payment_status'] ?? 'unpaid';
+                                        $payment_method = $row['payment_method'] ?? 'cash';
+                                        $payment_badge = '';
+                                        
+                                        if ($payment_status === 'paid') {
+                                            $payment_badge = '<span class="badge badge-success">Paid</span>';
+                                            if (in_array($payment_method, ['cashless', 'gcash'])) {
+                                                $payment_badge .= ' <span class="badge badge-info">Cashless</span>';
+                                            } else {
+                                                $payment_badge .= ' <span class="badge badge-secondary">Cash</span>';
+                                            }
+                                        } else {
+                                            $payment_badge = '<span class="badge badge-warning">Unpaid</span>';
+                                        }
+                                        echo $payment_badge;
+                                        ?>
+                                    </td>
                                     <td class="order-status">
                                         <div class="status-info">
                                             <div class="status-badge">
@@ -1198,13 +1237,29 @@ $(document).ready(function() {
         
         if (orderType === 'delivery') {
             const statuses = ['pending', 'processing', 'in_kitchen', 'ready_for_delivery', 'delivering', 'completed', 'cancelled'];
-            statuses.forEach(status => {
+            // Filter out 'pending' if current status is beyond 'pending'
+            const filteredStatuses = statuses.filter(status => {
+                if (status === 'pending') {
+                    return currentStatus === 'pending';
+                }
+                return true;
+            });
+            
+            filteredStatuses.forEach(status => {
                 const display = status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 $statusSelect.append(`<option value="${status}"${currentStatus === status ? ' selected' : ''}>${display}</option>`);
             });
         } else {
             const statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
-            statuses.forEach(status => {
+            // Filter out 'pending' if current status is beyond 'pending'
+            const filteredStatuses = statuses.filter(status => {
+                if (status === 'pending') {
+                    return currentStatus === 'pending';
+                }
+                return true;
+            });
+            
+            filteredStatuses.forEach(status => {
                 const display = status.charAt(0).toUpperCase() + status.slice(1);
                 $statusSelect.append(`<option value="${status}"${currentStatus === status ? ' selected' : ''}>${display}</option>`);
             });

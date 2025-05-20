@@ -115,8 +115,8 @@ try {
         $order_query = "INSERT INTO orders (
             user_id, full_name, phone, address, notes, payment_method, 
             total_amount, delivery_fee, scheduled_delivery, status, payment_reference, payment_status, delivery_date
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, 50.00, ?, 'pending', ?, 'paid', ?)";
-        // Added payment_status = 'paid' for cash orders & delivery_date
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, 50.00, ?, 'pending', ?, 'unpaid', ?)";
+        // Set payment_status = 'unpaid' for cash orders
         
         $stmt_order = mysqli_prepare($dbc, $order_query);
         if (!$stmt_order) {

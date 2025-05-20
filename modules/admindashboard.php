@@ -18,6 +18,9 @@ if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {
         <link rel="stylesheet" href="../vendor/admin.css">
         <style>
             /* Custom Select Styles */
+            .custom-select, .custom-select-sm, .form-control, .form-control-sm {
+    height: fit-content !important;
+}
             .custom-select {
                 appearance: none;
                 -webkit-appearance: none;

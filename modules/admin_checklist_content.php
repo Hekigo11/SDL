@@ -202,7 +202,7 @@ if (isset($_GET['ajax'])) {
                             <i class="fas fa-list-check"></i> Pending Ingredients
                         </h5>
                         <div class="form-inline">
-                            <select class="form-control form-control-sm" id="dateFilter">
+                            <select class="form-control form-control-sm" id="dateFilter" style="height: fit-content;">
                                 <option value="today" <?php echo ($date_filter === 'today') ? 'selected' : ''; ?>>Today</option>
                                 <option value="tomorrow" <?php echo ($date_filter === 'tomorrow') ? 'selected' : ''; ?>>Tomorrow</option>
                                 <option value="3days" <?php echo ($date_filter === '3days') ? 'selected' : ''; ?>>Within 3 Days</option>

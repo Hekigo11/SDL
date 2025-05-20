@@ -69,7 +69,26 @@ require_once 'config.php';
                 border-radius: 8px;
                 bottom: 30px;
             }
-
+            .responsive-iframe {
+  width: 100%;
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+}
+.responsive-iframe iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+@media (max-width: 768px) {
+  .responsive-iframe {
+    padding-bottom: 75%; /* taller for mobile */
+    max-height: 300px;
+  }
+}
             .carousel-inner {
                 border-radius: 10px;
                 overflow: hidden;
