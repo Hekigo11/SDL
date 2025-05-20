@@ -35,7 +35,7 @@ function showAlertlogin(message, type) {
     const alertContainer = $("#alert-container");
     const alertHtml = `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
                             ${message}
-                            
+                        
                        </div>`;
     alertContainer.html(alertHtml);
 }
