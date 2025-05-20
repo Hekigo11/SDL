@@ -61,7 +61,7 @@ try {
     // Update order status and timestamps
     $update_query = "UPDATE orders SET 
                     status = ?,
-                    payment_status = IF($update_payment_status, 'paid', payment_status),
+                    payment_status = IF(" . (int)$update_payment_status . ", 'paid', payment_status),
                     delivery_started_at = CASE 
                         WHEN ? = 'delivering' AND status != 'delivering' THEN NOW()
                         WHEN ? != 'delivering' THEN NULL

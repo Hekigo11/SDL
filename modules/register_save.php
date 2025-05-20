@@ -20,6 +20,13 @@ try {
         $isallok = false;
     }
 
+    // Validate mobile number
+    $mobile_num = trim($_POST['txtmobilenum']);
+    if (!preg_match('/^0\d{10}$/', $mobile_num)) {
+        $error_messages[] = "Invalid mobile number format. Must be 11 digits starting with 0";
+        $isallok = false;
+    }
+
     // Check for existing email/mobile
     $stmt = mysqli_prepare($dbc, "SELECT email_add, mobile_num FROM users WHERE email_add = ? OR mobile_num = ?");
     mysqli_stmt_bind_param($stmt, "ss", $email, $_POST['txtmobilenum']);

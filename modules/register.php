@@ -50,7 +50,8 @@ require_once __DIR__ . '/../config.php';
                 
                 <div class="form-group">
                     <label for="txtstudno">Mobile Number</label>
-                    <input type="text" class="form-control" id="txtmobilenum" name="txtmobilenum">
+                    <input type="text" class="form-control" id="txtmobilenum" name="txtmobilenum" pattern="^0\d{10}$" maxlength="11" placeholder="09XXXXXXXXX" required>
+                    <small class="form-text text-muted">Enter 11-digit mobile number starting with 0 (e.g., 09123456789)</small>
                 </div>
                 <div class="form-group">
                     <label for="txtstudno">Password</label>
@@ -81,6 +82,20 @@ function showAlert(message, type = 'warning') {
 }
 
 $(document).ready(function(){
+    // Mobile number validation
+    $("#txtmobilenum").on('input', function() {
+        let value = $(this).val();
+        // Remove any non-digit characters
+        value = value.replace(/\D/g, '');
+        // Ensure it starts with 0
+        if (value.length > 0 && value[0] !== '0') {
+            value = '0' + value.substring(1);
+        }
+        // Limit to 11 digits
+        value = value.substring(0, 11);
+        $(this).val(value);
+    });
+
     $("#btncancel").click(function(){
         document.location = "../index.php";
     });
@@ -88,6 +103,13 @@ $(document).ready(function(){
     $("#btnsave").click(function(){
         // Clear previous alerts
         $('#alert-container').empty();
+        
+        // Validate mobile number
+        const mobileNum = $("#txtmobilenum").val();
+        if (!/^0\d{10}$/.test(mobileNum)) {
+            showAlert("Please enter a valid 11-digit mobile number starting with 0", "danger");
+            return;
+        }
         
         // didisable na yung button after clicking, para di mag double click
         $("#btnsave").prop('disabled', true);

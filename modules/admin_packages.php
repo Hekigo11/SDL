@@ -325,7 +325,7 @@ if (!$result) {
                                     <button type="button" class="btn btn-sm btn-outline-primary modal-edit-category" data-id="' . $cat['category_id'] . '" data-name="' . htmlspecialchars($cat['category_name']) . '">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-outline-danger modal-delete-category" ' . ($product_count > 0 ? 'disabled' : '') . ' data-id="' . $cat['category_id'] . '" data-name="' . htmlspecialchars($cat['category_name']) . '">
+                                    <button type="button" class="btn btn-sm btn-outline-danger modal-delete-category" ' . ($product_count > 0 ? 'disabled data-toggle="tooltip" data-placement="top" title="Cannot delete category with existing products"' : '') . ' data-id="' . $cat['category_id'] . '" data-name="' . htmlspecialchars($cat['category_name']) . '">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -384,6 +384,9 @@ $(document).ready(function() {
             "search": "Filter packages: "
         }
     });
+    
+    // Initialize tooltips
+    $('[data-toggle="tooltip"]').tooltip();
     
     // Add Package form submission
     $('#addPackageForm').submit(function(e) {
