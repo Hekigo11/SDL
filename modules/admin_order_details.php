@@ -36,12 +36,8 @@ function renderCateringRow($row, $order_type) {
     <tr>
         <td><?php echo $orderPrefix . $orderId; ?></td>
         <td><?php echo date('M j, Y g:i A', strtotime($row['event_date'])); ?></td>
-        <td>
-            <?php echo htmlspecialchars($row['fname'] . ' ' . $row['lname']); ?><br>
-            <small class="text-muted"><?php echo $row['phone']; ?></small>
-        </td>
-        <td>
-            <?php echo htmlspecialchars($order_type === 'standard' ? $row['menu_package'] : ($row['menu_preferences'] ?: 'Not specified')); ?>
+        <td><?php echo htmlspecialchars($row['fname'] . ' ' . $row['lname']); ?><br><small class="text-muted"><?php echo $row['phone']; ?></small></td>
+        <td><?php echo htmlspecialchars($order_type === 'standard' ? $row['menu_package'] : ($row['menu_preferences'] ?: 'Not specified')); ?>
             <?php if ($order_type === 'custom') {
                 $isCustomPackage = ($row['menu_preferences'] == 'Custom Package');
                 $isSmallGroup = ($row['num_persons'] < 50);
@@ -75,38 +71,16 @@ function renderCateringRow($row, $order_type) {
                 <em>To be quoted</em>
             <?php endif; ?>
         </td>
-        <td>
-            <?php 
-            $payment_status = $row['payment_status'] ?? 'unpaid';
-            $payment_method = $row['payment_method'] ?? 'cash';
-            $payment_badge = '';
-            
-            if ($payment_status === 'paid') {
-                $payment_badge = '<span class="badge badge-success">Paid</span>';
-                if (in_array($payment_method, ['cashless', 'gcash'])) {
-                    $payment_badge .= ' <span class="badge badge-info">Cashless</span>';
-                } else {
-                    $payment_badge .= ' <span class="badge badge-secondary">Cash</span>';
-                }
-            } else {
-                $payment_badge = '<span class="badge badge-warning">Unpaid</span>';
-            }
-            echo $payment_badge;
-            ?>
-        </td>
         <td class="order-status">
             <div class="status-info">
                 <div class="status-badge">
                     <span class="badge badge-<?php echo $statusClass; ?>"><?php echo ucfirst($row['status']); ?></span>
                 </div>
-                <!-- Staff Notes Section -->
                 <?php
                 if (!empty($row['staff_notes'])) {
                     echo '<div class="mt-2"><strong><i class="fas fa-user-edit"></i> Staff Notes</strong>';
-                    // Split staff notes by line (assuming each note is appended with a timestamp)
                     $notes = explode("\n", $row['staff_notes']);
                     foreach ($notes as $note) {
-                        // Try to extract timestamp in [ ]
                         if (preg_match('/\[(.*?)\]/', $note, $matches)) {
                             $dateStr = $matches[1];
                             $dateObj = date_create($dateStr);
@@ -120,7 +94,6 @@ function renderCateringRow($row, $order_type) {
                     echo '</div>';
                 }
                 ?>
-                <!-- Status Updates Section -->
                 <?php
                 if (!empty($row['status_updates'])) {
                     echo '<div class="mt-2"><strong><i class="fas fa-history"></i> Status Updates</strong>';
