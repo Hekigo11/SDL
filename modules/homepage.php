@@ -254,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'], $_POST['email
 	</div>
 	<div id="chatbotWindow" class="card shadow" style="display:none; position: fixed; bottom: 100px; right: 30px; width: 350px; max-width: 90vw; z-index: 10000;">
 		<div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-			<span><i class="fas fa-robot mr-2"></i>MARJ FAQ Chatbot</span>
+			<span><i class="far fa-question-circle mr-2"></i>MARJ FAQ List</span>
 			<button type="button" class="close text-white" aria-label="Close" onclick="closeChatbot()">
 				<span aria-hidden="true">&times;</span>
 			</button>
