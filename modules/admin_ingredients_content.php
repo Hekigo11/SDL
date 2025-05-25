@@ -12,7 +12,28 @@ include("dbconi.php");
 <!DOCTYPE html>
 <html lang="en">
 <head>    <style>
-        .card {
+
+#ingredientSearchInput {
+    border-radius: 20px 0 0 20px;
+    border-right: none;
+    padding-left: 15px;
+}
+
+#ingredientSearchInput + .input-group-append .input-group-text {
+    border-radius: 0 20px 20px 0;
+    background: white;
+    border-left: none;
+}
+
+#ingredientSearchInput:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+}
+
+#ingredientSearchInput:focus + .input-group-append .input-group-text {
+    border-color: #ced4da;
+}
+.card {
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
             border-radius: 15px;
             border: none;
@@ -167,6 +188,17 @@ include("dbconi.php");
                         <button class="btn btn-primary" data-toggle="modal" data-target="#addIngredientModal">
                             <i class="fas fa-plus"></i> Add Ingredient
                         </button>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" id="ingredientSearchInput" class="form-control" placeholder="Search ingredients...">
+                            <div class="input-group-append">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -813,6 +845,33 @@ $(document).ready(function() {
                 $('#deleteTypeModalAlert').append(alert);
             }
         });
+    });
+
+    // Ingredient search functionality
+    $('#ingredientSearchInput').on('input', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        
+        $('#ingredients .table tbody tr').each(function() {
+            const $row = $(this);
+            const ingredientName = $row.find('td:nth-child(2)').text().toLowerCase(); // Name column
+            const ingredientType = $row.find('td:nth-child(4)').text().toLowerCase(); // Type column
+            const ingredientUnit = $row.find('td:nth-child(3)').text().toLowerCase(); // Unit column
+            
+            if (ingredientName.includes(searchTerm) || 
+                ingredientType.includes(searchTerm) || 
+                ingredientUnit.includes(searchTerm)) {
+                $row.show();
+            } else {
+                $row.hide();
+            }
+        });
+    });
+
+    // Clear search when clicking the X (for browsers that support it)
+    $('#ingredientSearchInput').on('search', function() {
+        if ($(this).val() === '') {
+            $('#ingredients .table tbody tr').show();
+        }
     });
 });
 </script>

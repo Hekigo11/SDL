@@ -191,6 +191,96 @@ if (!isset($_SESSION['loginok']) || !in_array($_SESSION['role'], [1, 3])) {
                 color: #6c757d;
                 font-style: italic;
             }
+
+            /* Ingredient Search Results Styles */
+            #ingredientSearchResults {
+                max-height: 300px;
+                overflow-y: auto;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                border: 1px solid #ddd;
+                border-radius: 0.25rem;
+                z-index: 1050;
+                background: white;
+            }
+
+            #ingredientSearchResults.dropdown-menu {
+                max-height: unset !important;
+                overflow-y: unset !important;
+            }
+
+            #ingredientSearchResults.show {
+                display: block;
+            }
+
+            .ingredient-item {
+                cursor: pointer;
+            }
+
+            .ingredient-item:hover {
+                background-color: #f5f5f5;
+            }
+
+            /* Modal scroll styles */
+            .modal {
+                overflow-y: auto !important;
+            }
+
+            .modal-dialog {
+                max-height: 90vh;
+                display: flex !important;
+            }
+
+            .modal-content {
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            /* Prevent background scroll */
+            body.modal-open {
+                overflow: hidden;
+                position: fixed;
+                width: 100%;
+            }
+
+            /* Custom scrollbar styling */
+            .modal-content::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .modal-content::-webkit-scrollbar-track {
+                background: #f1f1f1;
+            }
+
+            .modal-content::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 4px;
+            }
+
+            .modal-content::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+
+            /* Product search styles */
+            #productSearch {
+                border-radius: 20px 0 0 20px;
+                border-right: none;
+                padding-left: 15px;
+            }
+
+            #productSearch + .input-group-append .input-group-text {
+                border-radius: 0 20px 20px 0;
+                background: white;
+                border-left: none;
+            }
+
+            #productSearch:focus {
+                box-shadow: none;
+                border-color: #ced4da;
+            }
+
+            #productSearch:focus + .input-group-append .input-group-text {
+                border-color: #ced4da;
+            }
         </style>
         <!-- Add Select2 CSS and JS -->
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />

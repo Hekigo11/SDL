@@ -51,6 +51,17 @@ function renderIngredientOptions($dbc) {
         </div>
     </div>
 
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="input-group">
+                <input type="text" id="productSearch" class="form-control" placeholder="Search products...">
+                <div class="input-group-append">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Products Table -->
     <div class="card">
         <div class="card-body">
@@ -388,30 +399,70 @@ $(document).ready(function() {
     let newProductIngredients = [];
     
     // Add custom styles for the ingredient dropdown
-    $('<style>').text(`
-        #ingredientSearchResults {
-            max-height: 300px;
-            overflow-y: auto;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            border: 1px solid #ddd;
-            border-radius: 0.25rem;
-            z-index: 1050;
-            background: white;
-        }
-        #ingredientSearchResults.dropdown-menu {
-            max-height: unset !important;
-            overflow-y: unset !important;
-        }
-        #ingredientSearchResults.show {
-            display: block;
-        }
-        .ingredient-item {
-            cursor: pointer;
-        }
-        .ingredient-item:hover {
-            background-color: #f5f5f5;
-        }
-    `).appendTo('head');
+    // $('<style>').text(`
+    //     #ingredientSearchResults {
+    //         max-height: 300px;
+    //         overflow-y: auto;
+    //         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    //         border: 1px solid #ddd;
+    //         border-radius: 0.25rem;
+    //         z-index: 1050;
+    //         background: white;
+    //     }
+    //     #ingredientSearchResults.dropdown-menu {
+    //         max-height: unset !important;
+    //         overflow-y: unset !important;
+    //     }
+    //     #ingredientSearchResults.show {
+    //         display: block;
+    //     }
+    //     .ingredient-item {
+    //         cursor: pointer;
+    //     }
+    //     .ingredient-item:hover {
+    //         background-color: #f5f5f5;
+    //     }
+
+    //     /* Modal scroll styles */
+    //     .modal {
+    //         overflow-y: auto !important;
+    //     }
+
+    //     .modal-dialog {
+    //         max-height: 90vh;
+    //         display: flex !important;
+    //     }
+
+    //     .modal-content {
+    //         max-height: 90vh;
+    //         overflow-y: auto;
+    //     }
+
+    //     /* Prevent background scroll */
+    //     body.modal-open {
+    //         overflow: hidden;
+    //         position: fixed;
+    //         width: 100%;
+    //     }
+
+    //     /* Custom scrollbar styling */
+    //     .modal-content::-webkit-scrollbar {
+    //         width: 8px;
+    //     }
+
+    //     .modal-content::-webkit-scrollbar-track {
+    //         background: #f1f1f1;
+    //     }
+
+    //     .modal-content::-webkit-scrollbar-thumb {
+    //         background: #888;
+    //         border-radius: 4px;
+    //     }
+
+    //     .modal-content::-webkit-scrollbar-thumb:hover {
+    //         background: #555;
+    //     }
+    // `).appendTo('head');
     
     // Simple ingredient search functionality
     function fetchIngredientResults(term = '') {
@@ -645,7 +696,14 @@ $(document).ready(function() {
     // Load product ingredients
     function loadProductIngredients(productId) {
         $.get('admin_get_product_ingredients.php', { product_id: productId }, function(response) {
-            $('#productIngredientsTable tbody').html(response);
+            const $tbody = $('#productIngredientsTable tbody');
+            $tbody.html(response);
+            
+            // Add data-ingredient-id to each row
+            $tbody.find('tr').each(function() {
+                const ingredientId = $(this).find('.edit-product-ingredient').data('id');
+                $(this).attr('data-ingredient-id', ingredientId);
+            });
         });
     }
 
@@ -719,20 +777,84 @@ $(document).ready(function() {
     $('#editProductIngredientForm').submit(function(e) {
         e.preventDefault();
         $('#editProductIngredientModalAlert').empty();
-        var formData = $(this).serialize();
-        $.post('admin_update_product_ingredient.php', formData, function(response) {
-            if (response === 'success') {
-                $('#editProductIngredientModal').modal('hide');
-                var productId = $('#editProductForm input[name="product_id"]').val();
-                loadProductIngredients(productId);
-            } else {
+        
+        // Get the form data
+        const formData = $(this).serializeArray();
+        const data = {};
+        formData.forEach(item => data[item.name] = item.value);
+        
+        // Update UI immediately
+        const $row = $(`#productIngredientsTable tr[data-ingredient-id="${data.original_ingredient_id}"]`);
+        const selectedOption = $(this).find('select[name="ingredient_id"] option:selected');
+        const ingredientName = selectedOption.text();
+        const unit = selectedOption.data('unit');
+        
+        $row.html(`
+            <td>${ingredientName}</td>
+            <td>${data.quantity}</td>
+            <td>${unit}</td>
+            <td>
+                <button class="btn btn-sm btn-primary edit-product-ingredient" data-id="${data.ingredient_id}">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-danger delete-ingredient" data-id="${data.ingredient_id}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `);
+        
+        // Close modal
+        $('#editProductIngredientModal').modal('hide');
+
+        // Send AJAX request
+        $.post('admin_update_product_ingredient.php', $(this).serialize(), function(response) {
+            if (response !== 'success') {
+                // Show error if update failed
                 const alert = $(`<div class="alert alert-danger alert-dismissible fade show" role="alert">
                     ${response}
                     <button type="button" class="close" data-dismiss="alert">&times;</button>
                 </div>`);
                 $('#editProductIngredientModalAlert').append(alert);
+                $('#editProductIngredientModal').modal('show');
+                
+                // Reload ingredients to restore previous state
+                var productId = $('#editProductForm input[name="product_id"]').val();
+                loadProductIngredients(productId);
             }
         });
+    });
+
+    // Handle modal open/close events
+    $('.modal').on('show.bs.modal', function () {
+        $('body').addClass('modal-open');
+    });
+
+    $('.modal').on('hidden.bs.modal', function () {
+        $('body').removeClass('modal-open');
+    });
+
+    // Product search functionality
+    $('#productSearch').on('input', function() {
+        const searchTerm = $(this).val().toLowerCase();
+        
+        $('.table tbody tr').each(function() {
+            const $row = $(this);
+            const productName = $row.find('td:nth-child(2)').text().toLowerCase(); // Name is in second column
+            const productDesc = $row.find('td:nth-child(5)').text().toLowerCase(); // Description is in fifth column
+            
+            if (productName.includes(searchTerm) || productDesc.includes(searchTerm)) {
+                $row.show();
+            } else {
+                $row.hide();
+            }
+        });
+    });
+
+    // Clear search when clicking the X
+    $('#productSearch').on('search', function() {
+        if ($(this).val() === '') {
+            $('.table tbody tr').show();
+        }
     });
 });
 </script>

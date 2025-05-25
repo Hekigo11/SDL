@@ -6,6 +6,17 @@ if (!isset($_SESSION['loginok'])) {
     header('Location: ' . BASE_URL . '/index.php');
     exit;
 }
+
+if (isset($_SESSION['loginok']) && ($_SESSION['role'] == 1 || $_SESSION['role'] == 3)) {
+    header('Location: ' . BASE_URL . '/modules/admindashboard.php');
+	if (!headers_sent()) {
+        header('Location: ' . BASE_URL . '/modules/admindashboard.php');
+        exit;
+    } else {
+        echo '<script>window.location.href="' . BASE_URL . '/modules/admindashboard.php";</script>';
+        exit;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -231,7 +242,7 @@ if (!isset($_SESSION['loginok'])) {
                                                 </div>
                                             </td>
                                             <td>
-                                                <?php if ($row['status'] !== 'delivering' && $row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
+                                                <?php if ($row['status'] !== 'in_kitchen' && $row['status'] !== 'ready_for_delivery' && $row['status'] !== 'delivering' && $row['status'] !== 'completed' && $row['status'] !== 'cancelled'): ?>
                                                     <button class="btn btn-sm btn-danger" onclick="showCancelModal(<?php echo $row['order_id']; ?>)">
                                                         <i class="fas fa-times"></i> Cancel
                                                     </button>

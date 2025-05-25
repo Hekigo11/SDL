@@ -2,6 +2,17 @@
 require_once __DIR__ . '/../config.php';
 session_start();
 
+if (isset($_SESSION['loginok']) && ($_SESSION['role'] == 1 || $_SESSION['role'] == 3)) {
+    header('Location: ' . BASE_URL . '/modules/admindashboard.php');
+	if (!headers_sent()) {
+        header('Location: ' . BASE_URL . '/modules/admindashboard.php');
+        exit;
+    } else {
+        echo '<script>window.location.href="' . BASE_URL . '/modules/admindashboard.php";</script>';
+        exit;
+    }
+}
+
 // Get user details for autofill if user is logged in
 $user_data = null;
 if (isset($_SESSION['loginok']) && isset($_SESSION['user_id'])) {

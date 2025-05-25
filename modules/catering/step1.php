@@ -200,7 +200,7 @@ $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_
                                 <div class="packages-container">
                                     <div class="row">
                                         <?php
-                                        $query = "SELECT * FROM packages ORDER BY base_price";
+                                        $query = "SELECT * FROM packages WHERE is_active = 1 ORDER BY base_price";
                                         $result = mysqli_query($dbc, $query);
                                         
                                         if (mysqli_num_rows($result) > 0) {
@@ -226,30 +226,31 @@ $full_name = trim($user_data['fname'] . ' ' . $user_data['mname'] . ' ' . $user_
                                                 </div>
                                             <?php }
                                             ?>
-                                            <div class="col-md-12 mb-3">
-                                                <div class="package-card card">
-                                                    <div class="card-body">
-                                                        <div class="custom-control custom-radio">
-                                                            <input type="radio" id="package_custom" 
-                                                                   name="menu_bundle" 
-                                                                   value="Custom Package" 
-                                                                   class="custom-control-input package-select"
-                                                                   data-custom="true"
-                                                                   data-price="0"
-                                                                   <?php echo (isset($_SESSION['catering_form']['menu_bundle']) && $_SESSION['catering_form']['menu_bundle'] === 'Custom Package') ? 'checked' : ''; ?>>
-                                                            <label class="custom-control-label font-weight-bold" for="package_custom">
-                                                                Custom Package - Contact us for pricing
-                                                            </label>
-                                                        </div>
-                                                        <p class="card-text ml-4 mt-2">Request a custom menu tailored to your needs. Our staff will contact you to discuss options.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            
                                         <?php } else { ?>
                                             <div class="col-12">
-                                                <p class="text-muted">No packages available at the moment.</p>
+                                                <p class="text-muted">No pre-made packages available at the moment.</p>
                                             </div>
                                         <?php } ?>
+                                        <div class="col-md-12 mb-3">
+                                            <div class="package-card card">
+                                                <div class="card-body">
+                                                    <div class="custom-control custom-radio">
+                                                        <input type="radio" id="package_custom" 
+                                                            name="menu_bundle" 
+                                                            value="Custom Package" 
+                                                            class="custom-control-input package-select"
+                                                            data-custom="true"
+                                                            data-price="0"
+                                                            <?php echo (isset($_SESSION['catering_form']['menu_bundle']) && $_SESSION['catering_form']['menu_bundle'] === 'Custom Package') ? 'checked' : ''; ?>>
+                                                            <label class="custom-control-label font-weight-bold" for="package_custom">
+                                                            Custom Package - Contact us for pricing
+                                                            </label>
+                                                    </div>
+                                                        <p class="card-text ml-4 mt-2">Request a custom menu tailored to your needs. Our staff will contact you to discuss options.</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

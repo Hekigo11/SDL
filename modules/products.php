@@ -1,5 +1,17 @@
 <?php 
 require_once __DIR__ . '/../config.php';
+
+if (isset($_SESSION['loginok']) && ($_SESSION['role'] == 1 || $_SESSION['role'] == 3)) {
+    header('Location: ' . BASE_URL . '/modules/admindashboard.php');
+	if (!headers_sent()) {
+        header('Location: ' . BASE_URL . '/modules/admindashboard.php');
+        exit;
+    } else {
+        echo '<script>window.location.href="' . BASE_URL . '/modules/admindashboard.php";</script>';
+        exit;
+    }
+}
+
 // Try ko maglagay error handling --jas
 if (session_status() === PHP_SESSION_NONE) {
     try {
