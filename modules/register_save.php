@@ -13,6 +13,45 @@ try {
     $error_messages = [];
     $isallok = true;
     
+    // Validate name fields
+    function validateNameField($name, $fieldName) {
+        // Only allow letters, spaces, hyphens, and apostrophes
+        if (!preg_match('/^[a-zA-Z\s\-\']+$/', $name)) {
+            return "$fieldName can only contain letters, spaces, hyphens, and apostrophes";
+        }
+        return null;
+    }
+    
+    // Validate first name
+    $fname = trim($_POST['txtfname']);
+    if (!empty($fname)) {
+        $nameError = validateNameField($fname, 'First name');
+        if ($nameError) {
+            $error_messages[] = $nameError;
+            $isallok = false;
+        }
+    }
+    
+    // Validate middle name (optional)
+    $mname = trim($_POST['txtmname']);
+    if (!empty($mname)) {
+        $nameError = validateNameField($mname, 'Middle name');
+        if ($nameError) {
+            $error_messages[] = $nameError;
+            $isallok = false;
+        }
+    }
+    
+    // Validate last name
+    $lname = trim($_POST['txtlname']);
+    if (!empty($lname)) {
+        $nameError = validateNameField($lname, 'Last name');
+        if ($nameError) {
+            $error_messages[] = $nameError;
+            $isallok = false;
+        }
+    }
+    
     // Sanitize and validate email
     $email = filter_var($_POST['txtemail'], FILTER_SANITIZE_EMAIL);
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -24,6 +63,56 @@ try {
     $mobile_num = trim($_POST['txtmobilenum']);
     if (!preg_match('/^0\d{10}$/', $mobile_num)) {
         $error_messages[] = "Invalid mobile number format. Must be 11 digits starting with 0";
+        $isallok = false;
+    }    // Validate password strength
+    $password = $_POST['txtpassword'];
+    $password_errors = [];
+    
+    // Check for common weak passwords
+    $common_passwords = [
+        'password', 'password123', '123456', '123456789', 'qwerty', 
+        'abc123', 'password1', 'admin', 'letmein', 'welcome',
+        '1234567890', 'iloveyou', 'princess', 'rockyou', '12345678'
+    ];
+    
+    if (in_array(strtolower($password), $common_passwords)) {
+        $password_errors[] = "This password is too common. Please choose a more unique password";
+    }
+    
+    if (strlen($password) < 8) {
+        $password_errors[] = "Password must be at least 8 characters long";
+    }
+    if (!preg_match('/[A-Z]/', $password)) {
+        $password_errors[] = "Password must contain at least one uppercase letter";
+    }
+    if (!preg_match('/[a-z]/', $password)) {
+        $password_errors[] = "Password must contain at least one lowercase letter";
+    }
+    if (!preg_match('/[0-9]/', $password)) {
+        $password_errors[] = "Password must contain at least one number";
+    }
+    if (!preg_match('/[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]/', $password)) {
+        $password_errors[] = "Password must contain at least one special character (!@#$%^&*)";
+    }
+    
+    // Check if password contains user's personal information
+    $fname_lower = strtolower($fname);
+    $lname_lower = strtolower($lname);
+    $email_parts = explode('@', strtolower($_POST['txtemail']));
+    $email_username = $email_parts[0];
+    
+    if (stripos($password, $fname_lower) !== false && strlen($fname_lower) > 2) {
+        $password_errors[] = "Password should not contain your first name";
+    }
+    if (stripos($password, $lname_lower) !== false && strlen($lname_lower) > 2) {
+        $password_errors[] = "Password should not contain your last name";
+    }
+    if (stripos($password, $email_username) !== false && strlen($email_username) > 3) {
+        $password_errors[] = "Password should not contain your email username";
+    }
+    
+    if (!empty($password_errors)) {
+        $error_messages = array_merge($error_messages, $password_errors);
         $isallok = false;
     }
 
@@ -50,7 +139,8 @@ try {
         'txtlname' => 'Last Name',
         'txtemail' => 'Email',
         'txtmobilenum' => 'Mobile Number',
-        'txtpassword' => 'Password'
+        'txtpassword' => 'Password',
+        'txtconfirmpassword' => 'Confirm Password'
     ];
 
     foreach ($required_fields as $field => $label) {
@@ -58,6 +148,12 @@ try {
             $error_messages[] = "Please enter your " . $label;
             $isallok = false;
         }
+    }
+
+    // Check if password and confirm password match
+    if ($_POST['txtpassword'] !== $_POST['txtconfirmpassword']) {
+        $error_messages[] = "Passwords do not match";
+        $isallok = false;
     }
 
     if ($isallok) {
