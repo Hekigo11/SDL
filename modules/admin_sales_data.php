@@ -233,6 +233,17 @@ echo "\n-->\n";
 </div>
 
 <div class="container-fluid px-4 py-4">
+    <style>
+        .chart-container {
+            position: relative;
+            height: 300px; /* Or adjust as needed */
+            width: 100%;
+        }
+        /* Ensure card bodies hosting charts have enough height */
+        .card-body .chart-container canvas { 
+             min-height: 300px; /* Match chart-container height */
+        }
+    </style>
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
@@ -333,6 +344,34 @@ echo "\n-->\n";
                         <div class="col-auto">
                             <i class="fas fa-birthday-cake fa-2x text-gray-300"></i>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-xl-8 col-lg-7 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Sales Trend</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="salesDataTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-lg-5 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Sales Distribution</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="salesDataDistributionChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -508,6 +547,7 @@ function loadContent(startDate, endDate) {
             
             // Reattach event handlers
             initializeEventHandlers();
+            initializeSalesDataCharts();
             $('#loading-indicator').hide();
         },
         error: function(xhr, status, error) {
@@ -629,8 +669,123 @@ function formatDateForInput(year, month, day) {
     return `${year}-${paddedMonth}-${paddedDay}`;
 }
 
+function initializeSalesDataCharts() {
+    console.log('initializeSalesDataCharts called');
+    const salesData = <?php echo json_encode($sales_data); ?>;
+    console.log('Sales Data for Charts:', salesData);
+
+    if (!salesData || !salesData.daily_sales) {
+        console.error('Chart.js: daily_sales data is missing or invalid.');
+        return;
+    }
+
+    const dailySales = salesData.daily_sales;
+    const dates = Object.keys(dailySales).sort();
+
+    // Destroy existing charts if they exist to prevent duplicates on reload
+    if (window.salesDataTrendChartInstance) {
+        window.salesDataTrendChartInstance.destroy();
+    }
+    if (window.salesDataDistributionChartInstance) {
+        window.salesDataDistributionChartInstance.destroy();
+    }
+
+    // Sales Trend Chart
+    const trendChartCtx = document.getElementById('salesDataTrendChart');
+    if (trendChartCtx) {
+        window.salesDataTrendChartInstance = new Chart(trendChartCtx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: 'Delivery Sales',
+                        data: dates.map(date => dailySales[date]?.delivery || 0),
+                        borderColor: 'rgb(40, 167, 69)',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    },
+                    {
+                        label: 'Standard Catering Sales',
+                        data: dates.map(date => dailySales[date]?.standard_catering || 0),
+                        borderColor: 'rgb(23, 162, 184)',
+                        backgroundColor: 'rgba(23, 162, 184, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    },
+                    {
+                        label: 'Custom Catering Sales',
+                        data: dates.map(date => dailySales[date]?.custom_catering || 0),
+                        borderColor: 'rgb(255, 193, 7)',
+                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { callback: value => '₱' + value.toLocaleString() }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: { label: context => `${context.dataset.label}: ₱${context.raw.toLocaleString()}` }
+                    },
+                    legend: { position: 'top' }
+                }
+            }
+        });
+    } else {
+        console.error('Chart.js: salesDataTrendChart canvas not found.');
+    }
+
+    // Sales Distribution Pie Chart
+    const distributionChartCtx = document.getElementById('salesDataDistributionChart');
+    if (distributionChartCtx) {
+        window.salesDataDistributionChartInstance = new Chart(distributionChartCtx.getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: ['Delivery Sales', 'Standard Catering Sales', 'Custom Catering Sales'],
+                datasets: [{
+                    data: [
+                        salesData.delivery_sales || 0,
+                        salesData.standard_catering_sales || 0,
+                        salesData.custom_catering_sales || 0
+                    ],
+                    backgroundColor: ['rgb(40, 167, 69)', 'rgb(23, 162, 184)', 'rgb(255, 193, 7)']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: context => {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((context.raw / total) * 100).toFixed(1) : 0;
+                                return `${context.label}: ₱${context.raw.toLocaleString()} (${percentage}%)`;
+                            }
+                        }
+                    },
+                    legend: { position: 'top' }
+                }
+            }
+        });
+    } else {
+        console.error('Chart.js: salesDataDistributionChart canvas not found.');
+    }
+}
+
 $(document).ready(function() {
     // Initialize event handlers when page loads
     initializeEventHandlers();
+    initializeSalesDataCharts();
 });
 </script>
