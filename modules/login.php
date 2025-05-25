@@ -7,13 +7,20 @@ require_once __DIR__ . '/../config.php';
             <!-- Keep the original ID in the main login form -->
             <form id="loginForm" class="p-4" novalidate>
                 <div class="form-group">
-                    <label for="txtemail">Email</label>
-                    <input type="email" class="form-control mb-2" id="txtemail" name="txtemail" placeholder="Enter Email" required>
+                    <label for="txtemail">Email or Mobile Number</label>
+                    <input type="email" class="form-control mb-2" id="txtemail" name="txtemail" placeholder="Enter Email/Mobile No." required>
                     <div class="invalid-feedback"></div>
                 </div>
                 <div class="form-group">
                     <label for="txtpassword">Password</label>
-                    <input type="password" class="form-control mb-2" id="txtpassword" name="txtpassword" placeholder="Enter Password" required>
+                    <div class="input-group mb-2">
+                        <input type="password" class="form-control" id="txtpassword" name="txtpassword" placeholder="Enter Password" required>
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="togglePassword" style="cursor:pointer;">
+                                <i class="fa fa-eye" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </div>
                     <div class="invalid-feedback"></div>
                 </div>
                 <div class="text-center my-3">
@@ -58,6 +65,22 @@ function validateField(field) {
 }
 
 $(document).ready(function(){
+    // Add FontAwesome for eye icon
+    $("head").append('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">');
+
+    // Toggle password visibility
+    $('#togglePassword').on('click', function() {
+        const input = $('#txtpassword');
+        const icon = $(this).find('i');
+        if (input.attr('type') === 'password') {
+            input.attr('type', 'text');
+            icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+            input.attr('type', 'password');
+            icon.removeClass('fa-eye-slash').addClass('fa-eye');
+        }
+    });
+
     // Validate on input
     $('#loginForm input').on('input', function() {
         validateField(this);

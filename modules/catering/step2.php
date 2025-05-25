@@ -186,6 +186,31 @@ while ($row = mysqli_fetch_assoc($result)) {
             max-height: 420px;
             overflow-y: auto;
         }
+        
+        .disabled-card {
+            opacity: 0.6;
+            background-color: #f8f9fa !important;
+        }
+        
+        .nav-link.disabled {
+            pointer-events: none;
+            color: #6c757d !important;
+        }
+        
+        .category-error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 0.25rem;
+            display: none;
+        }
+        
+        .category-error.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -246,17 +271,26 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 foreach ($menu_items as $category => $items): 
                                     $required = isset($package_requirements[$category]) ? $package_requirements[$category] : 0;
                                     $categoryId = strtolower(str_replace(' ', '-', $category));
+                                    $isIncluded = isset($package_requirements[$category]);
+                                    $isCustomPackage = $_SESSION['catering_step1']['menu_bundle'] === 'Custom Package';
                                 ?>
-                                    <a class="nav-link <?php echo $first ? 'active' : ''; ?>" 
+                                    <a class="nav-link <?php echo $first ? 'active' : ''; ?> <?php echo (!$isIncluded && !$isCustomPackage) ? 'disabled' : ''; ?>" 
                                        id="<?php echo $categoryId; ?>-tab" 
                                        data-toggle="pill" 
                                        href="#<?php echo $categoryId; ?>" 
-                                       role="tab">
+                                       role="tab"
+                                       <?php if (!$isIncluded && !$isCustomPackage): ?>
+                                       onclick="return false;" 
+                                       style="opacity: 0.5; cursor: not-allowed;"
+                                       title="This category is not included in your selected package"
+                                       <?php endif; ?>>
                                         <?php echo $category; ?>
                                         <?php if($required > 0): ?>
                                             <span class="required-badge" title="Required selections">
                                                 <span class="selected-count">0</span>/<?php echo $required; ?>
                                             </span>
+                                        <?php elseif (!$isIncluded && !$isCustomPackage): ?>
+                                            <span class="badge badge-secondary ml-1" style="font-size: 0.7rem;">Not Included</span>
                                         <?php endif; ?>
                                     </a>
                                 <?php 
@@ -270,6 +304,8 @@ while ($row = mysqli_fetch_assoc($result)) {
                                 $first = true;
                                 foreach ($menu_items as $category => $items): 
                                     $categoryId = strtolower(str_replace(' ', '-', $category));
+                                    $isIncluded = isset($package_requirements[$category]);
+                                    $isCustomPackage = $_SESSION['catering_step1']['menu_bundle'] === 'Custom Package';
                                 ?>
                                     <div class="tab-pane fade <?php echo $first ? 'show active' : ''; ?>" 
                                          id="<?php echo $categoryId; ?>" 
@@ -281,13 +317,25 @@ while ($row = mysqli_fetch_assoc($result)) {
                                                     <small class="text-muted">
                                                         (Select <?php echo $package_requirements[$category]; ?> items)
                                                     </small>
+                                                <?php elseif (!$isIncluded && !$isCustomPackage): ?>
+                                                    <small class="text-danger">
+                                                        (Not included in your package)
+                                                    </small>
                                                 <?php endif; ?>
                                             </h3>
+                                            
+                                            <?php if (!$isIncluded && !$isCustomPackage): ?>
+                                                <div class="alert alert-warning">
+                                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                                    This category is not included in your selected package. Please choose a different package or upgrade to Custom Package to select from this category.
+                                                </div>
+                                            <?php endif; ?>
+                                            
                                             <div id="<?php echo $categoryId; ?>-error" class="category-error"></div>
                                             <div class="row menu-items-row">
                                                 <?php foreach ($items as $item): ?>
                                                     <div class="col-md-4 mb-4 menu-item-card" data-halal="<?php echo $item['is_halal']; ?>" data-name="<?php echo htmlspecialchars(strtolower($item['prod_name'])); ?>">
-                                                        <div class="card h-100 p-2 d-flex flex-row align-items-center" style="min-height:70px;">
+                                                        <div class="card h-100 p-2 d-flex flex-row align-items-center <?php echo (!$isIncluded && !$isCustomPackage) ? 'disabled-card' : ''; ?>" style="min-height:70px;">
                                                             <div class="position-relative mr-3" style="flex-shrink:0;">
                                                                 <img src="<?php echo BASE_URL; ?>/images/Products/<?php echo $item['prod_img']; ?>"
                                                                      class="rounded" style="width:60px;height:60px;object-fit:cover;" 
@@ -321,9 +369,14 @@ while ($row = mysqli_fetch_assoc($result)) {
                                                                            value="<?php echo $item['product_id']; ?>"
                                                                            data-price="<?php echo $item['prod_price']; ?>"
                                                                            data-category="<?php echo $category; ?>"
-                                                                           data-required="<?php echo $required; ?>">
-                                                                    <label class="custom-control-label" for="item_<?php echo $item['product_id']; ?>">
-                                                                        Select this item
+                                                                           data-required="<?php echo $required; ?>"
+                                                                           <?php echo (!$isIncluded && !$isCustomPackage) ? 'disabled' : ''; ?>>
+                                                                    <label class="custom-control-label <?php echo (!$isIncluded && !$isCustomPackage) ? 'text-muted' : ''; ?>" for="item_<?php echo $item['product_id']; ?>">
+                                                                        <?php if (!$isIncluded && !$isCustomPackage): ?>
+                                                                            Not available in this package
+                                                                        <?php else: ?>
+                                                                            Select this item
+                                                                        <?php endif; ?>
                                                                     </label>
                                                                 </div>
                                                             </div>
@@ -454,6 +507,11 @@ while ($row = mysqli_fetch_assoc($result)) {
             
             // Menu item selection with requirements check
             $('.menu-item-select').change(function() {
+                // Prevent selection if the checkbox is disabled
+                if ($(this).is(':disabled')) {
+                    return false;
+                }
+                
                 const category = $(this).data('category');
                 const required = $(this).data('required') || 0;
                 
